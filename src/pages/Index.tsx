@@ -197,14 +197,20 @@ const Index = () => {
   const currentProfile = profiles[currentProfileIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 pb-20">
-      <div className="container mx-auto p-4 max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 pb-20 relative overflow-hidden">
+      {/* Electric background effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      <div className="container mx-auto p-4 max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-6 pt-4">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            IterDating
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+            ⚡ IterDating ⚡
           </h1>
-          <p className="text-muted-foreground text-sm">Campus connections made easy</p>
+          <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+            Campus connections made electric ✨
+          </p>
         </div>
 
         {/* Content based on active tab */}
@@ -368,12 +374,19 @@ const Index = () => {
 
         {activeTab === "profile" && (
           <div className="space-y-4">
-            <Card className="text-center p-8">
+            <Card className="text-center p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-primary/30 shadow-[var(--shadow-electric)]">
               <CardContent>
-                <User className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Profile Setup</h3>
-                <p className="text-muted-foreground mb-4">Complete your profile to start matching</p>
-                <Button className="w-full">Setup Profile</Button>
+                <User className="w-12 h-12 mx-auto mb-4 text-primary animate-pulse" />
+                <h3 className="text-lg font-semibold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                  Profile Settings
+                </h3>
+                <p className="text-muted-foreground mb-4">Manage your dating profile ⚡</p>
+                <Button 
+                  className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
+                  onClick={() => navigate("/profile")}
+                >
+                  Edit Profile
+                </Button>
               </CardContent>
             </Card>
           </div>

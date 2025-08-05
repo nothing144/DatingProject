@@ -79,7 +79,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const displayImage = profile.avatar_url || profile.photos?.[0] || "/placeholder.svg";
 
   return (
-    <Card className="w-full max-w-sm mx-auto bg-card/90 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+    <Card className="w-full max-w-sm mx-auto bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] hover:shadow-[var(--shadow-lightning)] transition-all duration-300 hover:scale-105">
       <CardContent className="p-0">
         <div className="relative">
           <img
@@ -90,7 +90,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
               e.currentTarget.src = "/placeholder.svg";
             }}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-primary/10 to-transparent p-4">
             <h3 className="text-white text-xl font-bold">
               {profile.name}
               {profile.age && (
@@ -134,7 +134,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full w-12 h-12 border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
+              className="rounded-full w-12 h-12 border-destructive/50 hover:bg-destructive hover:text-destructive-foreground hover:shadow-[var(--shadow-neon)] transition-all duration-300"
               onClick={onPass}
               disabled={loading}
             >
@@ -144,7 +144,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full w-12 h-12 border-primary/30 hover:bg-primary hover:text-primary-foreground"
+              className="rounded-full w-12 h-12 border-secondary/50 hover:bg-secondary hover:text-secondary-foreground hover:shadow-[0_0_20px_hsl(var(--secondary))] transition-all duration-300"
               onClick={handleMessage}
               disabled={loading}
             >
@@ -154,7 +154,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full w-12 h-12 border-red-400/30 hover:bg-red-500 hover:text-white"
+              className="rounded-full w-12 h-12 border-primary/50 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--primary))] transition-all duration-300"
               onClick={handleLike}
               disabled={loading}
             >

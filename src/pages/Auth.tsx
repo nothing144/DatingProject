@@ -17,13 +17,41 @@ const Auth = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate("/");
+      if (session && event === 'SIGNED_IN') {
+        // Check if user has a profile
+        setTimeout(() => {
+          checkProfileAndRedirect(session.user.id);
+        }, 0);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkProfileAndRedirect = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, name")
+        .eq("id", userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error checking profile:", error);
+        navigate("/profile");
+        return;
+      }
+
+      if (!data || !data.name) {
+        navigate("/profile");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error checking profile:", error);
+      navigate("/profile");
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,13 +103,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20 p-4">
-      <Card className="w-full max-w-md bg-card/80 backdrop-blur-sm border-primary/20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20 p-4 relative overflow-hidden">
+      {/* Electric background effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 animate-pulse"></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      <Card className="w-full max-w-md bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] relative z-10">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            IterDating
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+            ⚡ IterDating ⚡
           </CardTitle>
-          <CardDescription>Find your perfect match on campus</CardDescription>
+          <CardDescription className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+            Find your electric connection on campus ✨
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
