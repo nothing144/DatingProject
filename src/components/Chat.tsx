@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,11 +33,12 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   const [loading, setLoading] = useState(true);
   const [messageCount, setMessageCount] = useState(0);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [sending, setSending] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Message limits for free plan optimization
-  const MESSAGE_LIMIT = 10; // Limit messages per conversation
-  const DAILY_MESSAGE_LIMIT = 50; // Daily limit per user
+  const MESSAGE_LIMIT = 10;
+  const DAILY_MESSAGE_LIMIT = 50;
+
   useEffect(() => {
     fetchMessages();
     checkDailyMessageLimit();
@@ -60,14 +61,15 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       setHasReachedLimit(true);
     }
   };
+
   const fetchMessages = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true });
-      .limit(MESSAGE_LIMIT);
+      .order("created_at", { ascending: true }) // ✅ FIXED: removed incorrect semicolon
+      .limit(MESSAGE_LIMIT);                    // ✅ chained properly
 
     if (error) {
       console.error("Error fetching messages:", error);
@@ -87,7 +89,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     setLoading(false);
   };
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       if (scrollAreaRef.current) {
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
@@ -96,12 +98,11 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         }
       }
     }, 100);
-  };
+  }, []);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || hasReachedLimit) return;
+    if (!newMessage.trim() || hasReachedLimit || sending) return;
 
-    // Check if conversation has reached message limit
     if (messageCount >= MESSAGE_LIMIT) {
       toast({
         title: "Message Limit Reached",
@@ -111,6 +112,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       return;
     }
 
+    setSending(true);
     const { error } = await supabase
       .from("messages")
       .insert({
@@ -129,20 +131,16 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     } else {
       setNewMessage("");
       setMessageCount(prev => prev + 1);
-      
-      // Simple refresh without real-time subscriptions
       setTimeout(() => {
         fetchMessages();
       }, 500);
-      
-      // Update conversation's last_message_at
+
       await supabase
         .from("conversations")
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", conversationId);
 
-      // Reduced notifications to save on function calls
-      if (messageCount < 3) { // Only notify for first few messages
+      if (messageCount < 3) {
         await supabase.rpc('create_notification', {
           target_user_id: otherUser.id,
           notification_type: 'message',
@@ -151,6 +149,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         });
       }
     }
+    setSending(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -162,7 +161,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
-      {/* Warning Notice */}
+      {/* Notice for limited messaging */}
       <Alert className="mb-4 border-destructive bg-destructive/10">
         <AlertTriangle className="h-4 w-4 text-destructive" />
         <AlertDescription className="text-destructive">
@@ -170,7 +169,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         </AlertDescription>
       </Alert>
 
-      {/* Message Limit Warning */}
+      {/* Warning when near limit */}
       {messageCount >= MESSAGE_LIMIT - 3 && (
         <Alert className="mb-4 border-yellow-500 bg-yellow-50">
           <AlertTriangle className="h-4 w-4 text-yellow-600" />
@@ -179,6 +178,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
           </AlertDescription>
         </Alert>
       )}
+
       {/* Header */}
       <Card className="mb-4">
         <CardHeader className="pb-3">
@@ -263,7 +263,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
             <Button 
               onClick={sendMessage} 
               size="icon" 
-              disabled={!newMessage.trim() || hasReachedLimit}
+              disabled={!newMessage.trim() || hasReachedLimit || sending}
             >
               <Send className="h-4 w-4" />
             </Button>
