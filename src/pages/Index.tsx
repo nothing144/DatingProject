@@ -30,6 +30,23 @@ const Index = () => {
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const navigate = useNavigate();
 
+  // Listen for message events from ProfileCard
+  useEffect(() => {
+    const handleSwitchToMessages = (event: any) => {
+      setActiveTab("messages");
+      // Optionally auto-select the conversation
+      setTimeout(() => {
+        const conversation = conversations.find(c => c.id === event.detail.conversationId);
+        if (conversation) {
+          setSelectedConversation(conversation);
+        }
+      }, 100);
+    };
+
+    window.addEventListener('switchToMessages', handleSwitchToMessages);
+    return () => window.removeEventListener('switchToMessages', handleSwitchToMessages);
+  }, [conversations]);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);

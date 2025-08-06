@@ -165,6 +165,53 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteProfile = async () => {
+    if (!user) return;
+    
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your profile? This action cannot be undone and will remove all your data including messages, date requests, and announcements."
+    );
+    
+    if (!confirmDelete) return;
+    
+    setSaving(true);
+    try {
+      // Delete profile (this will cascade delete related data due to foreign key constraints)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      // Delete the user account
+      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
+      
+      if (authError) {
+        console.warn("Could not delete auth user:", authError);
+        // Continue anyway as profile is deleted
+      }
+
+      toast({
+        title: "Profile Deleted",
+        description: "Your profile and all associated data have been deleted."
+      });
+      
+      // Sign out and redirect
+      await supabase.auth.signOut();
+      navigate("/auth");
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20">
@@ -336,9 +383,17 @@ const Profile = () => {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
+                onClick={handleDeleteProfile}
+                className="flex-1"
+                disabled={saving}
+              >
+                Delete Profile
+              </Button>
+              <Button
                 onClick={handleSave}
                 disabled={saving || !profile.name}
-                className="flex-1 bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
+                className="flex-2 bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
               >
                 {saving ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

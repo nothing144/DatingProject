@@ -76,6 +76,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   };
 
   const handleMessage = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase.rpc('get_or_create_conversation', {
         user1_id: currentUserId,
@@ -84,14 +85,24 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
 
       if (error) throw error;
 
-      // Navigate to messages with conversation ID
-      window.location.href = `/messages?conversation=${data}`;
+      toast({
+        title: "Conversation Ready! 💬",
+        description: `Go to Messages tab to chat with ${profile.name}`,
+      });
+      
+      // Trigger a custom event to switch to messages tab
+      window.dispatchEvent(new CustomEvent('switchToMessages', { 
+        detail: { conversationId: data } 
+      }));
+      
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
