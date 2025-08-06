@@ -31,10 +31,38 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const handleDateRequest = async () => {
     setLoading(true);
     try {
-      toast({
-        title: "Feature Coming Soon",
-        description: "Date requests will be available once the database is set up"
-      });
+      const { error } = await supabase
+        .from("date_requests")
+        .insert({
+          sender_id: currentUserId,
+          receiver_id: profile.id
+        });
+
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast({
+            title: "Already Sent",
+            description: "You've already sent a date request to this person",
+            variant: "destructive"
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Date Request Sent! 💕",
+          description: `Your date request has been sent to ${profile.name}`
+        });
+        
+        // Create notification for the receiver
+        await supabase.rpc('create_notification', {
+          target_user_id: profile.id,
+          notification_type: 'date_request',
+          notification_title: 'New Date Request',
+          notification_message: `Someone sent you a date request!`
+        });
+      }
+      
       onLike();
     } catch (error: any) {
       toast({

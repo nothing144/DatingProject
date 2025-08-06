@@ -126,16 +126,42 @@ const Index = () => {
   };
 
   const fetchDateRequests = async () => {
-    // Temporarily disable date requests until table is created
-    setDateRequests([]);
+    const { data, error } = await supabase
+      .from("date_requests")
+      .select(`
+        *,
+        sender:profiles!date_requests_sender_id_fkey(name, avatar_url),
+        receiver:profiles!date_requests_receiver_id_fkey(name, avatar_url)
+      `)
+      .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching date requests:", error);
+    } else {
+      setDateRequests(data || []);
+    }
   };
 
   const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
-    // Temporarily disable until table is created
-    toast({
-      title: "Feature Coming Soon",
-      description: "Date requests will be available once the database is set up"
-    });
+    const { error } = await supabase
+      .from("date_requests")
+      .update({ status })
+      .eq("id", requestId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      fetchDateRequests();
+      toast({
+        title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
+        description: `You have ${status} the date request`
+      });
+    }
   };
 
   const handleLike = async () => {
