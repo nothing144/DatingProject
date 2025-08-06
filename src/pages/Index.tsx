@@ -260,7 +260,8 @@ const Index = () => {
   const currentProfile = profiles[currentProfileIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 pb-20 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 pb-36 relative overflow-hidden">
+
       {/* Electric background effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
