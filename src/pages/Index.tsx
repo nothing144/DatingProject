@@ -260,13 +260,15 @@ const Index = () => {
   const currentProfile = profiles[currentProfileIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 pb-36 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 relative overflow-hidden">
 
       {/* Electric background effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-    <div className="container mx-auto p-4 max-w-md relative z-10 pb-[70px]">
+
+      {/* Main content container with padding to prevent overlap with fixed footer */}
+      <div className="container mx-auto p-4 max-w-md relative z-10" style={{ paddingBottom: '100px' }}>
 
         {/* Header */}
         <div className="text-center mb-6 pt-4">
@@ -278,7 +280,7 @@ const Index = () => {
             <NotificationBell userId={user.id} />
           </div>
           <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-             College ka pyaar, semester jaisa — short & intense
+            College ka pyaar, semester jaisa — short & intense
           </p>
         </div>
 
@@ -397,7 +399,7 @@ const Index = () => {
           )
         )}
 
-        {activeTab === "announcements" && (
+        {activeTab === "campus" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Campus Life</h2>
@@ -544,41 +546,41 @@ const Index = () => {
                           />
                           <div className="flex-1">
                             <h3 
-  className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
-  onClick={() => {
-     navigate(`/profile/${otherUser?.id}`);
-  }}
->
-  {otherUser?.name}
-</h3>              
+                              className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
+                              onClick={() => {
+                                navigate(`/profile/${otherUser?.id}`);
+                              }}
+                            >
+                              {otherUser?.name}
+                            </h3>
                             <Button
-  size="icon"
-  variant="ghost"
-  className="mt-2"
-  onClick={async () => {
-    const { data, error } = await supabase
-      .rpc("get_or_create_conversation", {
-        user1: user.id,
-        user2: otherUser.id
-      });
+                              size="icon"
+                              variant="ghost"
+                              className="mt-2"
+                              onClick={async () => {
+                                const { data, error } = await supabase
+                                  .rpc("get_or_create_conversation", {
+                                    user1: user.id,
+                                    user2: otherUser.id
+                                  });
 
-    if (error) {
-      toast({
-        title: "Error creating conversation",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
+                                if (error) {
+                                  toast({
+                                    title: "Error creating conversation",
+                                    description: error.message,
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
 
-    const event = new CustomEvent("switchToMessages", {
-      detail: { conversationId: data.id },
-    });
-    window.dispatchEvent(event);
-  }}
->
-  <MessageCircle className="w-4 h-4" />
-</Button>
+                                const event = new CustomEvent("switchToMessages", {
+                                  detail: { conversationId: data.id },
+                                });
+                                window.dispatchEvent(event);
+                              }}
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
 
 
                             <p className="text-sm text-muted-foreground">
@@ -624,7 +626,7 @@ const Index = () => {
                 <CardContent>
                   <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="text-lg font-semibold mb-2">No date requests</h3>
-                  <p className="text-muted-foreground">Send date requests by browsing profiles!</p>
+                  <p className="text-muted-foreground">Send date requests by Browse profiles!</p>
                 </CardContent>
               </Card>
             )}
@@ -652,6 +654,7 @@ const Index = () => {
         )}
       </div>
 
+      {/* Navigation component */}
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
