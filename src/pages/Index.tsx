@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle } from "lucide-react";
+import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Heart } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -81,7 +81,7 @@ const Index = () => {
       .from("announcements")
       .select(`
         *,
-        profiles!announcements_author_id_fkey(name, avatar_url)
+        profiles!fk_author_profile(name, avatar_url)
       `)
       .order("created_at", { ascending: false })
       .limit(10);
@@ -126,42 +126,16 @@ const Index = () => {
   };
 
   const fetchDateRequests = async () => {
-    const { data, error } = await supabase
-      .from("date_requests")
-      .select(`
-        *,
-        sender:profiles!date_requests_sender_id_fkey(name, avatar_url),
-        receiver:profiles!date_requests_receiver_id_fkey(name, avatar_url)
-      `)
-      .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching date requests:", error);
-    } else {
-      setDateRequests(data || []);
-    }
+    // Temporarily disable date requests until table is created
+    setDateRequests([]);
   };
 
   const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
-    const { error } = await supabase
-      .from("date_requests")
-      .update({ status })
-      .eq("id", requestId);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      fetchDateRequests();
-      toast({
-        title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
-        description: status === 'accepted' ? "You can now exchange contact details!" : "Request has been rejected"
-      });
-    }
+    // Temporarily disable until table is created
+    toast({
+      title: "Feature Coming Soon",
+      description: "Date requests will be available once the database is set up"
+    });
   };
 
   const handleLike = async () => {

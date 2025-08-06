@@ -31,27 +31,9 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const handleDateRequest = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("date_requests")
-        .insert({
-          sender_id: currentUserId,
-          receiver_id: profile.id,
-          status: 'pending'
-        });
-
-      if (error) throw error;
-
-      // Create notification for the user
-      await supabase.rpc('create_notification', {
-        target_user_id: profile.id,
-        notification_type: 'date_request',
-        notification_title: 'New Date Request!',
-        notification_message: `Someone sent you a date request!`
-      });
-
       toast({
-        title: "Date Request Sent!",
-        description: `Your date request has been sent to ${profile.name}`,
+        title: "Feature Coming Soon",
+        description: "Date requests will be available once the database is set up"
       });
       onLike();
     } catch (error: any) {
