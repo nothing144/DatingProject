@@ -3,12 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import ProfileCard from "@/components/ProfileCard";
 import Navigation from "@/components/Navigation";
+import NotificationBell from "@/components/NotificationBell";
+import Chat from "@/components/Chat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Heart, Megaphone, User } from "lucide-react";
+import { MessageCircle, Heart, Megaphone, User, RotateCcw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -23,6 +25,7 @@ const Index = () => {
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const [newConfession, setNewConfession] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -119,7 +122,33 @@ const Index = () => {
     }
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
+    const likedProfile = profiles[currentProfileIndex];
+    if (!likedProfile) return;
+
+    // Create or get conversation
+    const { data: conversationId, error } = await supabase.rpc('get_or_create_conversation', {
+      user1_id: user.id,
+      user2_id: likedProfile.id
+    });
+
+    if (error) {
+      console.error("Error creating conversation:", error);
+    } else {
+      // Create notification for the liked user
+      await supabase.rpc('create_notification', {
+        target_user_id: likedProfile.id,
+        notification_type: 'like',
+        notification_title: 'Someone liked you!',
+        notification_message: `You have a new match! Start chatting now.`
+      });
+
+      toast({
+        title: "It's a match! 💫",
+        description: `You can now chat with ${likedProfile.name}`,
+      });
+    }
+
     setCurrentProfileIndex(prev => prev + 1);
   };
 
@@ -205,9 +234,13 @@ const Index = () => {
       <div className="container mx-auto p-4 max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-6 pt-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
-            ⚡ IterDating ⚡
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-8"></div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+              ⚡ IterDating ⚡
+            </h1>
+            <NotificationBell userId={user.id} />
+          </div>
           <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             Campus connections made electric ✨
           </p>
@@ -216,6 +249,22 @@ const Index = () => {
         {/* Content based on active tab */}
         {activeTab === "discover" && (
           <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Discover</h2>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  fetchProfiles();
+                  setCurrentProfileIndex(0);
+                  toast({ title: "Profiles refreshed!" });
+                }}
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
             {currentProfile ? (
               <ProfileCard
                 profile={currentProfile}
@@ -236,48 +285,93 @@ const Index = () => {
         )}
 
         {activeTab === "messages" && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Messages</h2>
-            {conversations.length > 0 ? (
-              conversations.map((conversation) => {
-                const otherUser = conversation.participant_1 === user?.id 
-                  ? conversation.participant_2_profile 
-                  : conversation.participant_1_profile;
-                
-                return (
-                  <Card key={conversation.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={otherUser?.avatar_url || "/placeholder.svg"}
-                          alt={otherUser?.name}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{otherUser?.name}</h3>
-                          <p className="text-sm text-muted-foreground">Tap to chat</p>
+          selectedConversation ? (
+            <Chat
+              conversationId={selectedConversation.id}
+              otherUser={selectedConversation.participant_1 === user?.id 
+                ? { id: selectedConversation.participant_2, ...selectedConversation.participant_2_profile }
+                : { id: selectedConversation.participant_1, ...selectedConversation.participant_1_profile }
+              }
+              currentUserId={user.id}
+              onBack={() => setSelectedConversation(null)}
+            />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Messages</h2>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    fetchConversations();
+                    toast({ title: "Messages refreshed!" });
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Refresh
+                </Button>
+              </div>
+              {conversations.length > 0 ? (
+                conversations.map((conversation) => {
+                  const otherUser = conversation.participant_1 === user?.id 
+                    ? conversation.participant_2_profile 
+                    : conversation.participant_1_profile;
+                  
+                  return (
+                    <Card 
+                      key={conversation.id} 
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => setSelectedConversation(conversation)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={otherUser?.avatar_url || "/placeholder.svg"}
+                            alt={otherUser?.name}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{otherUser?.name}</h3>
+                            <p className="text-sm text-muted-foreground">Tap to chat</p>
+                          </div>
+                          <MessageCircle className="w-5 h-5 text-muted-foreground" />
                         </div>
-                        <MessageCircle className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            ) : (
-              <Card className="text-center p-8">
-                <CardContent>
-                  <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
-                  <p className="text-muted-foreground">Start by liking someone's profile!</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              ) : (
+                <Card className="text-center p-8">
+                  <CardContent>
+                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
+                    <p className="text-muted-foreground">Start by liking someone's profile!</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )
         )}
 
         {activeTab === "announcements" && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Campus Life</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Campus Life</h2>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  fetchAnnouncements();
+                  fetchConfessions();
+                  toast({ title: "Feed refreshed!" });
+                }}
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
             
             {/* Post new announcement */}
             <Card>
