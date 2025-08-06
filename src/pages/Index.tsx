@@ -548,7 +548,36 @@ const Index = () => {
   }}
 >
   {otherUser?.name}
-</h3>
+</h3>              
+                            <Button
+  size="icon"
+  variant="ghost"
+  className="mt-2"
+  onClick={async () => {
+    const { data, error } = await supabase
+      .rpc("get_or_create_conversation", {
+        user1: user.id,
+        user2: otherUser.id
+      });
+
+    if (error) {
+      toast({
+        title: "Error creating conversation",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const event = new CustomEvent("switchToMessages", {
+      detail: { conversationId: data.id },
+    });
+    window.dispatchEvent(event);
+  }}
+>
+  <MessageCircle className="w-4 h-4" />
+</Button>
+
 
                             <p className="text-sm text-muted-foreground">
                               {isReceived ? "Sent you a date request" : "You sent a date request"}
