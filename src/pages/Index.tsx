@@ -271,7 +271,7 @@ const Index = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="w-8"></div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
-              ⚡ IterDating ⚡
+              ⚡ HeartBeat@ITER ⚡
             </h1>
             <NotificationBell userId={user.id} />
           </div>
