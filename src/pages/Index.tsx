@@ -148,8 +148,8 @@ const Index = () => {
       .from("date_requests")
       .select(`
         *,
-        sender:profiles!date_requests_sender_id_fkey(name, avatar_url),
-        receiver:profiles!date_requests_receiver_id_fkey(name, avatar_url)
+        sender:profiles!date_requests_sender_id_fkey(id, name, avatar_url),
+        receiver:profiles!date_requests_receiver_id_fkey(id, name, avatar_url)
       `)
       .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
       .order("created_at", { ascending: false });
