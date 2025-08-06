@@ -544,7 +544,7 @@ const Index = () => {
                             <h3 
   className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
   onClick={() => {
-    if (isReceived) navigate(`/profile/${otherUser?.id}`);
+     navigate(`/profile/${otherUser?.id}`);
   }}
 >
   {otherUser?.name}
