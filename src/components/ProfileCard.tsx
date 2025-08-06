@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, X, MessageCircle, MapPin } from "lucide-react";
+import { Heart, X, MessageCircle, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -182,14 +182,14 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             </Button>
 
             <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full w-12 h-12 border-primary/50 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--primary))] transition-all duration-300"
-              onClick={handleDateRequest}
-              disabled={loading}
-            >
-              <Calendar className="w-5 h-5" />
-            </Button>
+  variant="outline"
+  size="icon"
+  className="rounded-full w-12 h-12 border-primary/50 text-pink-500 hover:bg-pink-500 hover:text-white hover:shadow-[0_0_20px_hsl(var(--primary))] transition-all duration-300 active:scale-95"
+  onClick={handleDateRequest}
+  disabled={loading}
+>
+  <Heart className="w-5 h-5 fill-current" />
+</Button>
           </div>
         </div>
       </CardContent>
