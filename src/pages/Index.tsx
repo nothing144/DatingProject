@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Heart, Megaphone, User, RotateCcw } from "lucide-react";
+import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -24,6 +25,7 @@ const Index = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const [newConfession, setNewConfession] = useState("");
+  const [dateRequests, setDateRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const navigate = useNavigate();
@@ -56,6 +58,7 @@ const Index = () => {
       fetchAnnouncements();
       fetchConfessions();
       fetchConversations();
+      fetchDateRequests();
     }
   }, [user]);
 
@@ -122,33 +125,46 @@ const Index = () => {
     }
   };
 
-  const handleLike = async () => {
-    const likedProfile = profiles[currentProfileIndex];
-    if (!likedProfile) return;
-
-    // Create or get conversation
-    const { data: conversationId, error } = await supabase.rpc('get_or_create_conversation', {
-      user1_id: user.id,
-      user2_id: likedProfile.id
-    });
+  const fetchDateRequests = async () => {
+    const { data, error } = await supabase
+      .from("date_requests")
+      .select(`
+        *,
+        sender:profiles!date_requests_sender_id_fkey(name, avatar_url),
+        receiver:profiles!date_requests_receiver_id_fkey(name, avatar_url)
+      `)
+      .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error creating conversation:", error);
+      console.error("Error fetching date requests:", error);
     } else {
-      // Create notification for the liked user
-      await supabase.rpc('create_notification', {
-        target_user_id: likedProfile.id,
-        notification_type: 'like',
-        notification_title: 'Someone liked you!',
-        notification_message: `You have a new match! Start chatting now.`
-      });
+      setDateRequests(data || []);
+    }
+  };
 
+  const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
+    const { error } = await supabase
+      .from("date_requests")
+      .update({ status })
+      .eq("id", requestId);
+
+    if (error) {
       toast({
-        title: "It's a match! 💫",
-        description: `You can now chat with ${likedProfile.name}`,
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      fetchDateRequests();
+      toast({
+        title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
+        description: status === 'accepted' ? "You can now exchange contact details!" : "Request has been rejected"
       });
     }
+  };
 
+  const handleLike = async () => {
     setCurrentProfileIndex(prev => prev + 1);
   };
 
@@ -297,6 +313,13 @@ const Index = () => {
             />
           ) : (
             <div className="space-y-4">
+              <Alert className="border-destructive bg-destructive/10">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-destructive">
+                  <strong>Limited Messaging:</strong> Exchange contact details quickly and move to other platforms for better communication.
+                </AlertDescription>
+              </Alert>
+              
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Messages</h2>
                 <Button 
@@ -463,6 +486,91 @@ const Index = () => {
                 </Card>
               ))}
             </div>
+          </div>
+        )}
+
+        {activeTab === "date-requests" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Date Requests</h2>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  fetchDateRequests();
+                  toast({ title: "Date requests refreshed!" });
+                }}
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
+            
+            {dateRequests.length > 0 ? (
+              <div className="space-y-3">
+                {dateRequests.map((request) => {
+                  const isReceived = request.receiver_id === user?.id;
+                  const otherUser = isReceived ? request.sender : request.receiver;
+                  
+                  return (
+                    <Card key={request.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={otherUser?.avatar_url || "/placeholder.svg"}
+                            alt={otherUser?.name}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{otherUser?.name}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {isReceived ? "Sent you a date request" : "You sent a date request"}
+                            </p>
+                            <Badge 
+                              variant={
+                                request.status === 'accepted' ? 'default' : 
+                                request.status === 'rejected' ? 'destructive' : 
+                                'secondary'
+                              }
+                              className="mt-1"
+                            >
+                              {request.status}
+                            </Badge>
+                          </div>
+                          {isReceived && request.status === 'pending' && (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleDateRequestResponse(request.id, 'accepted')}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                Accept
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDateRequestResponse(request.id, 'rejected')}
+                              >
+                                Reject
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <Card className="text-center p-8">
+                <CardContent>
+                  <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No date requests</h3>
+                  <p className="text-muted-foreground">Send date requests by browsing profiles!</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 

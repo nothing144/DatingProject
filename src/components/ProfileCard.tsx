@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, X, MessageCircle, MapPin } from "lucide-react";
+import { Calendar, X, MessageCircle, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -28,21 +28,30 @@ interface ProfileCardProps {
 const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProps) => {
   const [loading, setLoading] = useState(false);
 
-  const handleLike = async () => {
+  const handleDateRequest = async () => {
     setLoading(true);
     try {
       const { error } = await supabase
-        .from("favorites")
+        .from("date_requests")
         .insert({
-          user_id: currentUserId,
-          profile_id: profile.id
+          sender_id: currentUserId,
+          receiver_id: profile.id,
+          status: 'pending'
         });
 
       if (error) throw error;
 
+      // Create notification for the user
+      await supabase.rpc('create_notification', {
+        target_user_id: profile.id,
+        notification_type: 'date_request',
+        notification_title: 'New Date Request!',
+        notification_message: `Someone sent you a date request!`
+      });
+
       toast({
-        title: "Liked!",
-        description: `You liked ${profile.name}`,
+        title: "Date Request Sent!",
+        description: `Your date request has been sent to ${profile.name}`,
       });
       onLike();
     } catch (error: any) {
@@ -155,10 +164,10 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
               variant="outline"
               size="icon"
               className="rounded-full w-12 h-12 border-primary/50 hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--primary))] transition-all duration-300"
-              onClick={handleLike}
+              onClick={handleDateRequest}
               disabled={loading}
             >
-              <Heart className="w-5 h-5" />
+              <Calendar className="w-5 h-5" />
             </Button>
           </div>
         </div>

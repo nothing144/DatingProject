@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, User, Megaphone, LogOut } from "lucide-react";
+import { Heart, MessageCircle, User, Megaphone, LogOut, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
@@ -28,6 +28,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
 
   const navItems = [
     { id: "discover", icon: Heart, label: "Discover" },
+    { id: "date-requests", icon: Calendar, label: "Dates" },
     { id: "messages", icon: MessageCircle, label: "Messages" },
     { id: "announcements", icon: Megaphone, label: "Campus" },
     { id: "profile", icon: User, label: "Profile" },

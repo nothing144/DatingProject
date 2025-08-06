@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Message {
   id: string;
@@ -116,6 +117,11 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     } else {
       setNewMessage("");
       
+      // Force refresh messages after sending
+      setTimeout(() => {
+        fetchMessages();
+      }, 500);
+      
       // Update conversation's last_message_at
       await supabase
         .from("conversations")
@@ -141,6 +147,14 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
+      {/* Warning Notice */}
+      <Alert className="mb-4 border-destructive bg-destructive/10">
+        <AlertTriangle className="h-4 w-4 text-destructive" />
+        <AlertDescription className="text-destructive">
+          <strong>Notice:</strong> Messaging has limited functionality. Please exchange contact details and move to other platforms for better communication.
+        </AlertDescription>
+      </Alert>
+
       {/* Header */}
       <Card className="mb-4">
         <CardHeader className="pb-3">
