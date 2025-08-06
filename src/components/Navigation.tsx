@@ -26,13 +26,23 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
     navigate("/auth");
   };
 
-  const navItems = [
-    { id: "discover", icon: Heart, label: "Discover" },
-    { id: "date-requests", icon: Calendar, label: "Dates" },
-    { id: "messages", icon: MessageCircle, label: "Messages" },
-    { id: "announcements", icon: Megaphone, label: "Campus" },
-    { id: "profile", icon: User, label: "Profile" },
-  ];
+const navItems = [
+  { id: "discover", icon: Heart, label: "Discover" },
+  { 
+    id: "date-requests", 
+    icon: (props: any) => (
+      <Heart 
+        {...props} 
+        className="w-5 h-5 text-pink-500 animate-pulse drop-shadow-[0_0_8px_#ec4899]" 
+      />
+    ), 
+    label: "Dates" 
+  },
+  { id: "messages", icon: MessageCircle, label: "Messages" },
+  { id: "announcements", icon: Megaphone, label: "Campus" },
+  { id: "profile", icon: User, label: "Profile" },
+];
+
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-primary/20 p-2 safe-area-pb">
