@@ -266,7 +266,8 @@ const Index = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-      <div className="container mx-auto p-4 max-w-md relative z-10">
+    <div className="container mx-auto p-4 max-w-md relative z-10 pb-[70px]">
+
         {/* Header */}
         <div className="text-center mb-6 pt-4">
           <div className="flex items-center justify-between mb-2">
