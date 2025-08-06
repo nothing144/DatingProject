@@ -31,39 +31,35 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [messageCount, setMessageCount] = useState(0);
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // Message limits for free plan optimization
+  const MESSAGE_LIMIT = 10; // Limit messages per conversation
+  const DAILY_MESSAGE_LIMIT = 50; // Daily limit per user
   useEffect(() => {
     fetchMessages();
-    
-    // Subscribe to new messages in this conversation
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`
-        },
-        (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
-          scrollToBottom();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    checkDailyMessageLimit();
   }, [conversationId]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  const checkDailyMessageLimit = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const { count, error } = await supabase
+      .from("messages")
+      .select("*", { count: 'exact', head: true })
+      .eq("sender_id", currentUserId)
+      .gte("created_at", `${today}T00:00:00.000Z`)
+      .lte("created_at", `${today}T23:59:59.999Z`);
+
+    if (!error && count && count >= DAILY_MESSAGE_LIMIT) {
+      setHasReachedLimit(true);
+    }
+  };
   const fetchMessages = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -71,6 +67,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       .select("*")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true });
+      .limit(MESSAGE_LIMIT);
 
     if (error) {
       console.error("Error fetching messages:", error);
@@ -80,7 +77,12 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         variant: "destructive"
       });
     } else {
-      setMessages(data || []);
+      const messageData = data || [];
+      setMessages(messageData);
+      setMessageCount(messageData.length);
+      if (messageData.length >= MESSAGE_LIMIT) {
+        setHasReachedLimit(true);
+      }
     }
     setLoading(false);
   };
@@ -97,7 +99,17 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || hasReachedLimit) return;
+
+    // Check if conversation has reached message limit
+    if (messageCount >= MESSAGE_LIMIT) {
+      toast({
+        title: "Message Limit Reached",
+        description: `This conversation has reached the ${MESSAGE_LIMIT} message limit. Please exchange contact details to continue chatting elsewhere.`,
+        variant: "destructive"
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from("messages")
@@ -116,8 +128,9 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       });
     } else {
       setNewMessage("");
+      setMessageCount(prev => prev + 1);
       
-      // Force refresh messages after sending
+      // Simple refresh without real-time subscriptions
       setTimeout(() => {
         fetchMessages();
       }, 500);
@@ -128,13 +141,15 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", conversationId);
 
-      // Create notification for the other user
-      await supabase.rpc('create_notification', {
-        target_user_id: otherUser.id,
-        notification_type: 'message',
-        notification_title: 'New Message',
-        notification_message: `You have a new message from ${currentUserId}`
-      });
+      // Reduced notifications to save on function calls
+      if (messageCount < 3) { // Only notify for first few messages
+        await supabase.rpc('create_notification', {
+          target_user_id: otherUser.id,
+          notification_type: 'message',
+          notification_title: 'New Message',
+          notification_message: `You have a new message`
+        });
+      }
     }
   };
 
@@ -151,10 +166,19 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       <Alert className="mb-4 border-destructive bg-destructive/10">
         <AlertTriangle className="h-4 w-4 text-destructive" />
         <AlertDescription className="text-destructive">
-          <strong>Notice:</strong> Messaging has limited functionality. Please exchange contact details and move to other platforms for better communication.
+          <strong>Limited Messaging:</strong> Only {MESSAGE_LIMIT} messages per conversation. Exchange contact details quickly and move to WhatsApp, Instagram, or other platforms.
         </AlertDescription>
       </Alert>
 
+      {/* Message Limit Warning */}
+      {messageCount >= MESSAGE_LIMIT - 3 && (
+        <Alert className="mb-4 border-yellow-500 bg-yellow-50">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800">
+            <strong>Warning:</strong> {MESSAGE_LIMIT - messageCount} messages remaining. Share your contact details now!
+          </AlertDescription>
+        </Alert>
+      )}
       {/* Header */}
       <Card className="mb-4">
         <CardHeader className="pb-3">
@@ -168,6 +192,9 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
               className="w-8 h-8 rounded-full object-cover"
             />
             <CardTitle className="text-lg">{otherUser.name}</CardTitle>
+            <div className="ml-auto text-xs text-muted-foreground">
+              {messageCount}/{MESSAGE_LIMIT} messages
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -183,6 +210,13 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
             </div>
           ) : (
             <div className="space-y-3">
+              {messageCount >= MESSAGE_LIMIT && (
+                <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                  <p className="text-sm text-destructive font-medium">
+                    Message limit reached! Exchange contact details to continue chatting.
+                  </p>
+                </div>
+              )}
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -216,19 +250,29 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         </ScrollArea>
 
         {/* Message Input */}
-        <div className="p-4 border-t">
+        <div className={`p-4 border-t ${hasReachedLimit ? 'opacity-50' : ''}`}>
           <div className="flex gap-2">
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type a message..."
+              placeholder={hasReachedLimit ? "Message limit reached" : "Type a message..."}
               className="flex-1"
+              disabled={hasReachedLimit}
             />
-            <Button onClick={sendMessage} size="icon" disabled={!newMessage.trim()}>
+            <Button 
+              onClick={sendMessage} 
+              size="icon" 
+              disabled={!newMessage.trim() || hasReachedLimit}
+            >
               <Send className="h-4 w-4" />
             </Button>
           </div>
+          {hasReachedLimit && (
+            <p className="text-xs text-destructive mt-2 text-center">
+              Daily message limit reached. Try again tomorrow or exchange contact details.
+            </p>
+          )}
         </div>
       </Card>
     </div>

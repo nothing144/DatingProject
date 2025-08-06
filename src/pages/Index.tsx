@@ -133,7 +133,8 @@ const Index = () => {
         participant_2_profile:profiles!conversations_participant_2_fkey(name, avatar_url)
       `)
       .or(`participant_1.eq.${user?.id},participant_2.eq.${user?.id}`)
-      .order("last_message_at", { ascending: false });
+      .order("last_message_at", { ascending: false })
+      .limit(20); // Limit conversations to reduce data usage
 
     if (error) {
       console.error("Error fetching conversations:", error);
