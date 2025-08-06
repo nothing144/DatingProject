@@ -541,7 +541,15 @@ const Index = () => {
                             className="w-12 h-12 rounded-full object-cover"
                           />
                           <div className="flex-1">
-                            <h3 className="font-semibold">{otherUser?.name}</h3>
+                            <h3 
+  className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
+  onClick={() => {
+    if (isReceived) navigate(`/profile/${otherUser?.id}`);
+  }}
+>
+  {otherUser?.name}
+</h3>
+
                             <p className="text-sm text-muted-foreground">
                               {isReceived ? "Sent you a date request" : "You sent a date request"}
                             </p>
