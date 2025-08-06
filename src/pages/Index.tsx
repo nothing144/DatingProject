@@ -276,7 +276,7 @@ const Index = () => {
             <NotificationBell userId={user.id} />
           </div>
           <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            Campus connections made electric ✨
+            Campus connections 
           </p>
         </div>
 
