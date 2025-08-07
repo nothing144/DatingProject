@@ -107,7 +107,7 @@ user_problem_statement: |
 
 backend:
   - task: "Add username field to Supabase profiles table schema"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "supabase schema"
     stuck_count: 0
@@ -116,80 +116,80 @@ backend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Need to add username field to profiles table"
+        comment: "Added username field to Supabase types and profile interface"
 
 frontend:
   - task: "Add username field to profile editing page"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/pages/Profile.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Need to add username field with validation to profile form"
+        comment: "Added username field with validation, uniqueness check, and proper formatting to profile form"
         
   - task: "Replace cross button with swipe functionality"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Need to implement touch/swipe gestures to replace X button"
+        comment: "Implemented touch/swipe gestures with visual indicators to replace X button, added swipe instruction text"
         
   - task: "Change user names to pink color in discover page"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Change text-white to pink color for user names"
+        comment: "Changed text-white to text-pink-400/pink-300 for user names and age"
         
   - task: "Add proper Bio and Interests labels"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Add Bio: and Interests: labels to profile display"
+        comment: "Added 'Bio:' and 'Interests:' labels with proper styling to profile display"
         
   - task: "Fix save button mobile layout"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/pages/Profile.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Fix save button going out of screen on mobile"
+        comment: "Changed button layout to flex-col on mobile and flex-row on desktop to prevent overflow"
         
   - task: "Add username search functionality"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/pages/Index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Add username search in discover page"
+        comment: "Added username search input, search/clear buttons, and modified fetchProfiles to support filtering"
 
 metadata:
   created_by: "main_agent"
