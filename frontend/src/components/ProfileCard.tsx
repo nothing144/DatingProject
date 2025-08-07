@@ -200,31 +200,34 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         onTouchEnd={handleTouchEnd}
         style={{ touchAction: 'none' }}
       >
-      <CardContent className="p-0">
-        <div className="relative">
-          <img
-            src={displayImage}
-            alt={profile.name}
-            className="w-full h-96 object-cover rounded-t-lg"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.svg";
-            }}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-primary/10 to-transparent p-4">
-            <h3 className="text-white text-xl font-bold">
-              {profile.name}
-              {profile.age && (
-                <span className="text-white/80 font-normal ml-2">{profile.age}</span>
+        <CardContent className="p-0">
+          <div className="relative">
+            <img
+              src={displayImage}
+              alt={profile.name}
+              className="w-full h-96 object-cover rounded-t-lg"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.svg";
+              }}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-primary/10 to-transparent p-4">
+              <h3 className="text-pink-400 text-xl font-bold">
+                {profile.name}
+                {profile.age && (
+                  <span className="text-pink-300 font-normal ml-2">{profile.age}</span>
+                )}
+              </h3>
+              {profile.username && (
+                <p className="text-pink-300 text-sm">@{profile.username}</p>
               )}
-            </h3>
-            {profile.location && (
-              <div className="flex items-center text-white/80 text-sm mt-1">
-                <MapPin className="w-3 h-3 mr-1" />
-                {profile.location}
-              </div>
-            )}
+              {profile.location && (
+                <div className="flex items-center text-white/80 text-sm mt-1">
+                  <MapPin className="w-3 h-3 mr-1" />
+                  {profile.location}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
         <div className="p-4 space-y-3">
           {profile.shortBio && (
