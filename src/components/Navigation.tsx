@@ -82,6 +82,6 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
     </div>
   </>
 );
-
+);
 
 export default Navigation;
