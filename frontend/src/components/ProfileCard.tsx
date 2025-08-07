@@ -32,8 +32,10 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
+  const [isMouseDown, setIsMouseDown] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // Touch Events (Mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
     setStartX(e.touches[0].clientX);
@@ -58,16 +60,58 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
 
   const handleTouchEnd = () => {
     if (!isDragging) return;
+    handleDragEnd();
+  };
+
+  // Mouse Events (Desktop)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsMouseDown(true);
+    setIsDragging(true);
+    setStartX(e.clientX);
+    setCurrentX(e.clientX);
+    e.preventDefault(); // Prevent text selection
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !isMouseDown) return;
     
+    const mouseX = e.clientX;
+    setCurrentX(mouseX);
+    
+    const deltaX = mouseX - startX;
+    const direction = deltaX > 0 ? 'right' : 'left';
+    setDragDirection(direction);
+
+    if (cardRef.current) {
+      cardRef.current.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.1}deg)`;
+      cardRef.current.style.opacity = `${1 - Math.abs(deltaX) / 300}`;
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging || !isMouseDown) return;
+    setIsMouseDown(false);
+    handleDragEnd();
+  };
+
+  const handleMouseLeave = () => {
+    if (isMouseDown) {
+      setIsMouseDown(false);
+      handleDragEnd();
+    }
+  };
+
+  // Common drag end logic
+  const handleDragEnd = () => {
     const deltaX = currentX - startX;
-    const threshold = 100; // Minimum distance for swipe
+    const threshold = 100; // Minimum distance for swipe/drag
     
     if (Math.abs(deltaX) > threshold) {
       if (deltaX < 0) {
-        // Left swipe - Pass
+        // Left drag/swipe - Pass
         handleSwipePass();
       } else {
-        // Right swipe - Like
+        // Right drag/swipe - Like
         handleDateRequest();
       }
     } else {
