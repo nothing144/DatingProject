@@ -175,7 +175,31 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const displayImage = profile.avatar_url || profile.photos?.[0] || "/placeholder.svg";
 
   return (
-    <Card className="w-full max-w-sm mx-auto bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] hover:shadow-[var(--shadow-lightning)] transition-all duration-300 hover:scale-105">
+    <div className="relative">
+      {/* Swipe indicators */}
+      <div className="absolute top-4 left-4 z-10 opacity-70">
+        <div className={`px-3 py-1 rounded-full text-sm font-bold transition-opacity duration-200 ${
+          dragDirection === 'left' ? 'opacity-100 bg-red-500 text-white' : 'opacity-0'
+        }`}>
+          PASS
+        </div>
+      </div>
+      <div className="absolute top-4 right-4 z-10 opacity-70">
+        <div className={`px-3 py-1 rounded-full text-sm font-bold transition-opacity duration-200 ${
+          dragDirection === 'right' ? 'opacity-100 bg-green-500 text-white' : 'opacity-0'
+        }`}>
+          LIKE
+        </div>
+      </div>
+
+      <Card 
+        ref={cardRef}
+        className="w-full max-w-sm mx-auto bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] hover:shadow-[var(--shadow-lightning)] transition-all duration-300 touch-none select-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ touchAction: 'none' }}
+      >
       <CardContent className="p-0">
         <div className="relative">
           <img
