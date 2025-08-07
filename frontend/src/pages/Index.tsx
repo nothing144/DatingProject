@@ -626,6 +626,66 @@ const Index = () => {
 
             </div>
 
+            {/* Username Search */}
+
+            <div className="flex gap-2">
+
+              <Input
+
+                placeholder="Search by username..."
+
+                value={searchUsername}
+
+                onChange={(e) => setSearchUsername(e.target.value)}
+
+                onKeyPress={(e) => e.key === 'Enter' && handleUsernameSearch()}
+
+                className="flex-1 border-accent/30 focus:border-accent focus:ring-accent"
+
+              />
+
+              <Button
+
+                onClick={handleUsernameSearch}
+
+                variant="outline"
+
+                className="border-accent hover:bg-accent hover:text-accent-foreground"
+
+              >
+
+                Search
+
+              </Button>
+
+              {searchUsername && (
+
+                <Button
+
+                  onClick={() => {
+
+                    setSearchUsername("");
+
+                    fetchProfiles();
+
+                  }}
+
+                  variant="ghost"
+
+                  size="sm"
+
+                  className="text-muted-foreground hover:text-foreground"
+
+                >
+
+                  Clear
+
+                </Button>
+
+              )}
+
+            </div>
+
             {currentProfile ? (
 
               <ProfileCard
