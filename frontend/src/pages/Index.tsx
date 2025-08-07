@@ -162,17 +162,27 @@ const Index = () => {
 
 
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async (usernameFilter?: string) => {
 
-    const { data, error } = await supabase
+    let query = supabase
 
       .from("profiles")
 
       .select("*")
 
-      .neq("id", user?.id)
+      .neq("id", user?.id);
 
-      .limit(10);
+
+
+    if (usernameFilter && usernameFilter.trim()) {
+
+      query = query.ilike("username", `%${usernameFilter.trim()}%`);
+
+    }
+
+
+
+    const { data, error } = await query.limit(10);
 
 
 
@@ -184,7 +194,17 @@ const Index = () => {
 
       setProfiles(data || []);
 
+      setCurrentProfileIndex(0);
+
     }
+
+  };
+
+
+
+  const handleUsernameSearch = () => {
+
+    fetchProfiles(searchUsername);
 
   };
 
