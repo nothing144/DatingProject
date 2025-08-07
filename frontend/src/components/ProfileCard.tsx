@@ -28,6 +28,71 @@ interface ProfileCardProps {
 
 const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProps) => {
   const [loading, setLoading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null);
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX);
+    setCurrentX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    const touchX = e.touches[0].clientX;
+    setCurrentX(touchX);
+    
+    const deltaX = touchX - startX;
+    const direction = deltaX > 0 ? 'right' : 'left';
+    setDragDirection(direction);
+
+    if (cardRef.current) {
+      cardRef.current.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.1}deg)`;
+      cardRef.current.style.opacity = `${1 - Math.abs(deltaX) / 300}`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    
+    const deltaX = currentX - startX;
+    const threshold = 100; // Minimum distance for swipe
+    
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX < 0) {
+        // Left swipe - Pass
+        handleSwipePass();
+      } else {
+        // Right swipe - Like
+        handleDateRequest();
+      }
+    } else {
+      // Reset card position
+      if (cardRef.current) {
+        cardRef.current.style.transform = 'translateX(0px) rotate(0deg)';
+        cardRef.current.style.opacity = '1';
+      }
+    }
+    
+    setIsDragging(false);
+    setDragDirection(null);
+    setStartX(0);
+    setCurrentX(0);
+  };
+
+  const handleSwipePass = () => {
+    if (cardRef.current) {
+      cardRef.current.style.transform = 'translateX(-100%) rotate(-30deg)';
+      cardRef.current.style.opacity = '0';
+      setTimeout(() => {
+        onPass();
+      }, 300);
+    }
+  };
 
   const handleDateRequest = async () => {
     setLoading(true);
