@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 interface Profile {
   id: string;
   name: string;
+  username?: string;
   age?: number;
   location?: string;
   description?: string;
