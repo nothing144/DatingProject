@@ -260,16 +260,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             )}
 
           <div className="flex justify-center gap-4 pt-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full w-12 h-12 border-destructive/50 hover:bg-destructive hover:text-destructive-foreground hover:shadow-[var(--shadow-neon)] transition-all duration-300"
-              onClick={onPass}
-              disabled={loading}
-            >
-              <X className="w-5 h-5" />
-            </Button>
-            
+
             <Button
               variant="outline"
               size="icon"
