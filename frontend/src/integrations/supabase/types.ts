@@ -230,6 +230,7 @@ export type Database = {
           preferences: string | null
           shortBio: string | null
           updated_at: string | null
+          username: string | null
         }
         Insert: {
           age?: number | null
