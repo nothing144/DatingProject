@@ -320,6 +320,18 @@ const Profile = () => {
               </div>
 
               <div>
+                <Label htmlFor="username" className="text-accent">Username</Label>
+                <Input
+                  id="username"
+                  value={profile.username}
+                  onChange={(e) => setProfile(prev => ({ ...prev, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
+                  placeholder="Your unique username"
+                  className="border-accent/30 focus:border-accent focus:ring-accent"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Only lowercase letters, numbers, and underscores allowed</p>
+              </div>
+
+              <div>
                 <Label htmlFor="age" className="text-primary">Age</Label>
                 <Input
                   id="age"
