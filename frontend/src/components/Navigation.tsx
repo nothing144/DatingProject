@@ -78,6 +78,19 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
               <span className="text-xs">{label}</span>
             </Button>
           ))}
+          
+          {/* Logout button for desktop only */}
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden sm:flex flex-col gap-1 h-auto py-2 px-3 text-muted-foreground hover:text-foreground"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="text-xs">Logout</span>
+            </Button>
+          )}
         </div>
       </div>
     </>
