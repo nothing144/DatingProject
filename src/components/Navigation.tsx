@@ -45,7 +45,7 @@ const navItems = [
 
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-primary/20 p-2 safe-area-pb">
+    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-primary/20 p-2 safe-area-pb z-50">
       <div className="flex justify-around items-center max-w-md mx-auto">
         {navItems.map(({ id, icon: Icon, label }) => (
           <Button

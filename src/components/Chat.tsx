@@ -160,7 +160,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-[calc(100vh-12rem)]">
       {/* Notice for limited messaging */}
       <Alert className="mb-4 border-destructive bg-destructive/10">
         <AlertTriangle className="h-4 w-4 text-destructive" />

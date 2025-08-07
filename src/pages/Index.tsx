@@ -32,1131 +32,1131 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Index = () => {
 
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
 
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
 
-  const [activeTab, setActiveTab] = useState("discover");
+  const [activeTab, setActiveTab] = useState("discover");
 
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
 
-  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
 
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
 
-  const [confessions, setConfessions] = useState<any[]>([]);
+  const [confessions, setConfessions] = useState<any[]>([]);
 
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<any[]>([]);
 
-  const [newAnnouncement, setNewAnnouncement] = useState("");
+  const [newAnnouncement, setNewAnnouncement] = useState("");
 
-  const [newConfession, setNewConfession] = useState("");
+  const [newConfession, setNewConfession] = useState("");
 
-  const [dateRequests, setDateRequests] = useState<any[]>([]);
+  const [dateRequests, setDateRequests] = useState<any[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate();
 
 
 
-  // Listen for message events from ProfileCard
+  // Listen for message events from ProfileCard
 
-  useEffect(() => {
+  useEffect(() => {
 
-    const handleSwitchToMessages = (event: any) => {
+    const handleSwitchToMessages = (event: any) => {
 
-      setActiveTab("messages");
+      setActiveTab("messages");
 
-      // Optionally auto-select the conversation
+      // Optionally auto-select the conversation
 
-      setTimeout(() => {
+      setTimeout(() => {
 
-        const conversation = conversations.find(c => c.id === event.detail.conversationId);
+        const conversation = conversations.find(c => c.id === event.detail.conversationId);
 
-        if (conversation) {
+        if (conversation) {
 
-          setSelectedConversation(conversation);
+          setSelectedConversation(conversation);
 
-        }
+        }
 
-      }, 100);
+      }, 100);
 
-    };
+    };
 
 
 
-    window.addEventListener('switchToMessages', handleSwitchToMessages);
+    window.addEventListener('switchToMessages', handleSwitchToMessages);
 
-    return () => window.removeEventListener('switchToMessages', handleSwitchToMessages);
+    return () => window.removeEventListener('switchToMessages', handleSwitchToMessages);
 
-  }, [conversations]);
+  }, [conversations]);
 
 
 
-  useEffect(() => {
+  useEffect(() => {
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
 
-      setSession(session);
+      setSession(session);
 
-      setUser(session?.user || null);
+      setUser(session?.user || null);
 
-      if (!session) {
+      if (!session) {
 
-        navigate("/auth");
+        navigate("/auth");
 
-      }
+      }
 
-    });
+    });
 
 
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
 
-      setSession(session);
+      setSession(session);
 
-      setUser(session?.user || null);
+      setUser(session?.user || null);
 
-      if (!session) {
+      if (!session) {
 
-        navigate("/auth");
+        navigate("/auth");
 
-      } else {
+      } else {
 
-        setLoading(false);
+        setLoading(false);
 
-      }
+      }
 
-    });
+    });
 
 
 
-    return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe();
 
-  }, [navigate]);
+  }, [navigate]);
 
 
 
-  useEffect(() => {
+  useEffect(() => {
 
-    if (user) {
+    if (user) {
 
-      fetchProfiles();
+      fetchProfiles();
 
-      fetchAnnouncements();
+      fetchAnnouncements();
 
-      fetchConfessions();
+      fetchConfessions();
 
-      fetchConversations();
+      fetchConversations();
 
-      fetchDateRequests();
+      fetchDateRequests();
 
-    }
+    }
 
-  }, [user]);
+  }, [user]);
 
 
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async () => {
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase
 
-      .from("profiles")
+      .from("profiles")
 
-      .select("*")
+      .select("*")
 
-      .neq("id", user?.id)
+      .neq("id", user?.id)
 
-      .limit(10);
+      .limit(10);
 
 
 
-    if (error) {
+    if (error) {
 
-      console.error("Error fetching profiles:", error);
+      console.error("Error fetching profiles:", error);
 
-    } else {
+    } else {
 
-      setProfiles(data || []);
+      setProfiles(data || []);
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = async () => {
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase
 
-      .from("announcements")
+      .from("announcements")
 
-      .select(`
+      .select(`
 
-        *,
+        *,
 
-        profiles!fk_author_profile(name, avatar_url)
+        profiles!fk_author_profile(name, avatar_url)
 
-      `)
+      `)
 
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false })
 
-      .limit(10);
+      .limit(10);
 
 
 
-    if (error) {
+    if (error) {
 
-      console.error("Error fetching announcements:", error);
+      console.error("Error fetching announcements:", error);
 
-    } else {
+    } else {
 
-      setAnnouncements(data || []);
+      setAnnouncements(data || []);
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const fetchConfessions = async () => {
+  const fetchConfessions = async () => {
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase
 
-      .from("confessions")
+      .from("confessions")
 
-      .select("*")
+      .select("*")
 
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false })
 
-      .limit(10);
+      .limit(10);
 
 
 
-    if (error) {
+    if (error) {
 
-      console.error("Error fetching confessions:", error);
+      console.error("Error fetching confessions:", error);
 
-    } else {
+    } else {
 
-      setConfessions(data || []);
+      setConfessions(data || []);
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const fetchConversations = async () => {
+  const fetchConversations = async () => {
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase
 
-      .from("conversations")
+      .from("conversations")
 
-      .select(`
+      .select(`
 
-        *,
+        *,
 
-        participant_1_profile:profiles!conversations_participant_1_fkey(name, avatar_url),
+        participant_1_profile:profiles!conversations_participant_1_fkey(name, avatar_url),
 
-        participant_2_profile:profiles!conversations_participant_2_fkey(name, avatar_url)
+        participant_2_profile:profiles!conversations_participant_2_fkey(name, avatar_url)
 
-      `)
+      `)
 
-      .or(`participant_1.eq.${user?.id},participant_2.eq.${user?.id}`)
+      .or(`participant_1.eq.${user?.id},participant_2.eq.${user?.id}`)
 
-      .order("last_message_at", { ascending: false })
+      .order("last_message_at", { ascending: false })
 
-      .limit(20); // Limit conversations to reduce data usage
+      .limit(20); // Limit conversations to reduce data usage
 
 
 
-    if (error) {
+    if (error) {
 
-      console.error("Error fetching conversations:", error);
+      console.error("Error fetching conversations:", error);
 
-    } else {
+    } else {
 
-      setConversations(data || []);
+      setConversations(data || []);
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const fetchDateRequests = async () => {
+  const fetchDateRequests = async () => {
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase
 
-      .from("date_requests")
+      .from("date_requests")
 
-      .select(`
+      .select(`
 
-        *,
+        *,
 
-        sender:profiles!date_requests_sender_id_fkey(id, name, avatar_url),
+        sender:profiles!date_requests_sender_id_fkey(id, name, avatar_url),
 
-        receiver:profiles!date_requests_receiver_id_fkey(id, name, avatar_url)
+        receiver:profiles!date_requests_receiver_id_fkey(id, name, avatar_url)
 
-      `)
+      `)
 
-      .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
+      .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
 
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false });
 
 
 
-    if (error) {
+    if (error) {
 
-      console.error("Error fetching date requests:", error);
+      console.error("Error fetching date requests:", error);
 
-    } else {
+    } else {
 
-      setDateRequests(data || []);
+      setDateRequests(data || []);
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
+  const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
 
-    const { error } = await supabase
+    const { error } = await supabase
 
-      .from("date_requests")
+      .from("date_requests")
 
-      .update({ status })
+      .update({ status })
 
-      .eq("id", requestId);
+      .eq("id", requestId);
 
 
 
-    if (error) {
+    if (error) {
 
-      toast({
+      toast({
 
-        title: "Error",
+        title: "Error",
 
-        description: error.message,
+        description: error.message,
 
-        variant: "destructive"
+        variant: "destructive"
 
-      });
+      });
 
-    } else {
+    } else {
 
-      fetchDateRequests();
+      fetchDateRequests();
 
-      toast({
+      toast({
 
-        title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
+        title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
 
-        description: `You have ${status} the date request`
+        description: `You have ${status} the date request`
 
-      });
+      });
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const handleLike = async () => {
+  const handleLike = async () => {
 
-    setCurrentProfileIndex(prev => prev + 1);
+    setCurrentProfileIndex(prev => prev + 1);
 
-  };
+  };
 
 
 
-  const handlePass = () => {
+  const handlePass = () => {
 
-    setCurrentProfileIndex(prev => prev + 1);
+    setCurrentProfileIndex(prev => prev + 1);
 
-  };
+  };
 
 
 
-  const postAnnouncement = async () => {
+  const postAnnouncement = async () => {
 
-    if (!newAnnouncement.trim()) return;
+    if (!newAnnouncement.trim()) return;
 
 
 
-    const { error } = await supabase
+    const { error } = await supabase
 
-      .from("announcements")
+      .from("announcements")
 
-      .insert({
+      .insert({
 
-        content: newAnnouncement,
+        content: newAnnouncement,
 
-        author_id: user?.id
+        author_id: user?.id
 
-      });
+      });
 
 
 
-    if (error) {
+    if (error) {
 
-      toast({
+      toast({
 
-        title: "Error",
+        title: "Error",
 
-        description: error.message,
+        description: error.message,
 
-        variant: "destructive"
+        variant: "destructive"
 
-      });
+      });
 
-    } else {
+    } else {
 
-      setNewAnnouncement("");
+      setNewAnnouncement("");
 
-      fetchAnnouncements();
+      fetchAnnouncements();
 
-      toast({
+      toast({
 
-        title: "Posted!",
+        title: "Posted!",
 
-        description: "Your announcement has been posted"
+        description: "Your announcement has been posted"
 
-      });
+      });
 
-    }
+    }
 
-  };
+  };
 
 
 
-  const postConfession = async () => {
+  const postConfession = async () => {
 
-    if (!newConfession.trim()) return;
+    if (!newConfession.trim()) return;
 
 
 
-    const { error } = await supabase
+    const { error } = await supabase
 
-      .from("confessions")
+      .from("confessions")
 
-      .insert({
+      .insert({
 
-        content: newConfession,
+        content: newConfession,
 
-        author_id: user?.id
+        author_id: user?.id
 
-      });
+      });
 
 
 
-    if (error) {
+    if (error) {
 
-      toast({
+      toast({
 
-        title: "Error",
+        title: "Error",
 
-        description: error.message,
+        description: error.message,
 
-        variant: "destructive"
+        variant: "destructive"
 
-      });
+      });
 
-    } else {
+    } else {
 
-      setNewConfession("");
+      setNewConfession("");
 
-      fetchConfessions();
+      fetchConfessions();
 
-      toast({
+      toast({
 
-        title: "Posted!",
+        title: "Posted!",
 
-        description: "Your confession has been posted anonymously"
+        description: "Your confession has been posted anonymously"
 
-      });
+      });
 
-    }
+    }
 
-  };
+  };
 
 
 
-  if (loading) {
+  if (loading) {
 
-    return (
+    return (
 
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20">
 
-        <div className="text-center">
+        <div className="text-center">
 
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
 
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
 
-        </div>
+        </div>
 
-      </div>
+      </div>
 
-    );
+    );
 
-  }
+  }
 
 
 
-  if (!user) {
+  if (!user) {
 
-    return null;
+    return null;
 
-  }
+  }
 
 
 
-  const currentProfile = profiles[currentProfileIndex];
+  const currentProfile = profiles[currentProfileIndex];
 
 
 
-  return (
+  return (
 
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 pb-36 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 relative overflow-hidden">
 
 
 
-      {/* Electric background effects */}
+      {/* Electric background effects */}
 
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
 
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
 
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
 
-    <div className="container mx-auto p-4 max-w-md relative z-10 pb-[70px]">
+    <div className="container mx-auto p-4 max-w-md relative z-10 pb-24">
 
 
 
-        {/* Header */}
+        {/* Header */}
 
-        <div className="text-center mb-6 pt-4">
+        <div className="text-center mb-6 pt-4">
 
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2">
 
-            <div className="w-8"></div>
+            <div className="w-8"></div>
 
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
 
-              ⚡ HeartBeat@ITER 
+              ⚡ HeartBeat@ITER 
 
-            </h1>
+            </h1>
 
-            <NotificationBell userId={user.id} />
+            <NotificationBell userId={user.id} />
 
-          </div>
+          </div>
 
-          <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+          <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
 
-             College ka pyaar, semester jaisa — short & intense
+             College ka pyaar, semester jaisa — short & intense
 
-          </p>
+          </p>
 
-        </div>
+        </div>
 
 
 
-        {/* Content based on active tab */}
+        {/* Content based on active tab */}
 
-        {activeTab === "discover" && (
+        {activeTab === "discover" && (
 
-          <div className="space-y-4">
+          <div className="space-y-4">
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
 
-              <h2 className="text-xl font-semibold">Discover</h2>
+              <h2 className="text-xl font-semibold">Discover</h2>
 
-              <Button 
+              <Button 
 
-                variant="outline" 
+                variant="outline" 
 
-                size="sm"
+                size="sm"
 
-                onClick={() => {
+                onClick={() => {
 
-                  fetchProfiles();
+                  fetchProfiles();
 
-                  setCurrentProfileIndex(0);
+                  setCurrentProfileIndex(0);
 
-                  toast({ title: "Profiles refreshed!" });
+                  toast({ title: "Profiles refreshed!" });
 
-                }}
+                }}
 
-                className="flex items-center gap-2"
+                className="flex items-center gap-2"
 
-              >
+              >
 
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-4 w-4" />
 
-                Refresh
+                Refresh
 
-              </Button>
+              </Button>
 
-            </div>
+            </div>
 
-            {currentProfile ? (
+            {currentProfile ? (
 
-              <ProfileCard
+              <ProfileCard
 
-                profile={currentProfile}
+                profile={currentProfile}
 
-                currentUserId={user.id}
+                currentUserId={user.id}
 
-                onLike={handleLike}
+                onLike={handleLike}
 
-                onPass={handlePass}
+                onPass={handlePass}
 
-              />
+              />
 
-            ) : (
+            ) : (
 
-              <Card className="text-center p-8">
+              <Card className="text-center p-8">
 
-                <CardContent>
+                <CardContent>
 
-                  <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
 
-                  <h3 className="text-lg font-semibold mb-2">No more profiles</h3>
+                  <h3 className="text-lg font-semibold mb-2">No more profiles</h3>
 
-                  <p className="text-muted-foreground">Check back later for new people!</p>
+                  <p className="text-muted-foreground">Check back later for new people!</p>
 
-                </CardContent>
+                </CardContent>
 
-              </Card>
+              </Card>
 
-            )}
+            )}
 
-          </div>
+          </div>
 
-        )}
+        )}
 
 
 
-        {activeTab === "messages" && (
+        {activeTab === "messages" && (
 
-          selectedConversation ? (
+          selectedConversation ? (
 
-            <Chat
+            <Chat
 
-              conversationId={selectedConversation.id}
+              conversationId={selectedConversation.id}
 
-              otherUser={selectedConversation.participant_1 === user?.id 
+              otherUser={selectedConversation.participant_1 === user?.id 
 
-                ? { id: selectedConversation.participant_2, ...selectedConversation.participant_2_profile }
+                ? { id: selectedConversation.participant_2, ...selectedConversation.participant_2_profile }
 
-                : { id: selectedConversation.participant_1, ...selectedConversation.participant_1_profile }
+                : { id: selectedConversation.participant_1, ...selectedConversation.participant_1_profile }
 
-              }
+              }
 
-              currentUserId={user.id}
+              currentUserId={user.id}
 
-              onBack={() => setSelectedConversation(null)}
+              onBack={() => setSelectedConversation(null)}
 
-            />
+            />
 
-          ) : (
+          ) : (
 
-            <div className="space-y-4">
+            <div className="space-y-4">
 
-              <Alert className="border-destructive bg-destructive/10">
+              <Alert className="border-destructive bg-destructive/10">
 
-                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertTriangle className="h-4 w-4 text-destructive" />
 
-                <AlertDescription className="text-destructive">
+                <AlertDescription className="text-destructive">
 
-                  <strong>Limited Messaging:</strong> Exchange contact details quickly and move to other platforms for better communication.
+                  <strong>Limited Messaging:</strong> Exchange contact details quickly and move to other platforms for better communication.
 
-                </AlertDescription>
+                </AlertDescription>
 
-              </Alert>
+              </Alert>
 
-              
+              
 
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4">
 
-                <h2 className="text-xl font-semibold">Messages</h2>
+                <h2 className="text-xl font-semibold">Messages</h2>
 
-                <Button 
+                <Button 
 
-                  variant="outline" 
+                  variant="outline" 
 
-                  size="sm"
+                  size="sm"
 
-                  onClick={() => {
+                  onClick={() => {
 
-                    fetchConversations();
+                    fetchConversations();
 
-                    toast({ title: "Messages refreshed!" });
+                    toast({ title: "Messages refreshed!" });
 
-                  }}
+                  }}
 
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2"
 
-                >
+                >
 
-                  <RotateCcw className="h-4 w-4" />
+                  <RotateCcw className="h-4 w-4" />
 
-                  Refresh
+                  Refresh
 
-                </Button>
+                </Button>
 
-              </div>
+              </div>
 
-              {conversations.length > 0 ? (
+              {conversations.length > 0 ? (
 
-                conversations.map((conversation) => {
+                conversations.map((conversation) => {
 
-                  const otherUser = conversation.participant_1 === user?.id 
+                  const otherUser = conversation.participant_1 === user?.id 
 
-                    ? conversation.participant_2_profile 
+                    ? conversation.participant_2_profile 
 
-                    : conversation.participant_1_profile;
+                    : conversation.participant_1_profile;
 
-                  
+                  
 
-                  return (
+                  return (
 
-                    <Card 
+                    <Card 
 
-                      key={conversation.id} 
+                      key={conversation.id} 
 
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className="cursor-pointer hover:shadow-md transition-shadow"
 
-                      onClick={() => setSelectedConversation(conversation)}
+                      onClick={() => setSelectedConversation(conversation)}
 
-                    >
+                    >
 
-                      <CardContent className="p-4">
+                      <CardContent className="p-4">
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
 
-                          <img
+                          <img
 
-                            src={otherUser?.avatar_url || "/placeholder.svg"}
+                            src={otherUser?.avatar_url || "/placeholder.svg"}
 
-                            alt={otherUser?.name}
+                            alt={otherUser?.name}
 
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="w-12 h-12 rounded-full object-cover"
 
-                          />
+                          />
 
-                          <div className="flex-1">
+                          <div className="flex-1">
 
-                            <h3 className="font-semibold">{otherUser?.name}</h3>
+                            <h3 className="font-semibold">{otherUser?.name}</h3>
 
-                            <p className="text-sm text-muted-foreground">Tap to chat</p>
+                            <p className="text-sm text-muted-foreground">Tap to chat</p>
 
-                          </div>
+                          </div>
 
-                          <MessageCircle className="w-5 h-5 text-muted-foreground" />
+                          <MessageCircle className="w-5 h-5 text-muted-foreground" />
 
-                        </div>
+                        </div>
 
-                      </CardContent>
+                      </CardContent>
 
-                    </Card>
+                    </Card>
 
-                  );
+                  );
 
-                })
+                })
 
-              ) : (
+              ) : (
 
-                <Card className="text-center p-8">
+                <Card className="text-center p-8">
 
-                  <CardContent>
+                  <CardContent>
 
-                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
 
-                    <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
 
-                    <p className="text-muted-foreground">Start by liking someone's profile!</p>
+                    <p className="text-muted-foreground">Start by liking someone's profile!</p>
 
-                  </CardContent>
+                  </CardContent>
 
-                </Card>
+                </Card>
 
-              )}
+              )}
 
-            </div>
+            </div>
 
-          )
+          )
 
-        )}
+        )}
 
 
 
-        {activeTab === "announcements" && (
+        {activeTab === "announcements" && (
 
-          <div className="space-y-4">
+          <div className="space-y-4">
 
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
 
-              <h2 className="text-xl font-semibold">Campus Life</h2>
+              <h2 className="text-xl font-semibold">Campus Life</h2>
 
-              <Button 
+              <Button 
 
-                variant="outline" 
+                variant="outline" 
 
-                size="sm"
+                size="sm"
 
-                onClick={() => {
+                onClick={() => {
 
-                  fetchAnnouncements();
+                  fetchAnnouncements();
 
-                  fetchConfessions();
+                  fetchConfessions();
 
-                  toast({ title: "Feed refreshed!" });
+                  toast({ title: "Feed refreshed!" });
 
-                }}
+                }}
 
-                className="flex items-center gap-2"
+                className="flex items-center gap-2"
 
-              >
+              >
 
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-4 w-4" />
 
-                Refresh
+                Refresh
 
-              </Button>
+              </Button>
 
-            </div>
+            </div>
 
-            
+            
 
-            {/* Post new announcement */}
+            {/* Post new announcement */}
 
-            <Card>
+            <Card>
 
-              <CardHeader>
+              <CardHeader>
 
-                <CardTitle className="text-lg">Make an Announcement</CardTitle>
+                <CardTitle className="text-lg">Make an Announcement</CardTitle>
 
-              </CardHeader>
+              </CardHeader>
 
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3">
 
-                <Textarea
+                <Textarea
 
-                  placeholder="What's happening on campus?"
+                  placeholder="What's happening on campus?"
 
-                  value={newAnnouncement}
+                  value={newAnnouncement}
 
-                  onChange={(e) => setNewAnnouncement(e.target.value)}
+                  onChange={(e) => setNewAnnouncement(e.target.value)}
 
-                />
+                />
 
-                <Button onClick={postAnnouncement} className="w-full">
+                <Button onClick={postAnnouncement} className="w-full">
 
-                  Post Announcement
+                  Post Announcement
 
-                </Button>
+                </Button>
 
-              </CardContent>
+              </CardContent>
 
-            </Card>
+            </Card>
 
 
 
-            {/* Post new confession */}
+            {/* Post new confession */}
 
-            <Card>
+            <Card>
 
-              <CardHeader>
+              <CardHeader>
 
-                <CardTitle className="text-lg">Anonymous Confession</CardTitle>
+                <CardTitle className="text-lg">Anonymous Confession</CardTitle>
 
-              </CardHeader>
+              </CardHeader>
 
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3">
 
-                <Textarea
+                <Textarea
 
-                  placeholder="Share something anonymously..."
+                  placeholder="Share something anonymously..."
 
-                  value={newConfession}
+                  value={newConfession}
 
-                  onChange={(e) => setNewConfession(e.target.value)}
+                  onChange={(e) => setNewConfession(e.target.value)}
 
-                />
+                />
 
-                <Button onClick={postConfession} variant="secondary" className="w-full">
+                <Button onClick={postConfession} variant="secondary" className="w-full">
 
-                  Post Anonymously
+                  Post Anonymously
 
-                </Button>
+                </Button>
 
-              </CardContent>
+              </CardContent>
 
-            </Card>
+            </Card>
 
 
 
-            {/* Announcements */}
+            {/* Announcements */}
 
-            <div className="space-y-3">
+            <div className="space-y-3">
 
-              <h3 className="font-semibold text-primary">Recent Announcements</h3>
+              <h3 className="font-semibold text-primary">Recent Announcements</h3>
 
-              {announcements.map((announcement) => (
+              {announcements.map((announcement) => (
 
-                <Card key={announcement.id}>
+                <Card key={announcement.id}>
 
-                  <CardContent className="p-4">
+                  <CardContent className="p-4">
 
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3">
 
-                      <img
+                      <img
 
-                        src={announcement.profiles?.avatar_url || "/placeholder.svg"}
+                        src={announcement.profiles?.avatar_url || "/placeholder.svg"}
 
-                        alt="Author"
+                        alt="Author"
 
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
 
-                      />
+                      />
 
-                      <div className="flex-1">
+                      <div className="flex-1">
 
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2">
 
-                          <span className="font-semibold">{announcement.profiles?.name}</span>
+                          <span className="font-semibold">{announcement.profiles?.name}</span>
 
-                          <Badge variant="outline">
+                          <Badge variant="outline">
 
-                            <Megaphone className="w-3 h-3 mr-1" />
+                            <Megaphone className="w-3 h-3 mr-1" />
 
-                            Announcement
+                            Announcement
 
-                          </Badge>
+                          </Badge>
 
-                        </div>
+                        </div>
 
-                        <p className="text-sm">{announcement.content}</p>
+                        <p className="text-sm">{announcement.content}</p>
 
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-xs text-muted-foreground mt-2">
 
-                          {new Date(announcement.created_at).toLocaleDateString()}
+                          {new Date(announcement.created_at).toLocaleDateString()}
 
-                        </p>
+                        </p>
 
-                      </div>
+                      </div>
 
-                    </div>
+                    </div>
 
-                  </CardContent>
+                  </CardContent>
 
-                </Card>
+                </Card>
 
-              ))}
+              ))}
 
-            </div>
+            </div>
 
 
 
-            {/* Confessions */}
+            {/* Confessions */}
 
-            <div className="space-y-3">
+            <div className="space-y-3">
 
-              <h3 className="font-semibold text-secondary">Anonymous Confessions</h3>
+              <h3 className="font-semibold text-secondary">Anonymous Confessions</h3>
 
-              {confessions.map((confession) => (
+              {confessions.map((confession) => (
 
-                <Card key={confession.id} className="bg-secondary/5">
+                <Card key={confession.id} className="bg-secondary/5">
 
-                  <CardContent className="p-4">
+                  <CardContent className="p-4">
 
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3">
 
-                      <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
 
-                        <span className="text-xs">🎭</span>
+                        <span className="text-xs">🎭</span>
 
-                      </div>
+                      </div>
 
-                      <div className="flex-1">
+                      <div className="flex-1">
 
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2">
 
-                          <span className="font-semibold text-secondary">Anonymous</span>
+                          <span className="font-semibold text-secondary">Anonymous</span>
 
-                          <Badge variant="secondary">Confession</Badge>
+                          <Badge variant="secondary">Confession</Badge>
 
-                        </div>
+                        </div>
 
-                        <p className="text-sm">{confession.content}</p>
+                        <p className="text-sm">{confession.content}</p>
 
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-xs text-muted-foreground mt-2">
 
-                          {new Date(confession.created_at).toLocaleDateString()}
+                          {new Date(confession.created_at).toLocaleDateString()}
 
-                        </p>
+                        </p>
 
-                      </div>
+                      </div>
 
-                    </div>
+                    </div>
 
-                  </CardContent>
+                  </CardContent>
 
-                </Card>
+                </Card>
 
-              ))}
+              ))}
 
-            </div>
+            </div>
 
-          </div>
+          </div>
 
-        )}
+        )}
 
 
 
-        {activeTab === "date-requests" && (
+        {activeTab === "date-requests" && (
 
-          <div className="space-y-4">
+          <div className="space-y-4">
 
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
 
-              <h2 className="text-xl font-semibold">Date Requests</h2>
+              <h2 className="text-xl font-semibold">Date Requests</h2>
 
-              <Button 
+              <Button 
 
-                variant="outline" 
+                variant="outline" 
 
-                size="sm"
+                size="sm"
 
-                onClick={() => {
+                onClick={() => {
 
-                  fetchDateRequests();
+                  fetchDateRequests();
 
-                  toast({ title: "Date requests refreshed!" });
+                  toast({ title: "Date requests refreshed!" });
 
-                }}
+                }}
 
-                className="flex items-center gap-2"
+                className="flex items-center gap-2"
 
-              >
+              >
 
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-4 w-4" />
 
-                Refresh
+                Refresh
 
-              </Button>
+              </Button>
 
-            </div>
+            </div>
 
-            
+            
 
-            {dateRequests.length > 0 ? (
+            {dateRequests.length > 0 ? (
 
-              <div className="space-y-3">
+              <div className="space-y-3">
 
-                {dateRequests.map((request) => {
+                {dateRequests.map((request) => {
 
-                  const isReceived = request.receiver_id === user?.id;
+                  const isReceived = request.receiver_id === user?.id;
 
-                  const otherUser = isReceived ? request.sender : request.receiver;
+                  const otherUser = isReceived ? request.sender : request.receiver;
 
-                  
+                  
 
-                  return (
+                  return (
 
-                    <Card key={request.id}>
+                    <Card key={request.id}>
 
-                      <CardContent className="p-4">
+                      <CardContent className="p-4">
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
 
-                          <img
+                          <img
 
-                            src={otherUser?.avatar_url || "/placeholder.svg"}
+                            src={otherUser?.avatar_url || "/placeholder.svg"}
 
-                            alt={otherUser?.name}
+                            alt={otherUser?.name}
 
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="w-12 h-12 rounded-full object-cover"
 
-                          />
+                          />
 
-                          <div className="flex-1">
+                          <div className="flex-1">
 
-                            <h3 
+                            <h3 
 
-  className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
+  className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
 
-  onClick={() => {
+  onClick={() => {
 
-     navigate(`/profile/${otherUser?.id}`);
+     navigate(`/profile/${otherUser?.id}`);
 
-  }}
+  }}
 
 >
 
-  {otherUser?.name}
+  {otherUser?.name}
 
-</h3>              
+</h3>              
 
-                            <Button
+                            <Button
 
-  size="icon"
+  size="icon"
 
-  variant="ghost"
+  variant="ghost"
 
-  className="mt-2"
+  className="mt-2"
 
-  onClick={async () => {
+  onClick={async () => {
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase
 
-      .rpc("get_or_create_conversation", {
+      .rpc("get_or_create_conversation", {
 
-        user1: user.id,
+        user1: user.id,
 
-        user2: otherUser.id
+        user2: otherUser.id
 
-      });
-
-
-
-    if (error) {
-
-      toast({
-
-        title: "Error creating conversation",
-
-        description: error.message,
-
-        variant: "destructive",
-
-      });
-
-      return;
-
-    }
+      });
 
 
 
-    const event = new CustomEvent("switchToMessages", {
+    if (error) {
 
-      detail: { conversationId: data.id },
+      toast({
 
-    });
+        title: "Error creating conversation",
 
-    window.dispatchEvent(event);
+        description: error.message,
 
-  }}
+        variant: "destructive",
+
+      });
+
+      return;
+
+    }
+
+
+
+    const event = new CustomEvent("switchToMessages", {
+
+      detail: { conversationId: data.id },
+
+    });
+
+    window.dispatchEvent(event);
+
+  }}
 
 >
 
-  <MessageCircle className="w-4 h-4" />
+  <MessageCircle className="w-4 h-4" />
 
 </Button>
 
@@ -1164,153 +1164,153 @@ const Index = () => {
 
 
 
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground">
 
-                              {isReceived ? "Sent you a date request" : "You sent a date request"}
+                              {isReceived ? "Sent you a date request" : "You sent a date request"}
 
-                            </p>
+                            </p>
 
-                            <Badge 
+                            <Badge 
 
-                              variant={
+                              variant={
 
-                                request.status === 'accepted' ? 'default' : 
+                                request.status === 'accepted' ? 'default' : 
 
-                                request.status === 'rejected' ? 'destructive' : 
+                                request.status === 'rejected' ? 'destructive' : 
 
-                                'secondary'
+                                'secondary'
 
-                              }
+                              }
 
-                              className="mt-1"
+                              className="mt-1"
 
-                            >
+                            >
 
-                              {request.status}
+                              {request.status}
 
-                            </Badge>
+                            </Badge>
 
-                          </div>
+                          </div>
 
-                          {isReceived && request.status === 'pending' && (
+                          {isReceived && request.status === 'pending' && (
 
-                            <div className="flex gap-2">
+                            <div className="flex gap-2">
 
-                              <Button
+                              <Button
 
-                                size="sm"
+                                size="sm"
 
-                                onClick={() => handleDateRequestResponse(request.id, 'accepted')}
+                                onClick={() => handleDateRequestResponse(request.id, 'accepted')}
 
-                                className="bg-green-600 hover:bg-green-700"
+                                className="bg-green-600 hover:bg-green-700"
 
-                              >
+                              >
 
-                                Accept
+                                Accept
 
-                              </Button>
+                              </Button>
 
-                              <Button
+                              <Button
 
-                                size="sm"
+                                size="sm"
 
-                                variant="destructive"
+                                variant="destructive"
 
-                                onClick={() => handleDateRequestResponse(request.id, 'rejected')}
+                                onClick={() => handleDateRequestResponse(request.id, 'rejected')}
 
-                              >
+                              >
 
-                                Reject
+                                Reject
 
-                              </Button>
+                              </Button>
 
-                            </div>
+                            </div>
 
-                          )}
+                          )}
 
-                        </div>
+                        </div>
 
-                      </CardContent>
+                      </CardContent>
 
-                    </Card>
+                    </Card>
 
-                  );
+                  );
 
-                })}
+                })}
 
-              </div>
+              </div>
 
-            ) : (
+            ) : (
 
-              <Card className="text-center p-8">
+              <Card className="text-center p-8">
 
-                <CardContent>
+                <CardContent>
 
-                  <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
 
-                  <h3 className="text-lg font-semibold mb-2">No date requests</h3>
+                  <h3 className="text-lg font-semibold mb-2">No date requests</h3>
 
-                  <p className="text-muted-foreground">Send date requests by browsing profiles!</p>
+                  <p className="text-muted-foreground">Send date requests by browsing profiles!</p>
 
-                </CardContent>
+                </CardContent>
 
-              </Card>
+              </Card>
 
-            )}
+            )}
 
-          </div>
+          </div>
 
-        )}
+        )}
 
 
 
-        {activeTab === "profile" && (
+        {activeTab === "profile" && (
 
-          <div className="space-y-4">
+          <div className="space-y-4">
 
-            <Card className="text-center p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-primary/30 shadow-[var(--shadow-electric)]">
+            <Card className="text-center p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-primary/30 shadow-[var(--shadow-electric)]">
 
-              <CardContent>
+              <CardContent>
 
-                <User className="w-12 h-12 mx-auto mb-4 text-primary animate-pulse" />
+                <User className="w-12 h-12 mx-auto mb-4 text-primary animate-pulse" />
 
-                <h3 className="text-lg font-semibold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                <h3 className="text-lg font-semibold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
 
-                  Profile Settings
+                  Profile Settings
 
-                </h3>
+                </h3>
 
-                <p className="text-muted-foreground mb-4">Manage your dating profile ⚡</p>
+                <p className="text-muted-foreground mb-4">Manage your dating profile ⚡</p>
 
-                <Button 
+                <Button 
 
-                  className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
+                  className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
 
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate("/profile")}
 
-                >
+                >
 
-                  Edit Profile
+                  Edit Profile
 
-                </Button>
+                </Button>
 
-              </CardContent>
+              </CardContent>
 
-            </Card>
+            </Card>
 
-          </div>
+          </div>
 
-        )}
+        )}
 
-      </div>
+      </div>
 
 
 
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-    </div>
+    </div>
 
-  );
+  );
 
 };
 
