@@ -117,6 +117,18 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Added username field to Supabase types and profile interface"
+        
+  - task: "Backend API endpoints functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All backend API endpoints tested successfully: GET /api/ (root), POST /api/status (create status check), GET /api/status (retrieve status checks). MongoDB connection working correctly. CORS properly configured. All 5 tests passed with 100% success rate."
 
 frontend:
   - task: "Add username field to profile editing page"
