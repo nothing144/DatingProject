@@ -154,6 +154,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Implemented touch/swipe gestures with visual indicators to replace X button, added swipe instruction text"
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed desktop support by adding mouse drag functionality alongside touch swipe for mobile. Added cursor grab/grabbing states and responsive instruction text."
         
   - task: "Change user names to pink color in discover page"
     implemented: true
