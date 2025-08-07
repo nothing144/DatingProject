@@ -289,6 +289,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };
 
