@@ -111,10 +111,10 @@ const Auth = () => {
       <Card className="w-full max-w-md bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] relative z-10">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
-            ⚡ IterDating ⚡
+            ⚡ Heartbeat@ITER ⚡
           </CardTitle>
           <CardDescription className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            Find your electric connection on campus ✨
+            College ka pyaar, semester jaisa — short & intense
           </CardDescription>
         </CardHeader>
         <CardContent>
