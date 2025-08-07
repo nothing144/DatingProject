@@ -332,7 +332,8 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
 
             {/* Swipe instruction text */}
             <div className="text-center text-xs text-muted-foreground/70 mt-2">
-              Swipe left to pass, right to like
+              <span className="block sm:hidden">Swipe left to pass, right to like</span>
+              <span className="hidden sm:block">Drag left to pass, right to like • Or use buttons</span>
             </div>
         </div>
       </CardContent>
