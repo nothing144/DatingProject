@@ -67,11 +67,11 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
               key={id}
               variant={activeTab === id ? "default" : "ghost"}
               size="sm"
-              className={flex flex-col gap-1 h-auto py-2 px-3 ${
+              className={`flex flex-col gap-1 h-auto py-2 px-3 ${
                 activeTab === id
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
-              }}
+              }`}
               onClick={() => onTabChange(id)}
             >
               <Icon className="w-5 h-5" />
