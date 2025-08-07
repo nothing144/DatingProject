@@ -101,3 +101,111 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Analyze the repo in discover page profiles are shown and on each profile there is a cross button so I want that it should be replaced by swipe in place that swipe should be written with proper styling and I want to implement username logic so add the username option in edit profile and search by username in discover page and in discover page you can see the users name written in white I want to turn it to pink and you can also see bio and interests are not labeled in profile in discover page it should be fixed and in edit profile there is save button but it is going out in phones so fix that
+
+backend:
+  - task: "Add username field to Supabase profiles table schema"
+    implemented: false
+    working: "NA"
+    file: "supabase schema"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Need to add username field to profiles table"
+
+frontend:
+  - task: "Add username field to profile editing page"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/pages/Profile.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Need to add username field with validation to profile form"
+        
+  - task: "Replace cross button with swipe functionality"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/components/ProfileCard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Need to implement touch/swipe gestures to replace X button"
+        
+  - task: "Change user names to pink color in discover page"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/components/ProfileCard.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Change text-white to pink color for user names"
+        
+  - task: "Add proper Bio and Interests labels"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/components/ProfileCard.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Add Bio: and Interests: labels to profile display"
+        
+  - task: "Fix save button mobile layout"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/pages/Profile.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fix save button going out of screen on mobile"
+        
+  - task: "Add username search functionality"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/pages/Index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Add username search in discover page"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Add username field to Supabase profiles table schema"
+    - "Add username field to profile editing page"
+    - "Replace cross button with swipe functionality"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Starting implementation of discover page improvements: username functionality, swipe gestures, styling fixes, and mobile responsiveness"
