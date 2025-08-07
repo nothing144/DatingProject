@@ -44,44 +44,44 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
   ];
 
   return (
-  <>
-    {/* Logout button fixed at top-right corner */}
-    {user && (
-      <div className="fixed top-2 right-4 z-50 sm:top-4 sm:right-6">
-        <Button
-          size="icon"
-          variant="outline"
-          className="rounded-full"
-          onClick={handleLogout}
-        >
-          <LogOut className="w-5 h-5" />
-        </Button>
-      </div>
-    )}
-
-    {/* Bottom Navigation Bar */}
-    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-primary/20 p-2 safe-area-pb z-40">
-      <div className="flex justify-around items-center max-w-md mx-auto">
-        {navItems.map(({ id, icon: Icon, label }) => (
+    <>
+      {/* Logout button fixed at top-right corner on mobile */}
+      {user && (
+        <div className="fixed top-2 right-4 z-50 sm:hidden">
           <Button
-            key={id}
-            variant={activeTab === id ? "default" : "ghost"}
-            size="sm"
-            className={`flex flex-col gap-1 h-auto py-2 px-3 ${
-              activeTab === id
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            onClick={() => onTabChange(id)}
+            size="icon"
+            variant="outline"
+            className="rounded-full"
+            onClick={handleLogout}
           >
-            <Icon className="w-5 h-5" />
-            <span className="text-xs">{label}</span>
+            <LogOut className="w-5 h-5" />
           </Button>
-        ))}
+        </div>
+      )}
+
+      {/* Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-primary/20 p-2 safe-area-pb z-40">
+        <div className="flex justify-around items-center max-w-md mx-auto">
+          {navItems.map(({ id, icon: Icon, label }) => (
+            <Button
+              key={id}
+              variant={activeTab === id ? "default" : "ghost"}
+              size="sm"
+              className={flex flex-col gap-1 h-auto py-2 px-3 ${
+                activeTab === id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }}
+              onClick={() => onTabChange(id)}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-xs">{label}</span>
+            </Button>
+          ))}
+        </div>
       </div>
-    </div>
-  </>
-);
-);
+    </>
+  );
+};
 
 export default Navigation;
