@@ -41,6 +41,8 @@ const Index = () => {
   const [profiles, setProfiles] = useState<any[]>([]);
 
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  
+  const [searchUsername, setSearchUsername] = useState("");
 
   const [announcements, setAnnouncements] = useState<any[]>([]);
 
