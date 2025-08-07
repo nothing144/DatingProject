@@ -16,6 +16,7 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
+    username: "",
     age: "",
     location: "",
     description: "",
