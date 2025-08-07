@@ -64,6 +64,7 @@ const Profile = () => {
       if (data) {
         setProfile({
           name: data.name || "",
+          username: data.username || "",
           age: data.age?.toString() || "",
           location: data.location || "",
           description: data.description || "",
