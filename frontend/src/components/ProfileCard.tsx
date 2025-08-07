@@ -229,29 +229,35 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             </div>
           </div>
 
-        <div className="p-4 space-y-3">
-          {profile.shortBio && (
-            <p className="text-muted-foreground text-sm">{profile.shortBio}</p>
-          )}
-          
-          {profile.description && (
-            <p className="text-sm">{profile.description}</p>
-          )}
+          <div className="p-4 space-y-3">
+            {profile.shortBio && (
+              <div>
+                <span className="text-sm font-semibold text-primary">Bio: </span>
+                <span className="text-muted-foreground text-sm">{profile.shortBio}</span>
+              </div>
+            )}
+            
+            {profile.description && (
+              <p className="text-sm">{profile.description}</p>
+            )}
 
-          {profile.interests && profile.interests.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {profile.interests.slice(0, 4).map((interest, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {interest}
-                </Badge>
-              ))}
-              {profile.interests.length > 4 && (
-                <Badge variant="outline" className="text-xs">
-                  +{profile.interests.length - 4} more
-                </Badge>
-              )}
-            </div>
-          )}
+            {profile.interests && profile.interests.length > 0 && (
+              <div>
+                <span className="text-sm font-semibold text-secondary mb-2 block">Interests:</span>
+                <div className="flex flex-wrap gap-1">
+                  {profile.interests.slice(0, 4).map((interest, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {interest}
+                    </Badge>
+                  ))}
+                  {profile.interests.length > 4 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{profile.interests.length - 4} more
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
 
           <div className="flex justify-center gap-4 pt-2">
             <Button
