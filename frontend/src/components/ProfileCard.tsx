@@ -281,6 +281,11 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   <Heart className="w-5 h-5 fill-current" />
 </Button>
           </div>
+
+            {/* Swipe instruction text */}
+            <div className="text-center text-xs text-muted-foreground/70 mt-2">
+              Swipe left to pass, right to like
+            </div>
         </div>
       </CardContent>
     </Card>
