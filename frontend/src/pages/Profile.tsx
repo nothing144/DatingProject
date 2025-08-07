@@ -83,11 +83,40 @@ const Profile = () => {
   const handleSave = async () => {
     if (!user) return;
     
+    // Validate username uniqueness if provided
+    if (profile.username) {
+      const { data: existingUser, error: checkError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", profile.username)
+        .neq("id", user.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        toast({
+          title: "Error",
+          description: "Failed to validate username",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (existingUser) {
+        toast({
+          title: "Username taken",
+          description: "This username is already taken. Please choose another.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
     setSaving(true);
     try {
       const profileData = {
         id: user.id,
         name: profile.name,
+        username: profile.username || null,
         age: profile.age ? parseInt(profile.age) : null,
         location: profile.location,
         description: profile.description,
