@@ -151,11 +151,11 @@ frontend:
         
   - task: "Replace cross button with swipe functionality"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/ProfileCard.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -172,6 +172,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "Fixed arrow click functionality - arrows are now clickable buttons that trigger handleSwipePass() and handleDateRequest() functions for proper profile sliding."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Cannot verify swipe functionality due to architecture mismatch. Frontend configured for Supabase (inaccessible - 404 error) while backend uses MongoDB. Authentication fails preventing access to main app where swipe functionality would be tested. Previous testing was likely done with different configuration."
         
   - task: "Change user names to pink color in discover page"
     implemented: true
