@@ -152,7 +152,7 @@ frontend:
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -166,6 +166,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ Desktop arrow indicators working perfectly (ChevronLeft/ChevronRight with Pass/Like labels). ✅ Visual feedback during drag detected (transform/opacity changes). ✅ Desktop drag functionality tested successfully. Cross button successfully replaced with swipe/drag functionality."
+      - working: true
+        agent: "main"
+        comment: "Fixed arrow click functionality - arrows are now clickable buttons that trigger handleSwipePass() and handleDateRequest() functions for proper profile sliding."
         
   - task: "Change user names to pink color in discover page"
     implemented: true
