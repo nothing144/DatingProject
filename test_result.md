@@ -157,6 +157,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Fixed desktop support by adding mouse drag functionality alongside touch swipe for mobile. Added cursor grab/grabbing states and responsive instruction text."
+      - working: "NA"
+        agent: "main"
+        comment: "Added desktop arrow indicators (ChevronLeft/ChevronRight) with Pass/Like labels for better PC user experience."
         
   - task: "Change user names to pink color in discover page"
     implemented: true
