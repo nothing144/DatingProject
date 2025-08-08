@@ -253,15 +253,18 @@ frontend:
 
   - task: "Fix arrow click functionality for profile sliding"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/components/ProfileCard.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Fixed arrow indicators - converted from visual-only divs to clickable buttons with proper onClick handlers for handleSwipePass() and handleDateRequest()."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Cannot test profile navigation functionality due to architecture mismatch. Frontend uses Supabase (https://ljjyipvvxmduvxoyzvhf.supabase.co) which returns 404, while backend uses MongoDB. Authentication fails preventing access to Discover page where profile navigation would be tested. Code implementation appears correct but cannot be verified due to infrastructure issues."
 
 metadata:
   created_by: "main_agent"
