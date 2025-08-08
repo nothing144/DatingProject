@@ -234,7 +234,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/pages/Index.tsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -244,6 +244,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "CRITICAL: Username search UI implemented correctly with search/clear buttons, but fails due to missing 'profiles.username' column in Supabase database. Error: 'column profiles.username does not exist'. Frontend implementation is correct but backend schema needs username column."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Cannot test username search functionality due to architecture mismatch. Frontend uses Supabase (https://ljjyipvvxmduvxoyzvhf.supabase.co) which is inaccessible (404 error), while backend uses MongoDB. Authentication fails preventing access to Discover page where username search would be tested. The search implementation in code appears correct but cannot be verified."
 
   - task: "Test refresh button functionality across all tabs"
     implemented: true
