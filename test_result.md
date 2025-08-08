@@ -209,7 +209,7 @@ frontend:
     file: "/app/frontend/src/pages/Profile.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -217,6 +217,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ Save button mobile layout - no overflow detected. Mobile responsive design working correctly on 390px viewport."
+      - working: true
+        agent: "main"
+        comment: "Further improved mobile layout - buttons now consistently in flex-col with proper spacing and px-2 padding to ensure no overflow on any screen size."
         
   - task: "Add username search functionality"
     implemented: true
