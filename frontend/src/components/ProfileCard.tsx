@@ -316,7 +316,10 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             )}
             
             {profile.description && (
-              <p className="text-sm">{profile.description}</p>
+              <div>
+                <span className="text-sm font-semibold text-accent">About: </span>
+                <span className="text-muted-foreground text-sm">{profile.description}</span>
+              </div>
             )}
 
             {profile.interests && profile.interests.length > 0 && (
