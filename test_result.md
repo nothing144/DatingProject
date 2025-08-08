@@ -138,7 +138,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/pages/Profile.tsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -148,6 +148,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "CRITICAL: Username field UI implemented correctly with validation, but database column 'profiles.username' does not exist in Supabase. Error: 'column profiles.username does not exist'. Frontend code is correct but backend schema is missing the username column."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Cannot test username functionality due to architecture mismatch. Frontend uses Supabase (https://ljjyipvvxmduvxoyzvhf.supabase.co) which is inaccessible (404 error), while backend uses MongoDB. Authentication fails preventing access to profile editing page. The username field implementation in code appears correct but cannot be verified."
         
   - task: "Replace cross button with swipe functionality"
     implemented: true
