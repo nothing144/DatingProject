@@ -191,7 +191,7 @@ frontend:
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -199,6 +199,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ Bio label found in profile cards. Minor: Interests label not found in current profile but implementation is correct in code."
+      - working: true
+        agent: "main"
+        comment: "Enhanced profile labels - added 'About:' label for description section with proper styling matching Bio and Interests labels."
         
   - task: "Fix save button mobile layout"
     implemented: true
