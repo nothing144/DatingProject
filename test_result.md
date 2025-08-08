@@ -283,13 +283,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Add username field to Supabase profiles table schema"
-    - "Add username field to profile editing page"
-    - "Add username search functionality"
+    - "Fix architecture mismatch between frontend (Supabase) and backend (MongoDB)"
+    - "Resolve Supabase connectivity issues or migrate to MongoDB"
+    - "Fix arrow click functionality for profile sliding"
   stuck_tasks:
     - "Add username field to profile editing page"
     - "Add username search functionality"
-  test_all: true
+    - "Fix arrow click functionality for profile sliding"
+    - "Replace cross button with swipe functionality"
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
