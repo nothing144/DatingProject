@@ -220,8 +220,9 @@ test_plan:
     - "Add username field to Supabase profiles table schema"
     - "Add username field to profile editing page"
     - "Replace cross button with swipe functionality"
+    - "Desktop arrow indicators for swipe functionality"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
