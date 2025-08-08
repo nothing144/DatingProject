@@ -238,9 +238,13 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
 
       {/* Desktop Arrow Indicators */}
       <div className="hidden sm:block absolute left-2 top-1/2 transform -translate-y-1/2 z-10">
-        <div className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors">
+        <button 
+          onClick={() => handleSwipePass()}
+          className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors cursor-pointer"
+          disabled={loading}
+        >
           <ChevronLeft className="w-6 h-6 text-white" />
-        </div>
+        </button>
         <div className="text-center mt-1">
           <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded-full">
             Pass
@@ -248,9 +252,13 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         </div>
       </div>
       <div className="hidden sm:block absolute right-2 top-1/2 transform -translate-y-1/2 z-10">
-        <div className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors">
+        <button 
+          onClick={() => handleDateRequest()}
+          className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors cursor-pointer"
+          disabled={loading}
+        >
           <ChevronRight className="w-6 h-6 text-white" />
-        </div>
+        </button>
         <div className="text-center mt-1">
           <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded-full">
             Like
