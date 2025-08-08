@@ -232,3 +232,5 @@ agent_communication:
     message: "Backend API testing completed successfully. All 3 core endpoints (GET /api/, POST /api/status, GET /api/status) are working correctly. MongoDB connection is functional, CORS is properly configured, and all tests passed with 100% success rate. Backend is ready for production use."
   - agent: "main"
     message: "Fixed desktop swipe issue by adding mouse drag functionality alongside mobile touch swipe. Desktop users can now drag profiles left/right, with visual cursor feedback (grab/grabbing) and responsive instruction text. Both mobile and desktop interactions now work seamlessly."
+  - agent: "main"
+    message: "Enhanced desktop user experience by adding arrow indicators (ChevronLeft/ChevronRight icons) with Pass/Like labels on left and right sides of profile cards. Desktop users now have clear visual cues for swipe functionality alongside existing drag support."
