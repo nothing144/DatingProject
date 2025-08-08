@@ -133,23 +133,26 @@ backend:
 frontend:
   - task: "Add username field to profile editing page"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/pages/Profile.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added username field with validation, uniqueness check, and proper formatting to profile form"
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Username field UI implemented correctly with validation, but database column 'profiles.username' does not exist in Supabase. Error: 'column profiles.username does not exist'. Frontend code is correct but backend schema is missing the username column."
         
   - task: "Replace cross button with swipe functionality"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -160,54 +163,69 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Added desktop arrow indicators (ChevronLeft/ChevronRight) with Pass/Like labels for better PC user experience."
+      - working: true
+        agent: "testing"
+        comment: "✅ Desktop arrow indicators working perfectly (ChevronLeft/ChevronRight with Pass/Like labels). ✅ Visual feedback during drag detected (transform/opacity changes). ✅ Desktop drag functionality tested successfully. Cross button successfully replaced with swipe/drag functionality."
         
   - task: "Change user names to pink color in discover page"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Changed text-white to text-pink-400/pink-300 for user names and age"
+      - working: true
+        agent: "testing"
+        comment: "✅ User names display in pink color in discover page. Pink color classes (.text-pink-400/.text-pink-300) are working correctly."
         
   - task: "Add proper Bio and Interests labels"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ProfileCard.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added 'Bio:' and 'Interests:' labels with proper styling to profile display"
+      - working: true
+        agent: "testing"
+        comment: "✅ Bio label found in profile cards. Minor: Interests label not found in current profile but implementation is correct in code."
         
   - task: "Fix save button mobile layout"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Profile.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Changed button layout to flex-col on mobile and flex-row on desktop to prevent overflow"
+      - working: true
+        agent: "testing"
+        comment: "✅ Save button mobile layout - no overflow detected. Mobile responsive design working correctly on 390px viewport."
         
   - task: "Add username search functionality"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/pages/Index.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added username search input, search/clear buttons, and modified fetchProfiles to support filtering"
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Username search UI implemented correctly with search/clear buttons, but fails due to missing 'profiles.username' column in Supabase database. Error: 'column profiles.username does not exist'. Frontend implementation is correct but backend schema needs username column."
 
 metadata:
   created_by: "main_agent"
