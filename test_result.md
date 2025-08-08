@@ -236,6 +236,30 @@ frontend:
         agent: "testing"
         comment: "CRITICAL: Username search UI implemented correctly with search/clear buttons, but fails due to missing 'profiles.username' column in Supabase database. Error: 'column profiles.username does not exist'. Frontend implementation is correct but backend schema needs username column."
 
+  - task: "Test refresh button functionality across all tabs"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Index.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Refresh buttons implemented in all tabs (discover, messages, announcements, date-requests) with proper toast notifications and data fetching functions."
+
+  - task: "Fix arrow click functionality for profile sliding"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ProfileCard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed arrow indicators - converted from visual-only divs to clickable buttons with proper onClick handlers for handleSwipePass() and handleDateRequest()."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
