@@ -417,18 +417,18 @@ const Profile = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <div className="flex flex-col gap-3 mt-6 px-2">
               <Button
                 variant="outline"
                 onClick={() => navigate("/")}
-                className="w-full sm:flex-1 border-muted-foreground/30 hover:bg-muted"
+                className="w-full border-muted-foreground/30 hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDeleteProfile}
-                className="w-full sm:flex-1"
+                className="w-full"
                 disabled={saving}
               >
                 Delete Profile
@@ -436,7 +436,7 @@ const Profile = () => {
               <Button
                 onClick={handleSave}
                 disabled={saving || !profile.name}
-                className="w-full sm:flex-2 bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
+                className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
               >
                 {saving ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
