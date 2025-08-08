@@ -236,6 +236,28 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         </div>
       </div>
 
+      {/* Desktop Arrow Indicators */}
+      <div className="hidden sm:block absolute left-2 top-1/2 transform -translate-y-1/2 z-10">
+        <div className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors">
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </div>
+        <div className="text-center mt-1">
+          <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded-full">
+            Pass
+          </span>
+        </div>
+      </div>
+      <div className="hidden sm:block absolute right-2 top-1/2 transform -translate-y-1/2 z-10">
+        <div className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors">
+          <ChevronRight className="w-6 h-6 text-white" />
+        </div>
+        <div className="text-center mt-1">
+          <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded-full">
+            Like
+          </span>
+        </div>
+      </div>
+
       <Card 
         ref={cardRef}
         className="w-full max-w-sm mx-auto bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] hover:shadow-[var(--shadow-lightning)] transition-all duration-300 touch-none select-none cursor-grab active:cursor-grabbing"
