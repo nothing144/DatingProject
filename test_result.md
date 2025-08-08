@@ -237,9 +237,10 @@ test_plan:
   current_focus:
     - "Add username field to Supabase profiles table schema"
     - "Add username field to profile editing page"
-    - "Replace cross button with swipe functionality"
-    - "Desktop arrow indicators for swipe functionality"
-  stuck_tasks: []
+    - "Add username search functionality"
+  stuck_tasks:
+    - "Add username field to profile editing page"
+    - "Add username search functionality"
   test_all: true
   test_priority: "high_first"
 
@@ -252,3 +253,5 @@ agent_communication:
     message: "Fixed desktop swipe issue by adding mouse drag functionality alongside mobile touch swipe. Desktop users can now drag profiles left/right, with visual cursor feedback (grab/grabbing) and responsive instruction text. Both mobile and desktop interactions now work seamlessly."
   - agent: "main"
     message: "Enhanced desktop user experience by adding arrow indicators (ChevronLeft/ChevronRight icons) with Pass/Like labels on left and right sides of profile cards. Desktop users now have clear visual cues for swipe functionality alongside existing drag support."
+  - agent: "testing"
+    message: "COMPREHENSIVE TESTING COMPLETED: ✅ Authentication working with provided credentials. ✅ Swipe functionality perfect (desktop arrows, visual feedback, drag gestures). ✅ Pink user names working. ✅ Bio labels working. ✅ Mobile responsive design working. ❌ CRITICAL ISSUE: 'profiles.username' column missing from Supabase database - causing username functionality to fail. Frontend code is implemented correctly but backend schema needs the username column added."
