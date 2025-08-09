@@ -283,15 +283,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix architecture mismatch between frontend (Supabase) and backend (MongoDB)"
-    - "Resolve Supabase connectivity issues or migrate to MongoDB"
-    - "Fix arrow click functionality for profile sliding"
-  stuck_tasks:
-    - "Add username field to profile editing page"
-    - "Add username search functionality"
-    - "Fix arrow click functionality for profile sliding"
-    - "Replace cross button with swipe functionality"
-  test_all: false
+    - "Test complete Supabase application functionality"
+    - "Verify username functionality works correctly" 
+    - "Test swipe gestures and profile navigation"
+    - "Verify all UI improvements (pink names, labels, mobile layout)"
+  stuck_tasks: []
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
