@@ -98,11 +98,23 @@ def test_cors_headers():
     """Test CORS headers configuration"""
     print("\n🔍 Testing CORS headers...")
     try:
-        response = requests.get(f"{API_BASE}/")
-        cors_header = response.headers.get('Access-Control-Allow-Origin')
-        print(f"   CORS Header: {cors_header}")
+        # Test with OPTIONS request to check CORS preflight
+        headers = {
+            'Origin': 'http://localhost:3000',
+            'Access-Control-Request-Method': 'GET',
+            'Access-Control-Request-Headers': 'Content-Type'
+        }
+        response = requests.options(f"{API_BASE}/", headers=headers)
         
-        if cors_header == "*":
+        cors_origin = response.headers.get('Access-Control-Allow-Origin')
+        cors_methods = response.headers.get('Access-Control-Allow-Methods')
+        cors_credentials = response.headers.get('Access-Control-Allow-Credentials')
+        
+        print(f"   CORS Origin: {cors_origin}")
+        print(f"   CORS Methods: {cors_methods}")
+        print(f"   CORS Credentials: {cors_credentials}")
+        
+        if cors_origin and cors_methods and cors_credentials:
             print("   ✅ CORS properly configured")
             return True
         else:
