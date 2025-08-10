@@ -314,7 +314,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             <img
               src={displayImage}
               alt={profile.name}
-              className="w-full h-96 object-cover rounded-t-lg"
+              className="w-full h-80 sm:h-96 object-cover rounded-t-lg"
               onError={(e) => {
                 e.currentTarget.src = "/placeholder.svg";
               }}
