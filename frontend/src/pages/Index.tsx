@@ -126,11 +126,7 @@ const Index = () => {
       setUser(session?.user || null);
 
       if (!session) {
-        // Temporarily bypass auth for layout testing
-        console.log("No session, but allowing access for testing");
-        setUser({ id: "test-user", email: "test@example.com" });
-        setLoading(false);
-        // navigate("/auth");
+        navigate("/auth");
       } else {
 
         setLoading(false);
