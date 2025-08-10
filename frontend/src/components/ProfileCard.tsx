@@ -219,8 +219,8 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     setLoading(true);
     try {
       const { data, error } = await supabase.rpc('get_or_create_conversation', {
-        user1: currentUserId,
-        user2: profile.id
+        user1_id: currentUserId,
+        user2_id: profile.id
       });
 
       if (error) throw error;
