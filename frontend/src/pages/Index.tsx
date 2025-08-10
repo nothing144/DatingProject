@@ -573,7 +573,7 @@ const Index = () => {
 
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
 
-    <div className="container mx-auto p-4 max-w-md relative z-10 pb-24">
+    <div className="container mx-auto p-4 max-w-7xl relative z-10 pb-24">
 
 
 
