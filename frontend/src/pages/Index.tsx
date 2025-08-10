@@ -244,33 +244,18 @@ const Index = () => {
 
 
 
-  const fetchConfessions = async () => {
+ const fetchConfessions = async () => {
+  const { data, error } = await supabase
+    .from("confessions")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    const { data, error } = await supabase
-
-      .from("confessions")
-
-      .select("*")
-
-      .order("created_at", { ascending: false })
-
-      .limit(10);
-
-
-
-    if (error) {
-
-      console.error("Error fetching confessions:", error);
-
-    } else {
-
-      setConfessions(data || []);
-
-    }
-
-  };
-
-
+  if (error) {
+    console.error("Error fetching confessions:", error);
+  } else {
+    setConfessions(data || []);
+  }
+};
 
   const fetchConversations = async () => {
 
