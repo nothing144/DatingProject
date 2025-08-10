@@ -168,53 +168,75 @@ class SupabaseBackendTester:
     def test_get_or_create_conversation_rpc(self):
         """Test get_or_create_conversation RPC function with correct parameters"""
         try:
-            # Test the RPC function with user1_id and user2_id parameters
-            rpc_data = {
-                "user1_id": "test-user1-id-789",
-                "user2_id": "test-user2-id-012"
+            # First test with user1_id and user2_id (as expected by frontend)
+            rpc_data_new = {
+                "user1_id": "123e4567-e89b-12d3-a456-426614174000",
+                "user2_id": "123e4567-e89b-12d3-a456-426614174001"
             }
             
-            response = requests.post(
+            response_new = requests.post(
                 f"{self.supabase_url}/rest/v1/rpc/get_or_create_conversation",
                 headers=self.headers,
-                json=rpc_data,
+                json=rpc_data_new,
                 timeout=10
             )
             
-            if response.status_code in [200, 201]:
-                data = response.json()
+            if response_new.status_code in [200, 201]:
+                data = response_new.json()
                 self.log_test(
                     "get_or_create_conversation RPC Function", 
                     True, 
-                    "Successfully called RPC function with user1_id and user2_id parameters",
-                    {"rpc_response": data, "parameters_used": rpc_data}
+                    "✅ FIXED: RPC function now accepts user1_id and user2_id parameters correctly",
+                    {"rpc_response": data, "parameters_used": rpc_data_new}
                 )
                 return True
-            else:
-                # Check if it's a function not found error vs parameter error
-                error_text = response.text.lower()
-                if "function" in error_text and "does not exist" in error_text:
-                    self.log_test(
-                        "get_or_create_conversation RPC Function", 
-                        False, 
-                        "RPC function 'get_or_create_conversation' does not exist in database",
-                        {"status_code": response.status_code, "response": response.text}
-                    )
-                elif "parameter" in error_text or "argument" in error_text:
-                    self.log_test(
-                        "get_or_create_conversation RPC Function", 
-                        False, 
-                        "RPC function exists but parameter names are incorrect (should be user1_id, user2_id)",
-                        {"status_code": response.status_code, "response": response.text}
-                    )
-                else:
-                    self.log_test(
-                        "get_or_create_conversation RPC Function", 
-                        False, 
-                        f"RPC function call failed",
-                        {"status_code": response.status_code, "response": response.text}
-                    )
+            
+            # If that fails, test with old parameter names (user1, user2)
+            rpc_data_old = {
+                "user1": "123e4567-e89b-12d3-a456-426614174000",
+                "user2": "123e4567-e89b-12d3-a456-426614174001"
+            }
+            
+            response_old = requests.post(
+                f"{self.supabase_url}/rest/v1/rpc/get_or_create_conversation",
+                headers=self.headers,
+                json=rpc_data_old,
+                timeout=10
+            )
+            
+            if response_old.status_code in [200, 201]:
+                self.log_test(
+                    "get_or_create_conversation RPC Function", 
+                    False, 
+                    "❌ PARAMETER MISMATCH: RPC function still uses old parameter names (user1, user2) instead of (user1_id, user2_id)",
+                    {"working_parameters": rpc_data_old, "expected_parameters": rpc_data_new}
+                )
                 return False
+            
+            # Both failed - check error details
+            error_text = response_new.text.lower()
+            if "function" in error_text and "does not exist" in error_text:
+                self.log_test(
+                    "get_or_create_conversation RPC Function", 
+                    False, 
+                    "❌ RPC function 'get_or_create_conversation' does not exist in database",
+                    {"status_code": response_new.status_code, "response": response_new.text}
+                )
+            elif "parameter" in error_text or "argument" in error_text or "pgrst202" in error_text:
+                self.log_test(
+                    "get_or_create_conversation RPC Function", 
+                    False, 
+                    "❌ CRITICAL: RPC function parameter mismatch - frontend expects (user1_id, user2_id) but database has different parameters",
+                    {"frontend_call": rpc_data_new, "error_response": response_new.text}
+                )
+            else:
+                self.log_test(
+                    "get_or_create_conversation RPC Function", 
+                    False, 
+                    f"❌ RPC function call failed with unknown error",
+                    {"status_code": response_new.status_code, "response": response_new.text}
+                )
+            return False
                 
         except Exception as e:
             self.log_test(
