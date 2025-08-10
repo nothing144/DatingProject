@@ -8,7 +8,11 @@
     "start": "cd frontend && yarn start", 
     "build": "cd frontend && yarn build",
     "preview": "cd frontend && yarn preview",
-    "install-deps": "cd frontend && yarn install"
+    "install-deps": "cd frontend && yarn install",
+    "postinstall": "cd frontend && yarn install"
+  },
+  "devDependencies": {
+    "vite": "^5.4.19"
   },
   "keywords": ["react", "supabase", "dating-app", "college"],
   "author": "Heartbeat@ITER Team",
