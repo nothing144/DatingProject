@@ -316,7 +316,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
               alt={profile.name}
               className="w-full h-80 sm:h-96 object-cover rounded-t-lg"
               onError={(e) => {
-                e.currentTarget.src = "/placeholder.svg";
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff&size=800`;
               }}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-primary/10 to-transparent p-4">
