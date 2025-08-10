@@ -150,38 +150,38 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
               )}
               
               {/* Quick action overlay */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 sm:gap-3">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-3"
                   onClick={() => onPass(profile.id)}
                 >
                   Pass
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="outline" 
                   size="sm"
-                  className="bg-pink-500/80 border-pink-500/50 text-white hover:bg-pink-500"
+                  className="bg-pink-500/90 border-pink-500/60 text-white hover:bg-pink-500 text-xs sm:text-sm px-2 sm:px-3"
                   onClick={() => handleDateRequest(profile)}
                   disabled={loading[profile.id]}
                 >
-                  <Heart className="h-4 w-4 mr-1" />
+                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   Like
                 </Button>
               </div>
             </div>
 
             {/* Profile Info */}
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {/* Name and Age */}
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-pink-400 truncate">
+                <h3 className="text-base sm:text-lg font-semibold text-pink-400 truncate">
                   {profile.name}
                   {profile.age && <span className="text-pink-300">, {profile.age}</span>}
                 </h3>
                 {profile.username && (
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded flex-shrink-0 ml-2">
                     @{profile.username}
                   </span>
                 )}
@@ -189,23 +189,23 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
 
               {/* Location */}
               {profile.location && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <MapPin className="h-3 w-3" />
+                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
                   <span className="truncate">{profile.location}</span>
                 </div>
               )}
 
-              {/* Bio */}
+              {/* Bio - Mobile optimized */}
               {profile.shortBio && (
-                <div>
-                  <span className="text-sm font-semibold text-secondary">Bio: </span>
-                  <span className="text-sm text-muted-foreground line-clamp-2">{profile.shortBio}</span>
+                <div className="sm:block">
+                  <span className="text-xs sm:text-sm font-semibold text-secondary">Bio: </span>
+                  <span className="text-xs sm:text-sm text-muted-foreground line-clamp-2 sm:line-clamp-3">{profile.shortBio}</span>
                 </div>
               )}
 
-              {/* Description */}
+              {/* Description - Hidden on small mobile, visible on larger screens */}
               {profile.description && (
-                <div>
+                <div className="hidden sm:block">
                   <span className="text-sm font-semibold text-accent">About: </span>
                   <span className="text-sm text-muted-foreground line-clamp-2">{profile.description}</span>
                 </div>
@@ -214,16 +214,16 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
               {/* Interests */}
               {profile.interests && profile.interests.length > 0 && (
                 <div>
-                  <span className="text-sm font-semibold text-secondary mb-2 block">Interests:</span>
+                  <span className="text-xs sm:text-sm font-semibold text-secondary mb-1 sm:mb-2 block">Interests:</span>
                   <div className="flex flex-wrap gap-1">
-                    {profile.interests.slice(0, 3).map((interest, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
+                    {profile.interests.slice(0, 2).map((interest, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
                         {interest}
                       </Badge>
                     ))}
-                    {profile.interests.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{profile.interests.length - 3}
+                    {profile.interests.length > 2 && (
+                      <Badge variant="outline" className="text-xs px-2 py-1">
+                        +{profile.interests.length - 2}
                       </Badge>
                     )}
                   </div>
@@ -231,25 +231,25 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
               )}
 
               {/* Action Buttons */}
-              <div className="flex justify-center gap-3 pt-2">
+              <div className="flex justify-center gap-2 sm:gap-3 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-secondary/50 hover:bg-secondary hover:text-secondary-foreground"
+                  className="flex-1 border-secondary/50 hover:bg-secondary hover:text-secondary-foreground text-xs sm:text-sm py-2"
                   onClick={() => handleMessage(profile)}
                   disabled={loading[profile.id]}
                 >
-                  <MessageCircle className="h-4 w-4 mr-1" />
+                  <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   Message
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-primary/50 text-pink-500 hover:bg-pink-500 hover:text-white"
+                  className="flex-1 border-primary/50 text-pink-500 hover:bg-pink-500 hover:text-white text-xs sm:text-sm py-2"
                   onClick={() => handleDateRequest(profile)}
                   disabled={loading[profile.id]}
                 >
-                  <Heart className="h-4 w-4 mr-1" />
+                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   Like
                 </Button>
               </div>
