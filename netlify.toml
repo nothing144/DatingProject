@@ -1,17 +1,14 @@
 [build]
-  command = "npm install && npm run build"
+  command = "./build.sh"
   publish = "frontend/dist"
+
+# Alternative build commands if the main one fails:
+# command = "npm install && npm run build"
+# command = "cd frontend && yarn install && yarn build"
 
 [build.environment]
   NODE_VERSION = "18"
-  NPM_FLAGS = "--prefix=frontend"
-
-# Ensure frontend dependencies are installed
-[[plugins]]
-  package = "@netlify/plugin-yarn"
-
-[plugins.inputs]
-  dirs = ["frontend"]
+  YARN_VERSION = "1.22.19"
 
 [[redirects]]
   from = "/*"
