@@ -308,18 +308,12 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Test core dating app functionality (Date Requests, Conversations, RPC Functions)"
     - "Test Pass button functionality to ensure no blank UI during transitions"
-    - "Fix Supabase connectivity issues preventing authentication"
-    - "Test complete Supabase application functionality"
-    - "Verify username functionality works correctly" 
-    - "Test swipe gestures and profile navigation"
-  stuck_tasks:
-    - "Test Pass button functionality to ensure no blank UI during transitions"
-    - "Add username field to profile editing page"
     - "Replace cross button with swipe functionality"
-    - "Add username search functionality"
     - "Fix arrow click functionality for profile sliding"
-  test_all: true
+  stuck_tasks: []
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
