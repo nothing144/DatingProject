@@ -168,41 +168,48 @@ const Index = () => {
 
 
   const fetchProfiles = async (usernameFilter?: string) => {
+    try {
+      let query = supabase
+        .from("profiles")
+        .select("*")
+        .neq("id", user?.id);
 
-    let query = supabase
+      if (usernameFilter && usernameFilter.trim()) {
+        query = query.ilike("username", `%${usernameFilter.trim()}%`);
+      }
 
-      .from("profiles")
+      // Remove limit to fetch ALL profiles
+      const { data, error } = await query.order("created_at", { ascending: false });
 
-      .select("*")
-
-      .neq("id", user?.id);
-
-
-
-    if (usernameFilter && usernameFilter.trim()) {
-
-      query = query.ilike("username", `%${usernameFilter.trim()}%`);
-
-    }
-
-
-
-    const { data, error } = await query.limit(10);
-
-
-
-    if (error) {
-
+      if (error) {
+        console.error("Error fetching profiles:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profiles",
+          variant: "destructive"
+        });
+      } else {
+        const fetchedProfiles = data || [];
+        setAllProfiles(fetchedProfiles);
+        setProfiles(fetchedProfiles);
+        setCurrentProfileIndex(0);
+        
+        // Show success message with count
+        if (!usernameFilter) {
+          toast({
+            title: "Profiles loaded!",
+            description: `Found ${fetchedProfiles.length} profiles`
+          });
+        }
+      }
+    } catch (error) {
       console.error("Error fetching profiles:", error);
-
-    } else {
-
-      setProfiles(data || []);
-
-      setCurrentProfileIndex(0);
-
+      toast({
+        title: "Error",
+        description: "Failed to load profiles",
+        variant: "destructive"
+      });
     }
-
   };
 
 
