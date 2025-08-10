@@ -40,6 +40,10 @@ npm run preview
 ## ✨ Features Implemented
 - ✅ User authentication (Sign up/Sign in)
 - ✅ Profile management with username functionality
+- ✅ **NEW**: Multi-profile grid view (1-4 profiles per row, responsive)
+- ✅ **NEW**: View mode toggle (Grid/Single) - Default: Grid view
+- ✅ **NEW**: Load ALL profiles (removed 10-profile limit)
+- ✅ **NEW**: Enhanced refresh system with profile count indicators
 - ✅ Swipe gestures for profile browsing (replaces cross button)
 - ✅ Username search in discover page
 - ✅ Pink-colored usernames in discover page
@@ -49,6 +53,16 @@ npm run preview
 - ✅ Date requests functionality
 - ✅ Announcements and confessions
 - ✅ Favorites system
+
+## 🚀 Performance Improvements
+- **Reduced Database Read Costs**: Grid view displays multiple profiles simultaneously
+- **Optimized Profile Loading**: Now loads all available profiles instead of just 10
+- **Better User Experience**: Profile count indicators and enhanced feedback
+- **Responsive Grid Layout**: 
+  - Mobile: 1 column
+  - Tablet: 2 columns  
+  - Desktop: 3 columns
+  - Large screens: 4 columns
 
 ## 🎯 App Description
 **"College ka pyaar, semester jaisa — short & intense"**
