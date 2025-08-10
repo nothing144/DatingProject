@@ -77,18 +77,38 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
           status: 'pending'
         });
 
-      if (error) throw error;
-
-      toast({
-        title: "Date request sent!",
-        description: `Your date request has been sent to ${profile.name}!`
-      });
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast({
+            title: "Already Sent",
+            description: "You've already sent a date request to this person",
+            variant: "destructive"
+          });
+          setLoading(prev => ({ ...prev, [profile.id]: false }));
+          return;
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Date request sent!",
+          description: `Your date request has been sent to ${profile.name}!`
+        });
+        
+        // Create notification for the receiver
+        await supabase.rpc('create_notification', {
+          target_user_id: profile.id,
+          notification_type: 'date_request',
+          notification_title: 'New Date Request',
+          notification_message: `Someone sent you a date request!`
+        });
+      }
 
       onLike(profile.id);
     } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to send date request",
+        description: error.message || "Failed to send date request",
         variant: "destructive"
       });
     } finally {
