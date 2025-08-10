@@ -349,7 +349,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             {profile.description && (
               <div>
                 <span className="text-sm font-semibold text-accent">About: </span>
-                <span className="text-muted-foreground text-sm">{profile.description}</span>
+                <span className="text-muted-foreground text-sm line-clamp-3">{profile.description}</span>
               </div>
             )}
 
