@@ -267,6 +267,18 @@ frontend:
         agent: "testing"
         comment: "CRITICAL: Cannot test profile navigation functionality due to architecture mismatch. Frontend uses Supabase (https://ljjyipvvxmduvxoyzvhf.supabase.co) which returns 404, while backend uses MongoDB. Authentication fails preventing access to Discover page where profile navigation would be tested. Code implementation appears correct but cannot be verified due to infrastructure issues."
 
+  - task: "Test Pass button functionality to ensure no blank UI during transitions"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/ProfileCard.tsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL INFRASTRUCTURE BLOCKER: Cannot test Pass button functionality due to Supabase connectivity failure. The Supabase URL (https://ljjyipvvxmduvxoyzvhf.supabase.co) returns HTTP 404 error - project is inaccessible or doesn't exist. Authentication fails preventing access to main application. Code analysis shows Pass button implementation appears correct with proper CSS transitions (lines 138-153), style resets (lines 146-150), key prop for re-rendering (line 693), and fade-in animations for 'No more profiles' screen (lines 707-720). However, cannot verify actual functionality due to authentication barrier. This is the same infrastructure issue that has blocked previous testing attempts."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
