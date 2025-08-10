@@ -132,8 +132,15 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     if (cardRef.current) {
       cardRef.current.style.transform = 'translateX(-100%) rotate(-30deg)';
       cardRef.current.style.opacity = '0';
+      cardRef.current.style.transition = 'all 0.3s ease-in-out';
       setTimeout(() => {
         onPass();
+        // Reset card styles for next profile
+        if (cardRef.current) {
+          cardRef.current.style.transform = 'translateX(0px) rotate(0deg)';
+          cardRef.current.style.opacity = '1';
+          cardRef.current.style.transition = '';
+        }
       }, 300);
     }
   };
