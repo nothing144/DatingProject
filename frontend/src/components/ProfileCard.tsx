@@ -159,7 +159,8 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         .from("date_requests")
         .insert({
           sender_id: currentUserId,
-          receiver_id: profile.id
+          receiver_id: profile.id,
+          status: 'pending'
         });
 
       if (error) {
