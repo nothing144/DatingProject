@@ -247,7 +247,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     }
   };
 
-  const displayImage = profile.avatar_url || profile.photos?.[0] || "/placeholder.svg";
+  const displayImage = profile.avatar_url || profile.photos?.[0] || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&color=fff&size=800`;
 
   return (
     <div className="relative">
