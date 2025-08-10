@@ -37,8 +37,8 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
     try {
       const { data: existingConversation, error: fetchError } = await supabase
         .rpc('get_or_create_conversation', {
-          user1_id: currentUserId,
-          user2_id: profile.id
+          user1: currentUserId,
+          user2: profile.id
         });
 
       if (fetchError) throw fetchError;
