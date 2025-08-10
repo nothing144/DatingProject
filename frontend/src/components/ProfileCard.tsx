@@ -250,7 +250,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const displayImage = profile.avatar_url || profile.photos?.[0] || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&color=fff&size=800`;
 
   return (
-    <div className="relative">
+    <div className="relative max-w-sm mx-auto">
       {/* Swipe indicators */}
       <div className="absolute top-4 left-4 z-10 opacity-70">
         <div className={`px-3 py-1 rounded-full text-sm font-bold transition-opacity duration-200 ${
