@@ -215,9 +215,29 @@ const Index = () => {
 
 
   const handleUsernameSearch = () => {
-
     fetchProfiles(searchUsername);
+  };
 
+  const handleGridLike = (profileId: string) => {
+    // Remove liked profile from the grid
+    const updatedProfiles = profiles.filter(p => p.id !== profileId);
+    setProfiles(updatedProfiles);
+    
+    toast({
+      title: "Profile liked!",
+      description: "Profile has been liked and removed from your discover feed."
+    });
+  };
+
+  const handleGridPass = (profileId: string) => {
+    // Remove passed profile from the grid
+    const updatedProfiles = profiles.filter(p => p.id !== profileId);
+    setProfiles(updatedProfiles);
+    
+    toast({
+      title: "Profile passed",
+      description: "Profile has been passed and removed from your discover feed."
+    });
   };
 
 
