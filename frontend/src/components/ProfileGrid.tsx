@@ -127,21 +127,25 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 p-2 sm:p-4">
       {profiles.map((profile) => (
         <Card key={profile.id} className="relative overflow-hidden bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)] group">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             {/* Profile Image */}
-            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
+            <div className="relative w-full h-40 sm:h-48 mb-3 sm:mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
               {profile.avatar_url || (profile.photos && profile.photos[0]) ? (
                 <img
                   src={profile.avatar_url || profile.photos?.[0]}
                   alt={profile.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&color=fff&size=400`;
+                  }}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <User className="h-16 w-16 text-muted-foreground" />
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/30 to-secondary/30">
+                  <User className="h-12 w-12 sm:h-16 sm:w-16 text-white/80 mb-2" />
+                  <span className="text-white/60 text-sm font-medium">{profile.name}</span>
                 </div>
               )}
               
