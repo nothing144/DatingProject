@@ -690,6 +690,8 @@ const Index = () => {
 
               <ProfileCard
 
+                key={`${currentProfile.id}-${currentProfileIndex}`}
+
                 profile={currentProfile}
 
                 currentUserId={user.id}
@@ -702,7 +704,7 @@ const Index = () => {
 
             ) : (
 
-              <Card className="text-center p-8">
+              <Card className="text-center p-8 animate-in fade-in-50 duration-500">
 
                 <CardContent>
 
