@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 import ProfileCard from "@/components/ProfileCard";
+import ProfileGrid from "@/components/ProfileGrid";
 
 import Navigation from "@/components/Navigation";
 
