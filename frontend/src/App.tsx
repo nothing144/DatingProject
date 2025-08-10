@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ViewProfilePage from "@/pages/ViewProfilePage";
+import UIDemo from "./pages/UIDemo";
 
 const queryClient = new QueryClient();
 
