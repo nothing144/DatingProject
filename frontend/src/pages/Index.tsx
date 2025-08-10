@@ -41,7 +41,11 @@ const Index = () => {
 
   const [profiles, setProfiles] = useState<any[]>([]);
 
+  const [allProfiles, setAllProfiles] = useState<any[]>([]);
+
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+
+  const [viewMode, setViewMode] = useState<"single" | "grid">("grid"); // Default to grid view
   
   const [searchUsername, setSearchUsername] = useState("");
 
