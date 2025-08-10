@@ -608,137 +608,113 @@ const Index = () => {
         {/* Content based on active tab */}
 
         {activeTab === "discover" && (
-
           <div className="space-y-4">
-
             <div className="flex items-center justify-between">
-
               <h2 className="text-xl font-semibold">Discover</h2>
-
-              <Button 
-
-                variant="outline" 
-
-                size="sm"
-
-                onClick={() => {
-
-                  fetchProfiles();
-
-                  setCurrentProfileIndex(0);
-
-                  toast({ title: "Profiles refreshed!" });
-
-                }}
-
-                className="flex items-center gap-2"
-
-              >
-
-                <RotateCcw className="h-4 w-4" />
-
-                Refresh
-
-              </Button>
-
-            </div>
-
-            {/* Username Search */}
-
-            <div className="flex gap-2">
-
-              <Input
-
-                placeholder="Search by username..."
-
-                value={searchUsername}
-
-                onChange={(e) => setSearchUsername(e.target.value)}
-
-                onKeyPress={(e) => e.key === 'Enter' && handleUsernameSearch()}
-
-                className="flex-1 border-accent/30 focus:border-accent focus:ring-accent"
-
-              />
-
-              <Button
-
-                onClick={handleUsernameSearch}
-
-                variant="outline"
-
-                className="border-accent hover:bg-accent hover:text-accent-foreground"
-
-              >
-
-                Search
-
-              </Button>
-
-              {searchUsername && (
-
-                <Button
-
-                  onClick={() => {
-
-                    setSearchUsername("");
-
-                    fetchProfiles();
-
-                  }}
-
-                  variant="ghost"
-
+              <div className="flex items-center gap-2">
+                {/* View Mode Toggle */}
+                <div className="flex rounded-lg border border-border p-1">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="h-8 px-3"
+                  >
+                    Grid
+                  </Button>
+                  <Button
+                    variant={viewMode === "single" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("single")}
+                    className="h-8 px-3"
+                  >
+                    Single
+                  </Button>
+                </div>
+                
+                <Button 
+                  variant="outline" 
                   size="sm"
-
-                  className="text-muted-foreground hover:text-foreground"
-
+                  onClick={() => {
+                    fetchProfiles();
+                    setCurrentProfileIndex(0);
+                  }}
+                  className="flex items-center gap-2"
                 >
-
-                  Clear
-
+                  <RotateCcw className="h-4 w-4" />
+                  Refresh
                 </Button>
-
-              )}
-
+              </div>
             </div>
 
-            {currentProfile ? (
-
-              <ProfileCard
-
-                key={`${currentProfile.id}-${currentProfileIndex}`}
-
-                profile={currentProfile}
-
-                currentUserId={user.id}
-
-                onLike={handleLike}
-
-                onPass={handlePass}
-
-              />
-
-            ) : (
-
-              <Card className="text-center p-8 animate-in fade-in-50 duration-500">
-
-                <CardContent>
-
-                  <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-
-                  <h3 className="text-lg font-semibold mb-2">No more profiles</h3>
-
-                  <p className="text-muted-foreground">Check back later for new people!</p>
-
-                </CardContent>
-
-              </Card>
-
+            {/* Profile count indicator */}
+            {profiles.length > 0 && (
+              <div className="text-center">
+                <Badge variant="secondary" className="text-sm">
+                  {profiles.length} profile{profiles.length !== 1 ? 's' : ''} found
+                </Badge>
+              </div>
             )}
 
-          </div>
+            {/* Username Search */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Search by username..."
+                value={searchUsername}
+                onChange={(e) => setSearchUsername(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleUsernameSearch()}
+                className="flex-1 border-accent/30 focus:border-accent focus:ring-accent"
+              />
+              <Button
+                onClick={handleUsernameSearch}
+                variant="outline"
+                className="border-accent hover:bg-accent hover:text-accent-foreground"
+              >
+                Search
+              </Button>
+              {searchUsername && (
+                <Button
+                  onClick={() => {
+                    setSearchUsername("");
+                    fetchProfiles();
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
 
+            {/* Profile Display */}
+            {viewMode === "grid" ? (
+              <ProfileGrid
+                profiles={profiles}
+                currentUserId={user.id}
+                onLike={handleGridLike}
+                onPass={handleGridPass}
+              />
+            ) : (
+              currentProfile ? (
+                <ProfileCard
+                  key={`${currentProfile.id}-${currentProfileIndex}`}
+                  profile={currentProfile}
+                  currentUserId={user.id}
+                  onLike={handleLike}
+                  onPass={handlePass}
+                />
+              ) : (
+                <Card className="text-center p-8 animate-in fade-in-50 duration-500">
+                  <CardContent>
+                    <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No more profiles</h3>
+                    <p className="text-muted-foreground">Check back later for new people!</p>
+                  </CardContent>
+                </Card>
+              )
+            )}
+          </div>
         )}
 
 
