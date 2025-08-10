@@ -119,6 +119,13 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
       if (cardRef.current) {
         cardRef.current.style.transform = 'translateX(0px) rotate(0deg)';
         cardRef.current.style.opacity = '1';
+        cardRef.current.style.transition = 'all 0.2s ease-in-out';
+        // Remove transition after animation
+        setTimeout(() => {
+          if (cardRef.current) {
+            cardRef.current.style.transition = '';
+          }
+        }, 200);
       }
     }
     
