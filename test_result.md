@@ -103,7 +103,14 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Analyze the repo in discover page profiles are shown and on each profile there is a cross button so I want that it should be replaced by swipe in place that swipe should be written with proper styling and I want to implement username logic so add the username option in edit profile and search by username in discover page and in discover page you can see the users name written in white I want to turn it to pink and you can also see bio and interests are not labeled in profile in discover page it should be fixed and in edit profile there is save button but it is going out in phones so fix that
+  ORIGINAL REQUEST: Analyze the repo in discover page profiles are shown and on each profile there is a cross button so I want that it should be replaced by swipe in place that swipe should be written with proper styling and I want to implement username logic so add the username option in edit profile and search by username in discover page and in discover page you can see the users name written in white I want to turn it to pink and you can also see bio and interests are not labeled in profile in discover page it should be fixed and in edit profile there is save button but it is going out in phones so fix that
+
+  NEW IMPROVEMENTS REQUESTED:
+  1. Use realtime messaging only when chat page is open (not always running)
+  2. Increase message limit to 50 per conversation (previously 10), keep daily limit at 50
+  3. Add refresh button in notifications
+  4. Better profile viewing when clicking profiles in discover page
+  5. Implement pagination for messages when 50 limit is reached (no auto-scroll)
 
 ## CLEANUP COMPLETED:
 - Removed MongoDB backend completely (entire /backend folder)
