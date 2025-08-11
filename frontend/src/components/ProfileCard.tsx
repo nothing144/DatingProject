@@ -35,6 +35,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const [currentX, setCurrentX] = useState(0);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // Touch Events (Mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
