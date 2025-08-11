@@ -191,8 +191,8 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
             {/* Profile Info */}
             <div className="space-y-2 sm:space-y-3">
               {/* Name and Age */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-semibold text-pink-400 truncate">
+              <div className="flex items-center justify-between cursor-pointer" onClick={() => navigate(`/profile/${profile.id}`)}>
+                <h3 className="text-base sm:text-lg font-semibold text-pink-400 truncate hover:text-pink-300 transition-colors">
                   {profile.name}
                   {profile.age && <span className="text-pink-300">, {profile.age}</span>}
                 </h3>
