@@ -157,7 +157,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
           scrollContainer.scrollTop = scrollContainer.scrollHeight;
         }
       }
-    }, 100);
+    }, 150); // Increased timeout for better reliability
   }, []);
 
   const sendMessage = async () => {
