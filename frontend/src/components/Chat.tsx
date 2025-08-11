@@ -64,14 +64,24 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
           if (newMessage.sender_id !== currentUserId) {
             setMessages(prev => [...prev, newMessage]);
             setMessageCount(prev => prev + 1);
+            // Scroll to bottom when receiving new message
+            setTimeout(() => {
+              scrollToBottom();
+            }, 100);
           }
         }
       )
       .subscribe();
 
-    // Cleanup subscription on unmount
+    // Check daily limit every 30 seconds to handle day resets
+    const dailyLimitInterval = setInterval(() => {
+      checkDailyMessageLimit();
+    }, 30000); // Check every 30 seconds
+
+    // Cleanup subscription and interval on unmount
     return () => {
       supabase.removeChannel(messageChannel);
+      clearInterval(dailyLimitInterval);
     };
   }, [conversationId, currentUserId]);
 
