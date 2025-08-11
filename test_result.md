@@ -373,17 +373,18 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Test core dating app functionality (Date Requests, Conversations, RPC Functions)"
-    - "Test Pass button functionality to ensure no blank UI during transitions"
-    - "Replace cross button with swipe functionality"
-    - "Fix arrow click functionality for profile sliding"
+    - "Implement realtime messaging only when chat page is open"
+    - "Increase message limit to 50 per conversation"  
+    - "Add refresh button in notifications"
+    - "Implement pagination for messages"
+    - "Better profile viewing when clicking profiles"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Successfully implemented all requested features: username functionality with validation and search, swipe gestures replacing cross button, pink color for names, Bio/Interests labels, mobile-responsive save button layout, and comprehensive search functionality. All tasks completed and ready for testing."
+    message: "Successfully implemented all requested messaging and UI improvements: ✅ Realtime messaging now only active during chat sessions ✅ Message limit increased to 50 per conversation ✅ Refresh button added to notifications ✅ Message pagination implemented with 'Load Older Messages' button ✅ Enhanced profile viewing with clickable images, names, and dedicated view buttons. All features ready for testing."
   - agent: "testing"
     message: "Backend API testing completed successfully. All 3 core endpoints (GET /api/, POST /api/status, GET /api/status) are working correctly. MongoDB connection is functional, CORS is properly configured, and all tests passed with 100% success rate. Backend is ready for production use."
   - agent: "main"
