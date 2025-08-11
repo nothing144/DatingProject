@@ -181,6 +181,17 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     } else {
       setNewMessage("");
       setMessageCount(prev => prev + 1);
+      
+      // Add the message to state immediately for better UX
+      const optimisticMessage: Message = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        content: newMessage.trim(),
+        sender_id: currentUserId,
+        created_at: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, optimisticMessage]);
+      
+      // Refresh messages after a short delay to get the real message from DB
       setTimeout(() => {
         fetchMessages();
       }, 500);
