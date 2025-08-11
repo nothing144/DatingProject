@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Send, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Send, AlertTriangle, ChevronUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -34,10 +34,13 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   const [messageCount, setMessageCount] = useState(0);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const [sending, setSending] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const MESSAGE_LIMIT = 50;
   const DAILY_MESSAGE_LIMIT = 50;
+  const MESSAGES_PER_PAGE = 20;
 
   useEffect(() => {
     fetchMessages();
