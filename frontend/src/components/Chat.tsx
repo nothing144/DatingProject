@@ -133,8 +133,15 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       const currentMessageCount = loadMore ? messages.length + reversedMessages.length : reversedMessages.length;
       setHasMoreMessages(totalMessages > currentMessageCount);
 
+      // Check conversation message limit
       if (reversedMessages.length >= MESSAGE_LIMIT) {
-        setHasReachedLimit(true);
+        setHasReachedConversationLimit(true);
+        // Force scroll to bottom when conversation limit is reached
+        setTimeout(() => {
+          scrollToBottom();
+        }, 200);
+      } else {
+        setHasReachedConversationLimit(false);
       }
     }
     
