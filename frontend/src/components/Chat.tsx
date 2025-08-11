@@ -89,7 +89,9 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       .lte("created_at", `${today}T23:59:59.999Z`);
 
     if (!error && count && count >= DAILY_MESSAGE_LIMIT) {
-      setHasReachedLimit(true);
+      setHasReachedDailyLimit(true);
+    } else {
+      setHasReachedDailyLimit(false); // Reset daily limit if it's a new day
     }
   };
 
