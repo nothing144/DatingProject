@@ -45,7 +45,34 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   useEffect(() => {
     fetchMessages();
     checkDailyMessageLimit();
-  }, [conversationId]);
+    
+    // Set up real-time subscription for messages only when chat is open
+    const messageChannel = supabase
+      .channel(`messages:${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          // Only add message if it's not from current user (avoid duplicates)
+          if (newMessage.sender_id !== currentUserId) {
+            setMessages(prev => [...prev, newMessage]);
+            setMessageCount(prev => prev + 1);
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(messageChannel);
+    };
+  }, [conversationId, currentUserId]);
 
   useEffect(() => {
     scrollToBottom();
