@@ -297,7 +297,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       </Card>
 
       {/* Messages */}
-      <Card className="flex-1 flex flex-col">
+      <Card className="flex flex-1 flex-col flex-1 min-h-0">
         <ScrollArea className="flex-1 p-4 overflow-y-auto" ref={scrollAreaRef}>
 
           {loading ? (
