@@ -92,14 +92,18 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     }
   };
 
-  const fetchMessages = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
+  const fetchMessages = async (loadMore = false) => {
+    if (!loadMore) setLoading(true);
+    else setLoadingMore(true);
+
+    const offset = loadMore ? messages.length : 0;
+    
+    const { data, error, count } = await supabase
       .from("messages")
-      .select("*")
+      .select("*", { count: 'exact' })
       .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true }) // ✅ FIXED: removed incorrect semicolon
-      .limit(MESSAGE_LIMIT);                    // ✅ chained properly
+      .order("created_at", { ascending: false })
+      .range(offset, offset + MESSAGES_PER_PAGE - 1);
 
     if (error) {
       console.error("Error fetching messages:", error);
@@ -110,13 +114,29 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       });
     } else {
       const messageData = data || [];
-      setMessages(messageData);
-      setMessageCount(messageData.length);
-      if (messageData.length >= MESSAGE_LIMIT) {
+      // Reverse order for display (newest at bottom)
+      const reversedMessages = messageData.reverse();
+      
+      if (loadMore) {
+        // Prepend older messages to the beginning
+        setMessages(prev => [...reversedMessages, ...prev]);
+      } else {
+        setMessages(reversedMessages);
+        setMessageCount(reversedMessages.length);
+      }
+
+      // Check if there are more messages to load
+      const totalMessages = count || 0;
+      const currentMessageCount = loadMore ? messages.length + reversedMessages.length : reversedMessages.length;
+      setHasMoreMessages(totalMessages > currentMessageCount);
+
+      if (reversedMessages.length >= MESSAGE_LIMIT) {
         setHasReachedLimit(true);
       }
     }
-    setLoading(false);
+    
+    if (!loadMore) setLoading(false);
+    else setLoadingMore(false);
   };
 
   const scrollToBottom = useCallback(() => {
