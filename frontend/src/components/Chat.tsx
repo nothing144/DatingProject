@@ -252,6 +252,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         <AlertTriangle className="h-4 w-4 text-destructive" />
         <AlertDescription className="text-destructive">
           <strong>Limited Messaging:</strong> Only {MESSAGE_LIMIT} messages per conversation. Exchange contact details quickly and move to WhatsApp, Instagram, or other platforms.
+          Because database usage requires subscription help us to keep our community free.
         </AlertDescription>
       </Alert>
 
@@ -297,7 +298,8 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
 
       {/* Messages */}
       <Card className="flex-1 flex flex-col">
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+        <ScrollArea className="flex-1 p-4 overflow-y-auto" ref={scrollAreaRef}>
+
           {loading ? (
             <div className="text-center text-muted-foreground">Loading messages...</div>
           ) : (
