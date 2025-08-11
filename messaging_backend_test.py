@@ -231,8 +231,15 @@ def run_messaging_feature_tests():
     
     status, result = client.test_rpc_function("get_or_create_conversation", conversation_params)
     conversation_id = None
-    if status == 200 and isinstance(result, dict):
-        conversation_id = result.get('id')
+    if status == 200:
+        # RPC function returns the conversation ID directly as a string
+        if isinstance(result, str):
+            conversation_id = result
+        elif isinstance(result, dict) and 'id' in result:
+            conversation_id = result['id']
+        else:
+            conversation_id = str(result)  # Convert to string if it's a UUID
+        
         print(f"   ✅ Conversation RPC function working (ID: {conversation_id})")
         test_results.append(("Conversation Creation", True, f"RPC function working, ID: {conversation_id}"))
     elif status == 401:
