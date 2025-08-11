@@ -265,12 +265,25 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           {loading ? (
             <div className="text-center text-muted-foreground">Loading messages...</div>
-          ) : messages.length === 0 ? (
-            <div className="text-center text-muted-foreground">
-              No messages yet. Start the conversation!
-            </div>
           ) : (
             <div className="space-y-3">
+              {/* Load More Messages Button */}
+              {hasMoreMessages && (
+                <div className="text-center py-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchMessages(true)}
+                    disabled={loadingMore}
+                    className="text-xs"
+                  >
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    {loadingMore ? "Loading..." : "Load Older Messages"}
+                  </Button>
+                </div>
+              )}
+
+              {/* Message limit reached indicator */}
               {messageCount >= MESSAGE_LIMIT && (
                 <div className="text-center p-4 bg-destructive/10 rounded-lg">
                   <p className="text-sm text-destructive font-medium">
@@ -278,34 +291,42 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
                   </p>
                 </div>
               )}
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.sender_id === currentUserId ? 'justify-end' : 'justify-start'
-                  }`}
-                >
+
+              {/* Messages */}
+              {messages.length === 0 ? (
+                <div className="text-center text-muted-foreground">
+                  No messages yet. Start the conversation!
+                </div>
+              ) : (
+                messages.map((message, index) => (
                   <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
-                      message.sender_id === currentUserId
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                    key={message.id || index}
+                    className={`flex ${
+                      message.sender_id === currentUserId ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
-                      message.sender_id === currentUserId
-                        ? 'text-primary-foreground/70'
-                        : 'text-muted-foreground'
-                    }`}>
-                      {new Date(message.created_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
+                    <div
+                      className={`max-w-[80%] p-3 rounded-lg ${
+                        message.sender_id === currentUserId
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className={`text-xs mt-1 ${
+                        message.sender_id === currentUserId
+                          ? 'text-primary-foreground/70'
+                          : 'text-muted-foreground'
+                      }`}>
+                        {new Date(message.created_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </ScrollArea>
