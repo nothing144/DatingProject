@@ -134,22 +134,30 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
         <Card key={profile.id} className="relative overflow-hidden bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)] group">
           <CardContent className="p-3 sm:p-4">
             {/* Profile Image */}
-            <div className="relative w-full h-40 sm:h-48 mb-3 sm:mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
+            <div className="relative w-full h-40 sm:h-48 mb-3 sm:mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 cursor-pointer"
+                 onClick={() => navigate(`/profile/${profile.id}`)}>
               {profile.avatar_url || (profile.photos && profile.photos[0]) ? (
                 <img
                   src={profile.avatar_url || profile.photos?.[0]}
                   alt={profile.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&color=fff&size=400`;
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/30 to-secondary/30">
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/30 to-secondary/30 hover:from-primary/40 hover:to-secondary/40 transition-colors duration-300">
                   <User className="h-12 w-12 sm:h-16 sm:w-16 text-white/80 mb-2" />
                   <span className="text-white/60 text-sm font-medium">{profile.name}</span>
                 </div>
               )}
+              
+              {/* View Profile overlay - shows on hover */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="bg-white/90 rounded-full p-2 backdrop-blur-sm">
+                  <Eye className="h-5 w-5 text-gray-700" />
+                </div>
+              </div>
               
               {/* Quick action overlay */}
               <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 sm:gap-3">
@@ -157,7 +165,10 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
                   variant="outline"
                   size="sm"
                   className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-3"
-                  onClick={() => onPass(profile.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPass(profile.id);
+                  }}
                 >
                   Pass
                 </Button>
@@ -165,7 +176,10 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
                   variant="outline" 
                   size="sm"
                   className="bg-pink-500/90 border-pink-500/60 text-white hover:bg-pink-500 text-xs sm:text-sm px-2 sm:px-3"
-                  onClick={() => handleDateRequest(profile)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDateRequest(profile);
+                  }}
                   disabled={loading[profile.id]}
                 >
                   <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
