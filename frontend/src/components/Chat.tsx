@@ -161,7 +161,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   }, []);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || hasReachedLimit || sending) return;
+    if (!newMessage.trim() || hasReachedConversationLimit || hasReachedDailyLimit || sending) return;
 
     if (messageCount >= MESSAGE_LIMIT) {
       toast({
@@ -200,6 +200,11 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         created_at: new Date().toISOString()
       };
       setMessages(prev => [...prev, optimisticMessage]);
+      
+      // Force scroll to bottom after sending message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
       
       // Refresh messages after a short delay to get the real message from DB
       setTimeout(() => {
