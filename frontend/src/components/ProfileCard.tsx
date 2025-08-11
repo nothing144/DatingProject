@@ -316,13 +316,29 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
             <img
               src={displayImage}
               alt={profile.name}
-              className="w-full h-80 sm:h-96 object-cover rounded-t-lg"
+              className="w-full h-80 sm:h-96 object-cover rounded-t-lg cursor-pointer"
+              onClick={() => navigate(`/profile/${profile.id}`)}
               onError={(e) => {
                 e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff&size=800`;
               }}
             />
+            {/* View Profile overlay */}
+            <div className="absolute top-4 right-16 z-10">
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white/80 border-white/60 text-gray-700 hover:bg-white hover:text-gray-900"
+                onClick={() => navigate(`/profile/${profile.id}`)}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                View Profile
+              </Button>
+            </div>
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-primary/10 to-transparent p-4">
-              <h3 className="text-pink-400 text-xl font-bold">
+              <h3 
+                className="text-pink-400 text-xl font-bold cursor-pointer hover:text-pink-300 transition-colors"
+                onClick={() => navigate(`/profile/${profile.id}`)}
+              >
                 {profile.name}
                 {profile.age && (
                   <span className="text-pink-300 font-normal ml-2">{profile.age}</span>
