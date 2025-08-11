@@ -409,11 +409,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Implement realtime messaging only when chat page is open"
-    - "Increase message limit to 50 per conversation"  
-    - "Add refresh button in notifications"
-    - "Implement pagination for messages"
-    - "Better profile viewing when clicking profiles"
+    - "Test updated Chat functionality with auto-scroll and input hiding"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
