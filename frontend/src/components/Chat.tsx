@@ -309,10 +309,10 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
               )}
 
               {/* Message limit reached indicator */}
-              {messageCount >= MESSAGE_LIMIT && (
+              {hasReachedConversationLimit && (
                 <div className="text-center p-4 bg-destructive/10 rounded-lg">
                   <p className="text-sm text-destructive font-medium">
-                    Message limit reached! Exchange contact details to continue chatting.
+                    Conversation limit reached! Exchange contact details to continue chatting.
                   </p>
                 </div>
               )}
