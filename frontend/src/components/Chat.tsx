@@ -36,7 +36,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   const [sending, setSending] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const MESSAGE_LIMIT = 10;
+  const MESSAGE_LIMIT = 50;
   const DAILY_MESSAGE_LIMIT = 50;
 
   useEffect(() => {
