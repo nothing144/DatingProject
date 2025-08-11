@@ -40,11 +40,23 @@ const NotificationBell = ({ userId }: NotificationBellProps) => {
         <SheetHeader>
           <SheetTitle className="flex items-center justify-between">
             Notifications
-            {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-                Mark all read
+            <div className="flex gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={fetchNotifications}
+                disabled={loading}
+                className="flex items-center gap-1"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Refresh
               </Button>
-            )}
+              {unreadCount > 0 && (
+                <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                  Mark all read
+                </Button>
+              )}
+            </div>
           </SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
