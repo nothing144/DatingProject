@@ -315,6 +315,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ BACKEND VERIFIED: Message pagination working correctly. Successfully tested paginated message retrieval with offset/limit parameters. Page 1 loaded 5 messages, Page 2 loaded 0 messages (as expected). Backend properly supports range queries with order by created_at desc. Pagination infrastructure is functional for 20 messages per page."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE VERIFICATION: Message pagination fully functional with flexible page sizes. Tested with 20/10/5 messages per page - all working correctly. 'Load Older Messages' button backend support confirmed. Backend handles offset/limit queries properly with created_at desc ordering. No auto-scroll on pagination load (as requested). Pagination works independently of conversation limits."
 
   - task: "Better profile viewing when clicking profiles"
     implemented: true
