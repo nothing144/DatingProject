@@ -250,7 +250,65 @@ frontend:
         agent: "testing"
         comment: "CRITICAL: Cannot test username search functionality due to architecture mismatch. Frontend uses Supabase (https://ljjyipvvxmduvxoyzvhf.supabase.co) which is inaccessible (404 error), while backend uses MongoDB. Authentication fails preventing access to Discover page where username search would be tested. The search implementation in code appears correct but cannot be verified."
 
-  - task: "Test refresh button functionality across all tabs"
+  - task: "Implement realtime messaging only when chat page is open"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Chat.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added realtime subscription for messages that activates only when Chat component is mounted. Subscription automatically cleans up when chat is closed. Real-time updates now work only during active chat sessions instead of running globally."
+
+  - task: "Increase message limit to 50 per conversation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Chat.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated MESSAGE_LIMIT from 10 to 50 messages per conversation. Daily limit remains at 50. Updated UI warnings and alerts to reflect new 50-message limit."
+
+  - task: "Add refresh button in notifications"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/NotificationBell.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added refresh button with rotating icon in notification panel header. Button calls fetchNotifications() to reload notifications on demand. Shows loading state while refreshing."
+
+  - task: "Implement pagination for messages"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Chat.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Replaced message limiting with pagination system. Added 'Load Older Messages' button that loads 20 messages at a time. Messages now load from newest to oldest with pagination instead of hard 50-message cap. No auto-scroll behavior when limit reached."
+
+  - task: "Better profile viewing when clicking profiles"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ProfileGrid.tsx, /app/frontend/src/components/ProfileCard.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added clickable profile images and names that navigate to ViewProfilePage. Added 'View Profile' button in ProfileCard and 'View' action button in ProfileGrid. Enhanced hover effects with eye icon overlay on profile images. Profiles now clearly clickable with visual feedback."
     implemented: true
     working: "NA"
     file: "/app/frontend/src/pages/Index.tsx"
