@@ -417,6 +417,8 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Successfully implemented all requested messaging and UI improvements: ✅ Realtime messaging now only active during chat sessions ✅ Message limit increased to 50 per conversation ✅ Refresh button added to notifications ✅ Message pagination implemented with 'Load Older Messages' button ✅ Enhanced profile viewing with clickable images, names, and dedicated view buttons. All features ready for testing."
+  - agent: "main"
+    message: "✅ CHAT LIMIT IMPROVEMENTS COMPLETED (2025-01-30): Fixed critical chat UI issues - Auto-scroll now works when messages reach 50-message limit, message input area is completely hidden (not just disabled) when conversation limit is reached, daily limit properly resets on new day, and separated conversation vs daily limit logic. Chat now scrolls to bottom automatically when limit reached and shows proper UI states for different limit scenarios."
   - agent: "testing"
     message: "Backend API testing completed successfully. All 3 core endpoints (GET /api/, POST /api/status, GET /api/status) are working correctly. MongoDB connection is functional, CORS is properly configured, and all tests passed with 100% success rate. Backend is ready for production use."
   - agent: "main"
