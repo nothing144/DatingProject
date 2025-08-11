@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """
-Backend Testing for Date Request Functionality Fix
-Tests Supabase integration for date requests, error handling, and notifications
+Backend Testing for HeartBeat@ITER Messaging and Notification Features
+Tests Supabase integration for:
+1. Realtime messaging subscriptions (only when chat is open)
+2. Message limits (50 per conversation, 50 daily)
+3. Message pagination (20 messages per page)
+4. Notification refresh functionality
+5. Enhanced profile viewing
 """
 
 import requests
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 
 # Supabase configuration from frontend
 SUPABASE_URL = "https://ljjyipvvxmduvxoyzvhf.supabase.co"
