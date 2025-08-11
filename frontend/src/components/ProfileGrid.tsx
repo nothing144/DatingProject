@@ -252,6 +252,15 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
                   variant="outline"
                   size="sm"
                   className="flex-1 border-secondary/50 hover:bg-secondary hover:text-secondary-foreground text-xs sm:text-sm py-2"
+                  onClick={() => navigate(`/profile/${profile.id}`)}
+                >
+                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  View
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-accent/50 hover:bg-accent hover:text-accent-foreground text-xs sm:text-sm py-2"
                   onClick={() => handleMessage(profile)}
                   disabled={loading[profile.id]}
                 >
