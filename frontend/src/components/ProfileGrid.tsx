@@ -29,6 +29,7 @@ interface ProfileGridProps {
 
 const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridProps) => {
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
+  const navigate = useNavigate();
 
   const handleMessage = async (profile: Profile) => {
     if (loading[profile.id]) return;
