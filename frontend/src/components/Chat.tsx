@@ -32,7 +32,8 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messageCount, setMessageCount] = useState(0);
-  const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [hasReachedConversationLimit, setHasReachedConversationLimit] = useState(false);
+  const [hasReachedDailyLimit, setHasReachedDailyLimit] = useState(false);
   const [sending, setSending] = useState(false);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
