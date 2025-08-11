@@ -356,31 +356,47 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
           )}
         </ScrollArea>
 
-        {/* Message Input */}
-        <div className={`p-4 border-t ${hasReachedLimit ? 'opacity-50' : ''}`}>
-          <div className="flex gap-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={hasReachedLimit ? "Message limit reached" : "Type a message..."}
-              className="flex-1"
-              disabled={hasReachedLimit}
-            />
-            <Button 
-              onClick={sendMessage} 
-              size="icon" 
-              disabled={!newMessage.trim() || hasReachedLimit || sending}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+        {/* Message Input - Hide completely when conversation limit is reached */}
+        {!hasReachedConversationLimit && (
+          <div className={`p-4 border-t ${hasReachedDailyLimit ? 'opacity-50' : ''}`}>
+            <div className="flex gap-2">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={hasReachedDailyLimit ? "Daily message limit reached" : "Type a message..."}
+                className="flex-1"
+                disabled={hasReachedDailyLimit}
+              />
+              <Button 
+                onClick={sendMessage} 
+                size="icon" 
+                disabled={!newMessage.trim() || hasReachedDailyLimit || sending}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            {hasReachedDailyLimit && (
+              <p className="text-xs text-destructive mt-2 text-center">
+                Daily message limit reached. Try again tomorrow!
+              </p>
+            )}
           </div>
-          {hasReachedLimit && (
-            <p className="text-xs text-destructive mt-2 text-center">
-              Daily message limit reached. Try again tomorrow or exchange contact details.
-            </p>
-          )}
-        </div>
+        )}
+
+        {/* Show info when conversation limit is reached */}
+        {hasReachedConversationLimit && (
+          <div className="p-4 border-t bg-muted/50">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                💬 Conversation limit reached ({MESSAGE_LIMIT} messages)
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Exchange contact details to continue chatting on WhatsApp, Instagram, etc.
+              </p>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
