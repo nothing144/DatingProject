@@ -246,11 +246,21 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       </Alert>
 
       {/* Warning when near limit */}
-      {messageCount >= MESSAGE_LIMIT - 3 && (
+      {messageCount >= MESSAGE_LIMIT - 3 && messageCount < MESSAGE_LIMIT && (
         <Alert className="mb-4 border-yellow-500 bg-yellow-50">
           <AlertTriangle className="h-4 w-4 text-yellow-600" />
           <AlertDescription className="text-yellow-800">
             <strong>Warning:</strong> {MESSAGE_LIMIT - messageCount} messages remaining. Share your contact details now!
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Daily limit warning */}
+      {hasReachedDailyLimit && !hasReachedConversationLimit && (
+        <Alert className="mb-4 border-destructive bg-destructive/10">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <AlertDescription className="text-destructive">
+            <strong>Daily Limit Reached:</strong> You've sent {DAILY_MESSAGE_LIMIT} messages today. Try again tomorrow!
           </AlertDescription>
         </Alert>
       )}
