@@ -139,11 +139,12 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
                  onClick={() => navigate(`/profile/${profile.id}`)}>
               {profile.avatar_url || (profile.photos && profile.photos[0]) ? (
                 <img
-                  src={profile.avatar_url || profile.photos?.[0]}
+                  src={getThumbnailUrl(profile.avatar_url || profile.photos?.[0] || '')}
                   alt={profile.name}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
                   onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&color=fff&size=400`;
+                    e.currentTarget.src = getFallbackAvatarUrl(profile.name || 'User', 400);
                   }}
                 />
               ) : (
