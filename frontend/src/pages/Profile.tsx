@@ -275,11 +275,29 @@ const Profile = () => {
 
       if (profileError) throw profileError;
 
-      // For security, we can't use admin.deleteUser from client-side
-      // Instead, we'll sign out the user and let them know about account status
+      // Call the secure edge function to delete the auth user
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session?.access_token) {
+        try {
+          const response = await fetch(`${supabase.supabaseUrl}/functions/v1/delete-user`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            console.warn('Could not delete auth user via edge function:', await response.text());
+          }
+        } catch (edgeError) {
+          console.warn('Edge function not available, user auth record will remain:', edgeError);
+        }
+      }
+
       toast({
         title: "Profile Deleted",
-        description: "Your profile and all associated data have been deleted. Your account will be deactivated."
+        description: "Your profile and all associated data have been deleted."
       });
       
       // Sign out user
