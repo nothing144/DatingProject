@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, User, Megaphone, LogOut, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 interface NavigationProps {
   activeTab: string;
