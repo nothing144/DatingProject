@@ -225,6 +225,203 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
+  /* STUNNING PAGE BACKGROUNDS */
+  
+  /* Discover Page Background */
+  .discover-bg {
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(219, 39, 119, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 40% 70%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(34, 197, 94, 0.15) 0%, transparent 50%),
+      linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+    position: relative;
+  }
+  
+  .discover-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      linear-gradient(45deg, transparent 40%, rgba(219, 39, 119, 0.05) 50%, transparent 60%),
+      linear-gradient(-45deg, transparent 40%, rgba(59, 130, 246, 0.05) 50%, transparent 60%);
+    animation: shimmer-bg 8s ease-in-out infinite alternate;
+  }
+  
+  /* Messages Page Background */
+  .messages-bg {
+    background: 
+      radial-gradient(circle at 15% 25%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 45% 75%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 75% 85%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+      linear-gradient(225deg, #0a1628 0%, #1e3a8a 25%, #3730a3 50%, #7c3aed 75%, #be185d 100%);
+    position: relative;
+  }
+  
+  .messages-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(ellipse at center, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+    animation: pulse-gentle 6s ease-in-out infinite;
+  }
+  
+  /* Announcements/Campus Page Background */
+  .announcements-bg {
+    background: 
+      radial-gradient(circle at 25% 20%, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 75% 30%, rgba(34, 197, 94, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 10% 70%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
+      linear-gradient(315deg, #134e4a 0%, #166534 25%, #a16207 50%, #b45309 75%, #c2410c 100%);
+    position: relative;
+  }
+  
+  .announcements-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      conic-gradient(from 0deg at 30% 30%, transparent 0deg, rgba(251, 191, 36, 0.1) 60deg, transparent 120deg),
+      conic-gradient(from 180deg at 70% 70%, transparent 0deg, rgba(34, 197, 94, 0.1) 60deg, transparent 120deg);
+    animation: rotate-slow 20s linear infinite;
+  }
+  
+  /* Date Requests Page Background */
+  .date-requests-bg {
+    background: 
+      radial-gradient(circle at 30% 40%, rgba(236, 72, 153, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 70% 20%, rgba(244, 63, 94, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 90% 70%, rgba(251, 113, 133, 0.2) 0%, transparent 50%),
+      linear-gradient(135deg, #4c1d95 0%, #7c2d92 25%, #be185d 50%, #e11d48 75%, #dc2626 100%);
+    position: relative;
+  }
+  
+  .date-requests-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(ellipse 400px 300px at 25% 25%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 300px 400px at 75% 75%, rgba(244, 63, 94, 0.1) 0%, transparent 50%);
+    animation: heart-pulse 4s ease-in-out infinite;
+  }
+  
+  /* Profile Page Background */
+  .profile-bg {
+    background: 
+      radial-gradient(circle at 40% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 40%, rgba(168, 85, 247, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 20% 70%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 60% 90%, rgba(251, 191, 36, 0.15) 0%, transparent 50%),
+      linear-gradient(45deg, #1e1b4b 0%, #312e81 25%, #4c1d95 50%, #6d28d9 75%, #7c3aed 100%);
+    position: relative;
+  }
+  
+  .profile-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      linear-gradient(90deg, transparent 0%, rgba(168, 85, 247, 0.1) 50%, transparent 100%);
+    animation: slide-gradient 8s ease-in-out infinite alternate;
+  }
+  
+  /* Auth Page Background */
+  .auth-bg {
+    background: 
+      radial-gradient(circle at 50% 20%, rgba(219, 39, 119, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 90% 10%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+      linear-gradient(225deg, #0c0a09 0%, #1c1917 20%, #292524 40%, #451a03 60%, #7c2d12 80%, #dc2626 100%);
+    position: relative;
+  }
+  
+  .auth-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(219, 39, 119, 0.03) 100px, rgba(219, 39, 119, 0.03) 200px);
+    animation: drift 15s linear infinite;
+  }
+  
+  /* Floating Orb Effects */
+  .floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.6;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .floating-orb:nth-child(1) { 
+    width: 300px; 
+    height: 300px; 
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    top: 10%; 
+    left: 10%; 
+    animation-delay: -2s; 
+  }
+  .floating-orb:nth-child(2) { 
+    width: 200px; 
+    height: 200px; 
+    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+    top: 60%; 
+    right: 10%; 
+    animation-delay: -4s; 
+  }
+  .floating-orb:nth-child(3) { 
+    width: 250px; 
+    height: 250px; 
+    background: linear-gradient(45deg, #10b981, #059669);
+    bottom: 20%; 
+    left: 20%; 
+    animation-delay: -1s; 
+  }
+  
+  /* Particle Effects */
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    border-radius: 50%;
+    animation: particle-float 8s ease-in-out infinite;
+  }
+  
+  .particle:nth-child(odd) {
+    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+    animation-duration: 10s;
+  }
+  
+  .particle:nth-child(3n) {
+    background: linear-gradient(45deg, #10b981, #059669);
+    animation-duration: 12s;
+  }
   
   /* Enhanced Navigation */
   .nav-item {
@@ -277,84 +474,134 @@
     transform: scale(1.05);
     filter: brightness(1.1) contrast(1.15) saturate(1.15);
   }
-  
-  /* Enhanced Animations */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+}
+
+/* Enhanced Animations */
+@keyframes shimmer-bg {
+  0% { opacity: 0.5; transform: translateX(-10px); }
+  50% { opacity: 0.8; transform: translateX(10px); }
+  100% { opacity: 0.5; transform: translateX(-10px); }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes heart-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+  25% { transform: scale(1.05) rotate(1deg); opacity: 0.8; }
+  50% { transform: scale(1.1) rotate(0deg); opacity: 1; }
+  75% { transform: scale(1.05) rotate(-1deg); opacity: 0.8; }
+}
+
+@keyframes slide-gradient {
+  0% { transform: translateX(-100px); }
+  50% { transform: translateX(100px); }
+  100% { transform: translateX(-100px); }
+}
+
+@keyframes drift {
+  0% { transform: translateX(-10px) translateY(-10px); }
+  25% { transform: translateX(10px) translateY(-5px); }
+  50% { transform: translateX(5px) translateY(10px); }
+  75% { transform: translateX(-5px) translateY(5px); }
+  100% { transform: translateX(-10px) translateY(-10px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+  33% { transform: translateY(-20px) scale(1.05) rotate(120deg); }
+  66% { transform: translateY(10px) scale(0.95) rotate(240deg); }
+}
+
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0px) translateX(0px) scale(1); opacity: 0.7; }
+  25% { transform: translateY(-50px) translateX(20px) scale(1.2); opacity: 1; }
+  50% { transform: translateY(-20px) translateX(-10px) scale(0.8); opacity: 0.5; }
+  75% { transform: translateY(-80px) translateX(30px) scale(1.1); opacity: 0.9; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
   }
-  
-  @keyframes pulse-glow {
-    0%, 100% { 
-      box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
-    }
-    50% { 
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.8), 0 0 30px hsl(var(--primary) / 0.4);
-    }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  .animate-fadeInUp {
-    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
   }
-  
-  .animate-fadeInScale {
-    animation: fadeInScale 0.4s ease-out;
+  50% { 
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.8), 0 0 30px hsl(var(--primary) / 0.4);
   }
-  
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-  
-  /* Loading States */
-  .loading-shimmer {
-    @apply relative overflow-hidden bg-muted/20 rounded-[var(--radius)];
-  }
-  
-  .loading-shimmer::after {
-    content: '';
-    @apply absolute inset-0;
-    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
-    animation: shimmer 1.5s infinite;
-  }
-  
-  /* Accessibility Improvements */
-  .focus-enhanced {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
-    transition: var(--transition-fast);
-  }
-  
-  /* Responsive Grid System */
-  .grid-responsive {
-    @apply grid gap-4 sm:gap-6;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-  
-  .grid-responsive-sm {
-    @apply grid gap-3 sm:gap-4;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Loading States */
+.loading-shimmer {
+  @apply relative overflow-hidden bg-muted/20 rounded-[var(--radius)];
+}
+
+.loading-shimmer::after {
+  content: '';
+  @apply absolute inset-0;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Accessibility Improvements */
+.focus-enhanced {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
+  transition: var(--transition-fast);
+}
+
+/* Responsive Grid System */
+.grid-responsive {
+  @apply grid gap-4 sm:gap-6;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid-responsive-sm {
+  @apply grid gap-3 sm:gap-4;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 /* Utility Classes */
