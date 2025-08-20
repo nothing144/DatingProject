@@ -22,9 +22,27 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      // If Supabase returns an error, throw it to the catch block
+      throw error;
+    }
+    // This will run on successful logout
     navigate("/auth");
-  };
+  } catch (error: any) {
+    // This will catch any network errors or errors thrown from above
+    console.error("Error logging out:", error);
+    toast({
+      title: "Logout Failed",
+      description: "There was a problem logging out. Please try again.",
+      variant: "destructive",
+    });
+    // Forcibly navigate to the auth page even if logout fails,
+    // as the session is likely invalid anyway.
+    navigate("/auth");
+  }
+};
 
   const navItems = [
     { 
