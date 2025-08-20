@@ -476,6 +476,30 @@
   }
 }
 
+/* Enhanced Logo Glow Effects */
+  .logo-glow {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .logo-glow:hover,
+  .logo-glow:active {
+    text-shadow: 
+      0 0 10px rgba(168, 85, 247, 0.8),
+      0 0 20px rgba(168, 85, 247, 0.6),
+      0 0 30px rgba(168, 85, 247, 0.4);
+    filter: brightness(1.3) saturate(1.2);
+  }
+  
+  @media (max-width: 768px) {
+    .logo-glow:active {
+      text-shadow: 
+        0 0 15px rgba(168, 85, 247, 1),
+        0 0 25px rgba(168, 85, 247, 0.8),
+        0 0 35px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.4) saturate(1.3);
+    }
+  }
+
 /* Enhanced Animations */
 @keyframes shimmer-bg {
   0% { opacity: 0.5; transform: translateX(-10px); }
