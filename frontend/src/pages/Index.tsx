@@ -693,30 +693,27 @@ const Index = () => {
 
 
 
-        {/* Header */}
-
-        <div className="text-center mb-6 pt-4">
-
-          <div className="flex items-center justify-between mb-2">
-
+        {/* Enhanced Header with dynamic styling */}
+        <div className="text-center mb-6 pt-4 relative z-10">
+          <div className="flex items-center justify-between mb-4">
             <div className="w-8"></div>
-
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
-
-              ⚡ HeartBeat@ITER 
-
-            </h1>
-
+            
+            {/* Dynamic Logo based on active tab */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-secondary rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-all duration-500 animate-pulse"></div>
+              <h1 className="relative text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+                ⚡ HeartBeat@ITER 
+              </h1>
+            </div>
+            
             <NotificationBell userId={user.id} />
-
           </div>
-
-          <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-
-             College ka pyaar, semester jaisa — short & intense
-
-          </p>
-
+          
+          <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-white/10">
+            <p className="text-white/90 text-sm bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent font-medium">
+              College ka pyaar, semester jaisa — short & intense
+            </p>
+          </div>
         </div>
 
 
