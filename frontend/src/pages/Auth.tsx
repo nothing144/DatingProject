@@ -57,7 +57,9 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    console.log("Attempting sign up with:", email, name);
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -68,13 +70,17 @@ const Auth = () => {
       }
     });
 
+    console.log("Sign up result:", { data, error });
+
     if (error) {
+      console.error("Sign up error:", error);
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive"
       });
     } else {
+      console.log("Sign up successful:", data);
       toast({
         title: "Success!",
         description: "Check your email to confirm your account"
