@@ -87,16 +87,27 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    console.log("Attempting sign in with:", email);
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+    console.log("Auth result:", { data, error });
+
     if (error) {
+      console.error("Sign in error:", error);
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive"
+      });
+    } else {
+      console.log("Sign in successful:", data);
+      toast({
+        title: "Success!",
+        description: "Signed in successfully"
       });
     }
     setLoading(false);
