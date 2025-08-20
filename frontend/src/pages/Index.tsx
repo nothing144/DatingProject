@@ -695,6 +695,10 @@ const Index = () => {
       </div>
 
     <div className="container mx-auto p-4 max-w-7xl relative z-10 pb-24">
+        {/* Glass morphism overlay for better content readability */}
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px] rounded-3xl pointer-events-none"></div>
+        
+        <div className="relative z-10">
 
 
 
