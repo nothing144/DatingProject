@@ -907,7 +907,7 @@ const Index = () => {
 
           ) : (
 
-            <div className="space-y-4">
+            <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
 
               <Alert className="border-destructive bg-destructive/10">
 
