@@ -323,11 +323,26 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4 pb-24 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/6 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/6 w-80 h-80 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+    <div className="min-h-screen profile-bg p-4 pb-24 relative overflow-hidden">
+      {/* Enhanced Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Floating Orbs */}
+        <div className="floating-orb"></div>
+        <div className="floating-orb"></div>
+        <div className="floating-orb"></div>
+        
+        {/* Particle Effects */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${i * 0.7}s`,
+            }}
+          />
+        ))}
       </div>
 
       <div className="container mx-auto max-w-md relative z-10">
