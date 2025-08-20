@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Backend Testing for HeartBeat@ITER Messaging and Notification Features
+Backend Testing for HeartBeat@ITER Profile Management Features
 Tests Supabase integration for:
-1. Realtime messaging subscriptions (only when chat is open)
-2. Message limits (50 per conversation, 50 daily)
-3. Message pagination (20 messages per page)
-4. Notification refresh functionality
-5. Enhanced profile viewing
+1. Profile CRUD operations
+2. User authentication
+3. File upload capabilities (Storage)
+4. Secure user deletion (Edge Functions)
+5. Data validation and security
+
+Note: This app uses Supabase as Backend-as-a-Service (BaaS)
+No traditional backend server APIs to test.
 """
 
 import requests
