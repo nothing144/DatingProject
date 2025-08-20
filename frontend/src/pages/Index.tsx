@@ -1433,39 +1433,23 @@ const Index = () => {
                           </div>
 
                           {isReceived && request.status === 'pending' && (
-
-                            <div className="flex gap-2">
-
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
                               <Button
-
                                 size="sm"
-
                                 onClick={() => handleDateRequestResponse(request.id, 'accepted')}
-
-                                className="bg-green-600 hover:bg-green-700"
-
+                                className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                               >
-
                                 Accept
-
                               </Button>
-
                               <Button
-
                                 size="sm"
-
                                 variant="destructive"
-
                                 onClick={() => handleDateRequestResponse(request.id, 'rejected')}
-
+                                className="w-full sm:w-auto"
                               >
-
                                 Reject
-
                               </Button>
-
                             </div>
-
                           )}
 
                         </div>
