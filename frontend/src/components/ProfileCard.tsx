@@ -250,7 +250,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     }
   };
 
-  const displayImage = profile.avatar_url || profile.photos?.[0] || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&color=fff&size=800`;
+  const displayImage = getHighQualityUrl(profile.avatar_url || profile.photos?.[0] || getFallbackAvatarUrl(profile.name || 'User', 800));
 
   return (
     <div className="relative max-w-sm mx-auto">
