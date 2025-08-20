@@ -6,6 +6,7 @@ import { Heart, MessageCircle, MapPin, X, ChevronLeft, ChevronRight, Eye } from 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { getHighQualityUrl, getFallbackAvatarUrl } from "@/lib/imageUtils";
 
 interface Profile {
   id: string;
