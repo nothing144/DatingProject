@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Badge } from "@/components/ui/badge";
 
-import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Heart } from "lucide-react";
+import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Heart, Loader2 } from "lucide-react";
 
 import { toast } from "@/hooks/use-toast";
 
@@ -64,6 +64,13 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
 
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalProfiles, setTotalProfiles] = useState(0);
+  const PROFILES_PER_PAGE = 20;
 
   const navigate = useNavigate();
 
@@ -161,21 +168,34 @@ const Index = () => {
 
   }, [user]);
 
+  // Auto-prefetch for single view when user gets close to end
+  useEffect(() => {
+    if (viewMode === "single" && profiles.length > 0 && hasMore) {
+      const remainingProfiles = profiles.length - currentProfileIndex;
+      // Pre-fetch when 5 profiles remain
+      if (remainingProfiles <= 5 && !loadingMore) {
+        loadMoreProfiles(true); // Silent load for single view
+      }
+    }
+  }, [currentProfileIndex, profiles.length, viewMode, hasMore, loadingMore]);
 
-
-  const fetchProfiles = async (usernameFilter?: string) => {
+  const fetchProfiles = async (usernameFilter?: string, append: boolean = false) => {
     try {
+      const page = append ? currentPage : 0;
+      const offset = page * PROFILES_PER_PAGE;
+
       let query = supabase
         .from("profiles")
-        .select("*")
+        .select("*", { count: 'exact' })
         .neq("id", user?.id);
 
       if (usernameFilter && usernameFilter.trim()) {
         query = query.ilike("username", `%${usernameFilter.trim()}%`);
       }
 
-      // Remove limit to fetch ALL profiles
-      const { data, error } = await query.order("created_at", { ascending: false });
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .range(offset, offset + PROFILES_PER_PAGE - 1);
 
       if (error) {
         console.error("Error fetching profiles:", error);
@@ -186,15 +206,26 @@ const Index = () => {
         });
       } else {
         const fetchedProfiles = data || [];
-        setAllProfiles(fetchedProfiles);
-        setProfiles(fetchedProfiles);
-        setCurrentProfileIndex(0);
         
-        // Show success message with count
-        if (!usernameFilter) {
+        if (append) {
+          setProfiles(prev => [...prev, ...fetchedProfiles]);
+          setAllProfiles(prev => [...prev, ...fetchedProfiles]);
+        } else {
+          setProfiles(fetchedProfiles);
+          setAllProfiles(fetchedProfiles);
+          setCurrentProfileIndex(0);
+          setCurrentPage(0);
+        }
+
+        // Update pagination state
+        setTotalProfiles(count || 0);
+        setHasMore(fetchedProfiles.length === PROFILES_PER_PAGE && (offset + PROFILES_PER_PAGE) < (count || 0));
+        
+        // Show success message with count (only for initial load or search)
+        if (!append) {
           toast({
             title: "Profiles loaded!",
-            description: `Found ${fetchedProfiles.length} profiles`
+            description: `Found ${count || 0} profiles total, showing first ${Math.min(PROFILES_PER_PAGE, fetchedProfiles.length)}`
           });
         }
       }
@@ -208,9 +239,75 @@ const Index = () => {
     }
   };
 
+  const loadMoreProfiles = async (silent: boolean = false) => {
+    if (loadingMore || !hasMore) return;
+    
+    setLoadingMore(true);
+    
+    try {
+      const nextPage = currentPage + 1;
+      const offset = nextPage * PROFILES_PER_PAGE;
+
+      let query = supabase
+        .from("profiles")
+        .select("*", { count: 'exact' })
+        .neq("id", user?.id);
+
+      if (searchUsername && searchUsername.trim()) {
+        query = query.ilike("username", `%${searchUsername.trim()}%`);
+      }
+
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .range(offset, offset + PROFILES_PER_PAGE - 1);
+
+      if (error) {
+        console.error("Error loading more profiles:", error);
+        if (!silent) {
+          toast({
+            title: "Error",
+            description: "Failed to load more profiles",
+            variant: "destructive"
+          });
+        }
+      } else {
+        const fetchedProfiles = data || [];
+        
+        // Append new profiles
+        setProfiles(prev => [...prev, ...fetchedProfiles]);
+        setAllProfiles(prev => [...prev, ...fetchedProfiles]);
+        setCurrentPage(nextPage);
+        
+        // Update hasMore state
+        setHasMore(fetchedProfiles.length === PROFILES_PER_PAGE && (offset + PROFILES_PER_PAGE) < (count || 0));
+        
+        if (!silent && fetchedProfiles.length > 0) {
+          toast({
+            title: "More profiles loaded!",
+            description: `Loaded ${fetchedProfiles.length} more profiles`
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error loading more profiles:", error);
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "Failed to load more profiles",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
 
 
   const handleUsernameSearch = () => {
+    // Reset pagination for search
+    setCurrentPage(0);
+    setHasMore(true);
     fetchProfiles(searchUsername);
   };
 
@@ -632,6 +729,8 @@ const Index = () => {
                   variant="outline" 
                   size="sm"
                   onClick={() => {
+                    setCurrentPage(0);
+                    setHasMore(true);
                     fetchProfiles();
                     setCurrentProfileIndex(0);
                   }}
@@ -647,7 +746,7 @@ const Index = () => {
             {profiles.length > 0 && (
               <div className="text-center">
                 <Badge variant="secondary" className="text-sm">
-                  {profiles.length} profile{profiles.length !== 1 ? 's' : ''} found
+                  {profiles.length} of {totalProfiles} profile{totalProfiles !== 1 ? 's' : ''} loaded
                 </Badge>
               </div>
             )}
@@ -672,6 +771,8 @@ const Index = () => {
                 <Button
                   onClick={() => {
                     setSearchUsername("");
+                    setCurrentPage(0);
+                    setHasMore(true);
                     fetchProfiles();
                   }}
                   variant="ghost"
@@ -685,12 +786,44 @@ const Index = () => {
 
             {/* Profile Display */}
             {viewMode === "grid" ? (
-              <ProfileGrid
-                profiles={profiles}
-                currentUserId={user.id}
-                onLike={handleGridLike}
-                onPass={handleGridPass}
-              />
+              <div className="space-y-4">
+                <ProfileGrid
+                  profiles={profiles}
+                  currentUserId={user.id}
+                  onLike={handleGridLike}
+                  onPass={handleGridPass}
+                />
+                
+                {/* Load More Button for Grid View */}
+                {hasMore && profiles.length > 0 && (
+                  <div className="flex justify-center pt-6">
+                    <Button
+                      onClick={() => loadMoreProfiles()}
+                      disabled={loadingMore}
+                      variant="outline"
+                      size="lg"
+                      className="min-w-[200px] border-primary/50 hover:bg-primary hover:text-primary-foreground"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Loading More...
+                        </>
+                      ) : (
+                        `Load More Profiles (${Math.min(PROFILES_PER_PAGE, totalProfiles - profiles.length)} remaining)`
+                      )}
+                    </Button>
+                  </div>
+                )}
+                
+                {!hasMore && profiles.length > 0 && (
+                  <div className="text-center py-6">
+                    <Badge variant="outline" className="text-sm">
+                      You've seen all {totalProfiles} profiles! 🎉
+                    </Badge>
+                  </div>
+                )}
+              </div>
             ) : (
               currentProfile ? (
                 <ProfileCard
@@ -709,6 +842,13 @@ const Index = () => {
                   </CardContent>
                 </Card>
               )
+            )}
+
+            {/* Loading indicator for automatic prefetch in single view */}
+            {viewMode === "single" && loadingMore && (
+              <div className="fixed bottom-24 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2 border">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              </div>
             )}
           </div>
         )}
@@ -1232,7 +1372,6 @@ const Index = () => {
   <MessageCircle className="w-4 h-4" />
 
 </Button>
-
 
 
 
