@@ -170,27 +170,77 @@ const Profile = () => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    try {
-      // Create a simple data URL for the image (for demo purposes)
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setProfile(prev => ({
-            ...prev,
-            avatar_url: e.target!.result as string
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
-      
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(file.type)) {
       toast({
-        title: "Photo uploaded!",
-        description: "Your profile photo has been updated."
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, or WebP image.",
+        variant: "destructive"
       });
+      return;
+    }
+
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create file name with user ID and timestamp to avoid conflicts
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL for the uploaded file
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        // Remove old avatar if it exists and was uploaded to storage
+        if (profile.avatar_url && profile.avatar_url.includes('supabase')) {
+          const oldFileName = profile.avatar_url.split('/').pop();
+          if (oldFileName) {
+            await supabase.storage
+              .from('avatars')
+              .remove([`avatars/${oldFileName}`]);
+          }
+        }
+
+        setProfile(prev => ({
+          ...prev,
+          avatar_url: urlData.publicUrl
+        }));
+
+        toast({
+          title: "Photo uploaded!",
+          description: "Your profile photo has been updated."
+        });
+      }
     } catch (error: any) {
+      console.error('Upload error:', error);
       toast({
         title: "Upload failed",
-        description: error.message,
+        description: error.message || "Failed to upload image. Please try again.",
         variant: "destructive"
       });
     }
