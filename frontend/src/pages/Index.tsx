@@ -1506,7 +1506,7 @@ const Index = () => {
 
         {activeTab === "profile" && (
 
-          <div className="space-y-4">
+          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
 
             <Card className="text-center p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-primary/30 shadow-[var(--shadow-electric)]">
 
