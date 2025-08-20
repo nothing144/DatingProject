@@ -652,19 +652,42 @@ const Index = () => {
 
 
 
+  // Dynamic background class based on active tab
+  const getBackgroundClass = () => {
+    switch(activeTab) {
+      case "discover": return "discover-bg";
+      case "messages": return "messages-bg";
+      case "announcements": return "announcements-bg";
+      case "date-requests": return "date-requests-bg";
+      case "profile": return "profile-bg";
+      default: return "discover-bg";
+    }
+  };
+
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 relative overflow-hidden">
+    <div className={`min-h-screen ${getBackgroundClass()} relative overflow-hidden transition-all duration-1000`}>
 
-
-
-      {/* Electric background effects */}
-
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 animate-pulse"></div>
-
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-primary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+      {/* Enhanced Dynamic Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Floating Orbs */}
+        <div className="floating-orb"></div>
+        <div className="floating-orb"></div>
+        <div className="floating-orb"></div>
+        
+        {/* Particle Effects */}
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${i * 0.5}s`,
+            }}
+          />
+        ))}
+      </div>
 
     <div className="container mx-auto p-4 max-w-7xl relative z-10 pb-24">
 
