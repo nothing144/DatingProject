@@ -6,6 +6,7 @@ import { Heart, MessageCircle, MapPin, User, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { getThumbnailUrl, getFallbackAvatarUrl } from "@/lib/imageUtils";
 
 interface Profile {
   id: string;
