@@ -318,9 +318,10 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
               src={displayImage}
               alt={profile.name}
               className="w-full h-80 sm:h-96 object-cover rounded-t-lg cursor-pointer"
+              loading="lazy"
               onClick={() => navigate(`/profile/${profile.id}`)}
               onError={(e) => {
-                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff&size=800`;
+                e.currentTarget.src = getFallbackAvatarUrl(profile.name || 'User', 800);
               }}
             />
             {/* View Profile overlay */}
