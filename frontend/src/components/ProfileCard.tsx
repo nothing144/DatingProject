@@ -244,10 +244,10 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const displayImage = getHighQualityUrl(profile.avatar_url || profile.photos?.[0] || getFallbackAvatarUrl(profile.name || 'User', 800));
 
   return (
-    <div className="relative max-w-sm mx-auto animate-fadeInScale">
+    <div className="relative w-full max-w-sm mx-auto animate-fadeInScale">
       {/* Enhanced Swipe Indicators */}
-      <div className="absolute top-6 left-6 z-20">
-        <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${
+      <div className="absolute top-4 left-4 z-20">
+        <div className={`px-3 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${
           dragDirection === 'left' 
             ? 'opacity-100 bg-red-500/90 text-white scale-110 shadow-lg' 
             : 'opacity-0 scale-95'
@@ -259,8 +259,8 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         </div>
       </div>
       
-      <div className="absolute top-6 right-6 z-20">
-        <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${
+      <div className="absolute top-4 right-4 z-20">
+        <div className={`px-3 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${
           dragDirection === 'right' 
             ? 'opacity-100 bg-green-500/90 text-white scale-110 shadow-lg' 
             : 'opacity-0 scale-95'
@@ -273,31 +273,31 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
       </div>
 
       {/* Enhanced Desktop Arrow Controls */}
-      <div className="hidden sm:block absolute left-4 top-1/2 transform -translate-y-1/2 z-20">
+      <div className="hidden sm:block absolute left-3 top-1/2 transform -translate-y-1/2 z-20">
         <div className="flex flex-col items-center gap-2">
           <Button 
             onClick={() => handleSwipePass()}
-            className="w-12 h-12 rounded-full bg-red-500/20 backdrop-blur-md border border-red-500/30 hover:bg-red-500 hover:border-red-500 text-red-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg group"
+            className="w-10 h-10 rounded-full bg-red-500/20 backdrop-blur-md border border-red-500/30 hover:bg-red-500 hover:border-red-500 text-red-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg group"
             disabled={loading}
           >
-            <ChevronLeft className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <ChevronLeft className="w-4 h-4 group-hover:scale-110 transition-transform" />
           </Button>
-          <span className="text-xs font-medium bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-red-500 border border-red-500/20">
+          <span className="text-xs font-medium bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-red-500 border border-red-500/20">
             Pass
           </span>
         </div>
       </div>
       
-      <div className="hidden sm:block absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+      <div className="hidden sm:block absolute right-3 top-1/2 transform -translate-y-1/2 z-20">
         <div className="flex flex-col items-center gap-2">
           <Button 
             onClick={() => handleDateRequest()}
-            className="w-12 h-12 rounded-full bg-green-500/20 backdrop-blur-md border border-green-500/30 hover:bg-green-500 hover:border-green-500 text-green-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg group"
+            className="w-10 h-10 rounded-full bg-green-500/20 backdrop-blur-md border border-green-500/30 hover:bg-green-500 hover:border-green-500 text-green-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg group"
             disabled={loading}
           >
-            <ChevronRight className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <ChevronRight className="w-4 h-4 group-hover:scale-110 transition-transform" />
           </Button>
-          <span className="text-xs font-medium bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-green-500 border border-green-500/20">
+          <span className="text-xs font-medium bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-green-500 border border-green-500/20">
             Like
           </span>
         </div>
@@ -317,12 +317,12 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
       >
         <CardContent className="p-0">
           <div className="relative">
-            {/* Enhanced Profile Image */}
-            <div className="profile-image h-[400px] sm:h-[450px] cursor-pointer overflow-hidden">
+            {/* Properly Sized Profile Image */}
+            <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh] max-h-[600px] cursor-pointer overflow-hidden rounded-t-[var(--radius-xl)]">
               <img
                 src={displayImage}
                 alt={profile.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-all duration-500"
                 loading="lazy"
                 onClick={() => navigate(`/profile/${profile.id}`)}
                 onError={(e) => {
@@ -334,27 +334,27 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               
               {/* View Profile Button */}
-              <div className="absolute top-4 right-4 z-10">
+              <div className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105"
+                  className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 text-xs sm:text-sm"
                   onClick={() => navigate(`/profile/${profile.id}`)}
                 >
-                  <Eye className="h-4 w-4 mr-2" />
+                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   View Profile
                 </Button>
               </div>
               
               {/* Enhanced Profile Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
                 <h3 
-                  className="text-pink-400 text-2xl font-bold cursor-pointer hover:text-pink-300 transition-colors mb-1 drop-shadow-lg"
+                  className="text-pink-400 text-xl sm:text-2xl font-bold cursor-pointer hover:text-pink-300 transition-colors mb-1 drop-shadow-lg"
                   onClick={() => navigate(`/profile/${profile.id}`)}
                 >
                   {profile.name}
                   {profile.age && (
-                    <span className="text-pink-300 font-medium ml-3 text-xl">{profile.age}</span>
+                    <span className="text-pink-300 font-medium ml-2 sm:ml-3 text-lg sm:text-xl">{profile.age}</span>
                   )}
                 </h3>
                 
@@ -370,15 +370,15 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
                 )}
                 
                 {profile.shortBio && (
-                  <p className="text-white/80 text-sm leading-relaxed drop-shadow-sm">
+                  <p className="text-white/80 text-sm leading-relaxed drop-shadow-sm line-clamp-2">
                     {profile.shortBio}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Enhanced Profile Details Section */}
-            <div className="p-6 space-y-4 bg-gradient-to-b from-card to-card/95">
+            {/* Compact Profile Details Section */}
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-gradient-to-b from-card to-card/95">
               {profile.description && (
                 <div>
                   <span className="text-sm font-semibold text-accent flex items-center gap-2 mb-2">
@@ -420,29 +420,29 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
               )}
 
               {/* Enhanced Action Buttons */}
-              <div className="flex justify-center gap-4 pt-4">
+              <div className="flex justify-center gap-3 sm:gap-4 pt-3 sm:pt-4">
                 <Button
                   variant="outline"
                   size="lg"
-                  className="flex-1 max-w-[120px] h-12 rounded-full border-secondary/30 hover:border-secondary hover:bg-secondary/10 text-secondary hover:text-secondary transition-all duration-300 hover:scale-105 hover:shadow-lg group"
+                  className="flex-1 max-w-[120px] h-11 sm:h-12 rounded-full border-secondary/30 hover:border-secondary hover:bg-secondary/10 text-secondary hover:text-secondary transition-all duration-300 hover:scale-105 hover:shadow-lg group"
                   onClick={handleMessage}
                   disabled={loading}
                 >
-                  <MessageCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:scale-110 transition-transform" />
                   Chat
                 </Button>
 
                 <Button
                   variant="outline"
                   size="lg"
-                  className="flex-1 max-w-[120px] h-12 rounded-full border-pink-500/30 bg-gradient-to-r from-pink-500/10 to-rose-500/10 text-pink-500 hover:from-pink-500 hover:to-rose-500 hover:text-white hover:border-transparent transition-all duration-300 hover:scale-105 hover:shadow-lg group active:scale-95"
+                  className="flex-1 max-w-[120px] h-11 sm:h-12 rounded-full border-pink-500/30 bg-gradient-to-r from-pink-500/10 to-rose-500/10 text-pink-500 hover:from-pink-500 hover:to-rose-500 hover:text-white hover:border-transparent transition-all duration-300 hover:scale-105 hover:shadow-lg group active:scale-95"
                   onClick={handleDateRequest}
                   disabled={loading}
                 >
                   {loading ? (
-                    <div className="w-5 h-5 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Heart className="w-5 h-5 mr-2 fill-current group-hover:scale-110 transition-transform" />
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 mr-2 fill-current group-hover:scale-110 transition-transform" />
                   )}
                   Like
                 </Button>
