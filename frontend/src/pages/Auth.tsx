@@ -17,7 +17,10 @@ const Auth = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state change:", event, session);
+      
       if (session && event === 'SIGNED_IN') {
+        console.log("User signed in, checking profile:", session.user.id);
         // Check if user has a profile
         setTimeout(() => {
           checkProfileAndRedirect(session.user.id);
