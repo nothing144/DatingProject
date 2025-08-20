@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, MapPin, User, Eye } from "lucide-react";
+import { Heart, MessageCircle, MapPin, User, Eye, Zap, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +30,7 @@ interface ProfileGridProps {
 
 const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridProps) => {
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleMessage = async (profile: Profile) => {
@@ -46,14 +47,13 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
 
       if (fetchError) throw fetchError;
 
-      // Dispatch custom event to switch to messages tab
       window.dispatchEvent(new CustomEvent('switchToMessages', {
         detail: { conversationId: existingConversation }
       }));
 
       toast({
-        title: "Success!",
-        description: `Started conversation with ${profile.name}!`
+        title: "Conversation Started! 💬",
+        description: `Ready to chat with ${profile.name}!`
       });
     } catch (error: any) {
       toast({
@@ -81,9 +81,9 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
         });
 
       if (error) {
-        if (error.code === '23505') { // Unique constraint violation
+        if (error.code === '23505') {
           toast({
-            title: "Already Sent",
+            title: "Already Sent! 💕",
             description: "You've already sent a date request to this person",
             variant: "destructive"
           });
@@ -94,16 +94,15 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
         }
       } else {
         toast({
-          title: "Date request sent!",
-          description: `Your date request has been sent to ${profile.name}!`
+          title: "Date Request Sent! ✨",
+          description: `Your request has been sent to ${profile.name}!`
         });
         
-        // Create notification for the receiver
         await supabase.rpc('create_notification', {
           target_user_id: profile.id,
           notification_type: 'date_request',
           notification_title: 'New Date Request',
-          notification_message: `Someone sent you a date request!`
+          notification_message: `Someone sent you a date request! 💕`
         });
       }
 
@@ -121,52 +120,67 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
 
   if (profiles.length === 0) {
     return (
-      <div className="text-center py-12">
-        <User className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-foreground mb-2">No profiles found</h3>
-        <p className="text-muted-foreground">Try refreshing or adjusting your search.</p>
+      <div className="text-center py-16 animate-fadeInUp">
+        <div className="relative">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <User className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3 className="heading-secondary mb-4">No profiles found</h3>
+          <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed">
+            Try refreshing or adjusting your search to discover more amazing people! ⚡
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 p-2 sm:p-4">
-      {profiles.map((profile) => (
-        <Card key={profile.id} className="relative overflow-hidden bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)] group">
-          <CardContent className="p-3 sm:p-4">
-            {/* Profile Image */}
-            <div className="relative w-full h-40 sm:h-48 mb-3 sm:mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 cursor-pointer"
+    <div className="grid-responsive animate-fadeInUp">
+      {profiles.map((profile, index) => (
+        <Card 
+          key={profile.id} 
+          className="card-enhanced group cursor-pointer transform transition-all duration-500"
+          style={{ 
+            animationDelay: `${index * 0.1}s`,
+            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
+          }}
+          onMouseEnter={() => setHoveredCard(profile.id)}
+          onMouseLeave={() => setHoveredCard(null)}
+        >
+          <CardContent className="p-4">
+            {/* Enhanced Profile Image Section */}
+            <div className="profile-image mb-4 cursor-pointer relative overflow-hidden rounded-[var(--radius-lg)]"
                  onClick={() => navigate(`/profile/${profile.id}`)}>
+              
               {profile.avatar_url || (profile.photos && profile.photos[0]) ? (
                 <img
                   src={getThumbnailUrl(profile.avatar_url || profile.photos?.[0] || '')}
                   alt={profile.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover transition-all duration-500"
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.src = getFallbackAvatarUrl(profile.name || 'User', 400);
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/30 to-secondary/30 hover:from-primary/40 hover:to-secondary/40 transition-colors duration-300">
-                  <User className="h-12 w-12 sm:h-16 sm:w-16 text-white/80 mb-2" />
-                  <span className="text-white/60 text-sm font-medium">{profile.name}</span>
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/30 via-secondary/20 to-accent/30 text-white">
+                  <User className="h-12 w-12 sm:h-16 sm:w-16 mb-3 opacity-80" />
+                  <span className="text-sm sm:text-base font-medium opacity-90">{profile.name}</span>
                 </div>
               )}
               
-              {/* View Profile overlay - shows on hover */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <div className="bg-white/90 rounded-full p-2 backdrop-blur-sm">
-                  <Eye className="h-5 w-5 text-gray-700" />
+              {/* Enhanced View Profile Overlay */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="bg-white/20 backdrop-blur-md rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                  <Eye className="h-6 w-6 text-white" />
                 </div>
               </div>
               
-              {/* Quick action overlay */}
-              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 sm:gap-3">
+              {/* Action Buttons Overlay */}
+              <div className="absolute inset-x-4 bottom-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                 <Button
-                  variant="outline"
                   size="sm"
-                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-3"
+                  className="flex-1 bg-red-500/90 backdrop-blur-md hover:bg-red-500 text-white border-0 text-xs font-medium rounded-full py-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     onPass(profile.id);
@@ -175,108 +189,138 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
                   Pass
                 </Button>
                 <Button
-                  variant="outline" 
                   size="sm"
-                  className="bg-pink-500/90 border-pink-500/60 text-white hover:bg-pink-500 text-xs sm:text-sm px-2 sm:px-3"
+                  className="flex-1 bg-green-500/90 backdrop-blur-md hover:bg-green-500 text-white border-0 text-xs font-medium rounded-full py-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDateRequest(profile);
                   }}
                   disabled={loading[profile.id]}
                 >
-                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <Heart className="h-3 w-3 mr-1 fill-current" />
                   Like
                 </Button>
               </div>
             </div>
 
-            {/* Profile Info */}
-            <div className="space-y-2 sm:space-y-3">
-              {/* Name and Age */}
-              <div className="flex items-center justify-between cursor-pointer" onClick={() => navigate(`/profile/${profile.id}`)}>
-                <h3 className="text-base sm:text-lg font-semibold text-pink-400 truncate hover:text-pink-300 transition-colors">
-                  {profile.name}
-                  {profile.age && <span className="text-pink-300">, {profile.age}</span>}
-                </h3>
-                {profile.username && (
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded flex-shrink-0 ml-2">
-                    @{profile.username}
-                  </span>
-                )}
+            {/* Enhanced Profile Information */}
+            <div className="space-y-3">
+              {/* Name, Age, and Username */}
+              <div className="cursor-pointer" onClick={() => navigate(`/profile/${profile.id}`)}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-pink-400 hover:text-pink-300 transition-colors truncate">
+                    {profile.name}
+                    {profile.age && <span className="text-pink-300 font-medium">, {profile.age}</span>}
+                  </h3>
+                  {profile.username && (
+                    <Badge 
+                      variant="outline" 
+                      className="text-xs bg-muted/50 border-muted-foreground/30 text-muted-foreground ml-2 flex-shrink-0"
+                    >
+                      @{profile.username}
+                    </Badge>
+                  )}
+                </div>
               </div>
 
-              {/* Location */}
+              {/* Location with enhanced styling */}
               {profile.location && (
-                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-3 w-3 text-secondary flex-shrink-0" />
                   <span className="truncate">{profile.location}</span>
                 </div>
               )}
 
-              {/* Bio - Mobile optimized */}
+              {/* Enhanced Bio Section */}
               {profile.shortBio && (
-                <div className="sm:block">
-                  <span className="text-xs sm:text-sm font-semibold text-secondary">Bio: </span>
-                  <span className="text-xs sm:text-sm text-muted-foreground line-clamp-2 sm:line-clamp-3">{profile.shortBio}</span>
+                <div>
+                  <span className="text-xs font-semibold text-secondary flex items-center gap-1 mb-1">
+                    <Zap className="w-3 h-3" />
+                    Bio
+                  </span>
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {profile.shortBio}
+                  </p>
                 </div>
               )}
 
-              {/* Description - Hidden on small mobile, visible on larger screens */}
+              {/* Enhanced Description - Visible on larger screens */}
               {profile.description && (
                 <div className="hidden sm:block">
-                  <span className="text-sm font-semibold text-accent">About: </span>
-                  <span className="text-sm text-muted-foreground line-clamp-2">{profile.description}</span>
+                  <span className="text-xs font-semibold text-accent flex items-center gap-1 mb-1">
+                    <Sparkles className="w-3 h-3" />
+                    About
+                  </span>
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {profile.description}
+                  </p>
                 </div>
               )}
 
-              {/* Interests */}
+              {/* Enhanced Interests */}
               {profile.interests && profile.interests.length > 0 && (
                 <div>
-                  <span className="text-xs sm:text-sm font-semibold text-secondary mb-1 sm:mb-2 block">Interests:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {profile.interests.slice(0, 2).map((interest, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
+                  <span className="text-xs font-semibold text-secondary flex items-center gap-1 mb-2">
+                    <Heart className="w-3 h-3" />
+                    Interests
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profile.interests.slice(0, 3).map((interest, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="secondary" 
+                        className="text-xs px-2 py-1 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 transition-colors"
+                      >
                         {interest}
                       </Badge>
                     ))}
-                    {profile.interests.length > 2 && (
-                      <Badge variant="outline" className="text-xs px-2 py-1">
-                        +{profile.interests.length - 2}
+                    {profile.interests.length > 3 && (
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs px-2 py-1 border-muted-foreground/30 text-muted-foreground hover:border-primary/30 hover:text-primary transition-colors"
+                      >
+                        +{profile.interests.length - 3}
                       </Badge>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex justify-center gap-2 sm:gap-3 pt-2">
+              {/* Enhanced Action Buttons */}
+              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-secondary/50 hover:bg-secondary hover:text-secondary-foreground text-xs sm:text-sm py-2"
+                  className="h-9 text-xs font-medium border-secondary/30 hover:border-secondary hover:bg-secondary/10 text-secondary transition-all duration-300 hover:scale-105"
                   onClick={() => navigate(`/profile/${profile.id}`)}
                 >
-                  <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <Eye className="h-3 w-3 mr-1" />
                   View
                 </Button>
+                
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-accent/50 hover:bg-accent hover:text-accent-foreground text-xs sm:text-sm py-2"
+                  className="h-9 text-xs font-medium border-accent/30 hover:border-accent hover:bg-accent/10 text-accent transition-all duration-300 hover:scale-105"
                   onClick={() => handleMessage(profile)}
                   disabled={loading[profile.id]}
                 >
-                  <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <MessageCircle className="h-3 w-3 mr-1" />
                   Message
                 </Button>
+                
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-primary/50 text-pink-500 hover:bg-pink-500 hover:text-white text-xs sm:text-sm py-2"
+                  className="h-9 text-xs font-medium border-pink-500/30 hover:border-pink-500 hover:bg-pink-500 hover:text-white text-pink-500 transition-all duration-300 hover:scale-105 active:scale-95"
                   onClick={() => handleDateRequest(profile)}
                   disabled={loading[profile.id]}
                 >
-                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  {loading[profile.id] ? (
+                    <div className="w-3 h-3 mr-1 border border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Heart className="h-3 w-3 mr-1 fill-current" />
+                  )}
                   Like
                 </Button>
               </div>
