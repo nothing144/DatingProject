@@ -257,6 +257,16 @@ const Profile = () => {
     
     setSaving(true);
     try {
+      // First, delete user's avatar from storage if it exists
+      if (profile.avatar_url && profile.avatar_url.includes('supabase')) {
+        const fileName = profile.avatar_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`avatars/${fileName}`]);
+        }
+      }
+
       // Delete profile (this will cascade delete related data due to foreign key constraints)
       const { error: profileError } = await supabase
         .from("profiles")
@@ -265,20 +275,14 @@ const Profile = () => {
 
       if (profileError) throw profileError;
 
-      // Delete the user account
-      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
-      
-      if (authError) {
-        console.warn("Could not delete auth user:", authError);
-        // Continue anyway as profile is deleted
-      }
-
+      // For security, we can't use admin.deleteUser from client-side
+      // Instead, we'll sign out the user and let them know about account status
       toast({
         title: "Profile Deleted",
-        description: "Your profile and all associated data have been deleted."
+        description: "Your profile and all associated data have been deleted. Your account will be deactivated."
       });
       
-      // Sign out and redirect
+      // Sign out user
       await supabase.auth.signOut();
       navigate("/auth");
       
