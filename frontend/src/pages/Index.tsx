@@ -707,10 +707,10 @@ const Index = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="w-8"></div>
             
-            {/* Dynamic Logo based on active tab */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-secondary rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-all duration-500 animate-pulse"></div>
-              <h1 className="relative text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
+            {/* Dynamic Logo with enhanced interactions */}
+            <div className="relative group cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-secondary rounded-full blur-xl opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-all duration-500 animate-pulse group-hover:scale-110 group-active:scale-110"></div>
+              <h1 className="relative text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse hover:animate-none active:animate-none group-hover:drop-shadow-[0_0_15px_rgba(168,85,247,0.7)] group-active:drop-shadow-[0_0_15px_rgba(168,85,247,0.7)] transition-all duration-300">
                 ⚡ HeartBeat@ITER 
               </h1>
             </div>
