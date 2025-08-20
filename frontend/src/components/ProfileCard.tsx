@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, MapPin, X, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Heart, MessageCircle, MapPin, ChevronLeft, ChevronRight, Eye, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -56,8 +56,8 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     setDragDirection(direction);
 
     if (cardRef.current) {
-      cardRef.current.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.1}deg)`;
-      cardRef.current.style.opacity = `${1 - Math.abs(deltaX) / 300}`;
+      cardRef.current.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.08}deg)`;
+      cardRef.current.style.opacity = `${1 - Math.abs(deltaX) / 400}`;
     }
   };
 
@@ -72,7 +72,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     setIsDragging(true);
     setStartX(e.clientX);
     setCurrentX(e.clientX);
-    e.preventDefault(); // Prevent text selection
+    e.preventDefault();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -86,8 +86,8 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
     setDragDirection(direction);
 
     if (cardRef.current) {
-      cardRef.current.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.1}deg)`;
-      cardRef.current.style.opacity = `${1 - Math.abs(deltaX) / 300}`;
+      cardRef.current.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.08}deg)`;
+      cardRef.current.style.opacity = `${1 - Math.abs(deltaX) / 400}`;
     }
   };
 
@@ -107,28 +107,24 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   // Common drag end logic
   const handleDragEnd = () => {
     const deltaX = currentX - startX;
-    const threshold = 100; // Minimum distance for swipe/drag
+    const threshold = 120;
     
     if (Math.abs(deltaX) > threshold) {
       if (deltaX < 0) {
-        // Left drag/swipe - Pass
         handleSwipePass();
       } else {
-        // Right drag/swipe - Like
         handleDateRequest();
       }
     } else {
-      // Reset card position
       if (cardRef.current) {
         cardRef.current.style.transform = 'translateX(0px) rotate(0deg)';
         cardRef.current.style.opacity = '1';
-        cardRef.current.style.transition = 'all 0.2s ease-in-out';
-        // Remove transition after animation
+        cardRef.current.style.transition = 'var(--transition-spring)';
         setTimeout(() => {
           if (cardRef.current) {
             cardRef.current.style.transition = '';
           }
-        }, 200);
+        }, 400);
       }
     }
     
@@ -140,18 +136,17 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
 
   const handleSwipePass = () => {
     if (cardRef.current) {
-      cardRef.current.style.transform = 'translateX(-100%) rotate(-30deg)';
+      cardRef.current.style.transform = 'translateX(-120%) rotate(-45deg) scale(0.8)';
       cardRef.current.style.opacity = '0';
-      cardRef.current.style.transition = 'all 0.3s ease-in-out';
+      cardRef.current.style.transition = 'var(--transition-spring)';
       setTimeout(() => {
         onPass();
-        // Reset card styles for next profile
         if (cardRef.current) {
-          cardRef.current.style.transform = 'translateX(0px) rotate(0deg)';
+          cardRef.current.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
           cardRef.current.style.opacity = '1';
           cardRef.current.style.transition = '';
         }
-      }, 300);
+      }, 400);
     }
   };
 
@@ -167,9 +162,9 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         });
 
       if (error) {
-        if (error.code === '23505') { // Unique constraint violation
+        if (error.code === '23505') {
           toast({
-            title: "Already Sent",
+            title: "Already Sent! 💕",
             description: "You've already sent a date request to this person",
             variant: "destructive"
           });
@@ -180,33 +175,30 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         }
       } else {
         toast({
-          title: "Date Request Sent! 💕",
-          description: `Your date request has been sent to ${profile.name}`
+          title: "Date Request Sent! ✨",
+          description: `Your request has been sent to ${profile.name}`
         });
         
-        // Create notification for the receiver
         await supabase.rpc('create_notification', {
           target_user_id: profile.id,
           notification_type: 'date_request',
           notification_title: 'New Date Request',
-          notification_message: `Someone sent you a date request!`
+          notification_message: `Someone sent you a date request! 💕`
         });
       }
       
-      // Animate card out to the right
       if (cardRef.current) {
-        cardRef.current.style.transform = 'translateX(100%) rotate(30deg)';
+        cardRef.current.style.transform = 'translateX(120%) rotate(45deg) scale(0.8)';
         cardRef.current.style.opacity = '0';
-        cardRef.current.style.transition = 'all 0.3s ease-in-out';
+        cardRef.current.style.transition = 'var(--transition-spring)';
         setTimeout(() => {
           onLike();
-          // Reset card styles for next profile
           if (cardRef.current) {
-            cardRef.current.style.transform = 'translateX(0px) rotate(0deg)';
+            cardRef.current.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
             cardRef.current.style.opacity = '1';
             cardRef.current.style.transition = '';
           }
-        }, 300);
+        }, 400);
       }
     } catch (error: any) {
       toast({
@@ -234,7 +226,6 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
         description: `Go to Messages tab to chat with ${profile.name}`,
       });
       
-      // Trigger a custom event to switch to messages tab
       window.dispatchEvent(new CustomEvent('switchToMessages', { 
         detail: { conversationId: data } 
       }));
@@ -253,48 +244,60 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const displayImage = getHighQualityUrl(profile.avatar_url || profile.photos?.[0] || getFallbackAvatarUrl(profile.name || 'User', 800));
 
   return (
-    <div className="relative max-w-sm mx-auto">
-      {/* Swipe indicators */}
-      <div className="absolute top-4 left-4 z-10 opacity-70">
-        <div className={`px-3 py-1 rounded-full text-sm font-bold transition-opacity duration-200 ${
-          dragDirection === 'left' ? 'opacity-100 bg-red-500 text-white' : 'opacity-0'
+    <div className="relative max-w-sm mx-auto animate-fadeInScale">
+      {/* Enhanced Swipe Indicators */}
+      <div className="absolute top-6 left-6 z-20">
+        <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${
+          dragDirection === 'left' 
+            ? 'opacity-100 bg-red-500/90 text-white scale-110 shadow-lg' 
+            : 'opacity-0 scale-95'
         }`}>
-          PASS
+          <div className="flex items-center gap-2">
+            <ChevronLeft className="w-4 h-4" />
+            PASS
+          </div>
         </div>
       </div>
-      <div className="absolute top-4 right-4 z-10 opacity-70">
-        <div className={`px-3 py-1 rounded-full text-sm font-bold transition-opacity duration-200 ${
-          dragDirection === 'right' ? 'opacity-100 bg-green-500 text-white' : 'opacity-0'
+      
+      <div className="absolute top-6 right-6 z-20">
+        <div className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${
+          dragDirection === 'right' 
+            ? 'opacity-100 bg-green-500/90 text-white scale-110 shadow-lg' 
+            : 'opacity-0 scale-95'
         }`}>
-          LIKE
+          <div className="flex items-center gap-2">
+            LIKE
+            <ChevronRight className="w-4 h-4" />
+          </div>
         </div>
       </div>
 
-      {/* Desktop Arrow Indicators */}
-      <div className="hidden sm:block absolute left-2 top-1/2 transform -translate-y-1/2 z-10">
-        <button 
-          onClick={() => handleSwipePass()}
-          className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors cursor-pointer"
-          disabled={loading}
-        >
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
-        <div className="text-center mt-1">
-          <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded-full">
+      {/* Enhanced Desktop Arrow Controls */}
+      <div className="hidden sm:block absolute left-4 top-1/2 transform -translate-y-1/2 z-20">
+        <div className="flex flex-col items-center gap-2">
+          <Button 
+            onClick={() => handleSwipePass()}
+            className="w-12 h-12 rounded-full bg-red-500/20 backdrop-blur-md border border-red-500/30 hover:bg-red-500 hover:border-red-500 text-red-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg group"
+            disabled={loading}
+          >
+            <ChevronLeft className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </Button>
+          <span className="text-xs font-medium bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-red-500 border border-red-500/20">
             Pass
           </span>
         </div>
       </div>
-      <div className="hidden sm:block absolute right-2 top-1/2 transform -translate-y-1/2 z-10">
-        <button 
-          onClick={() => handleDateRequest()}
-          className="bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors cursor-pointer"
-          disabled={loading}
-        >
-          <ChevronRight className="w-6 h-6 text-white" />
-        </button>
-        <div className="text-center mt-1">
-          <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded-full">
+      
+      <div className="hidden sm:block absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+        <div className="flex flex-col items-center gap-2">
+          <Button 
+            onClick={() => handleDateRequest()}
+            className="w-12 h-12 rounded-full bg-green-500/20 backdrop-blur-md border border-green-500/30 hover:bg-green-500 hover:border-green-500 text-green-500 hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg group"
+            disabled={loading}
+          >
+            <ChevronRight className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </Button>
+          <span className="text-xs font-medium bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-green-500 border border-green-500/20">
             Like
           </span>
         </div>
@@ -302,7 +305,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
 
       <Card 
         ref={cardRef}
-        className="w-full bg-card/90 backdrop-blur-sm border-primary/30 shadow-[var(--shadow-electric)] hover:shadow-[var(--shadow-lightning)] transition-all duration-300 touch-none select-none cursor-grab active:cursor-grabbing"
+        className="profile-card w-full touch-none select-none cursor-grab active:cursor-grabbing overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -314,114 +317,150 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
       >
         <CardContent className="p-0">
           <div className="relative">
-            <img
-              src={displayImage}
-              alt={profile.name}
-              className="w-full h-80 sm:h-96 object-cover rounded-t-lg cursor-pointer"
-              loading="lazy"
-              onClick={() => navigate(`/profile/${profile.id}`)}
-              onError={(e) => {
-                e.currentTarget.src = getFallbackAvatarUrl(profile.name || 'User', 800);
-              }}
-            />
-            {/* View Profile overlay */}
-            <div className="absolute top-4 right-16 z-10">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-white/80 border-white/60 text-gray-700 hover:bg-white hover:text-gray-900"
+            {/* Enhanced Profile Image */}
+            <div className="profile-image h-[400px] sm:h-[450px] cursor-pointer overflow-hidden">
+              <img
+                src={displayImage}
+                alt={profile.name}
+                className="w-full h-full object-cover"
+                loading="lazy"
                 onClick={() => navigate(`/profile/${profile.id}`)}
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                View Profile
-              </Button>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-primary/10 to-transparent p-4">
-              <h3 
-                className="text-pink-400 text-xl font-bold cursor-pointer hover:text-pink-300 transition-colors"
-                onClick={() => navigate(`/profile/${profile.id}`)}
-              >
-                {profile.name}
-                {profile.age && (
-                  <span className="text-pink-300 font-normal ml-2">{profile.age}</span>
-                )}
-              </h3>
-              {profile.username && (
-                <p className="text-pink-300 text-sm">@{profile.username}</p>
-              )}
-              {profile.location && (
-                <div className="flex items-center text-white/80 text-sm mt-1">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {profile.location}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-4 space-y-3">
-            {profile.shortBio && (
-              <div>
-                <span className="text-sm font-semibold text-primary">Bio: </span>
-                <span className="text-muted-foreground text-sm">{profile.shortBio}</span>
+                onError={(e) => {
+                  e.currentTarget.src = getFallbackAvatarUrl(profile.name || 'User', 800);
+                }}
+              />
+              
+              {/* Enhanced Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+              
+              {/* View Profile Button */}
+              <div className="absolute top-4 right-4 z-10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105"
+                  onClick={() => navigate(`/profile/${profile.id}`)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Profile
+                </Button>
               </div>
-            )}
-            
-            {profile.description && (
-              <div>
-                <span className="text-sm font-semibold text-accent">About: </span>
-                <span className="text-muted-foreground text-sm line-clamp-3">{profile.description}</span>
-              </div>
-            )}
-
-            {profile.interests && profile.interests.length > 0 && (
-              <div>
-                <span className="text-sm font-semibold text-secondary mb-2 block">Interests:</span>
-                <div className="flex flex-wrap gap-1">
-                  {profile.interests.slice(0, 4).map((interest, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {interest}
-                    </Badge>
-                  ))}
-                  {profile.interests.length > 4 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{profile.interests.length - 4} more
-                    </Badge>
+              
+              {/* Enhanced Profile Info Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                <h3 
+                  className="text-pink-400 text-2xl font-bold cursor-pointer hover:text-pink-300 transition-colors mb-1 drop-shadow-lg"
+                  onClick={() => navigate(`/profile/${profile.id}`)}
+                >
+                  {profile.name}
+                  {profile.age && (
+                    <span className="text-pink-300 font-medium ml-3 text-xl">{profile.age}</span>
                   )}
-                </div>
+                </h3>
+                
+                {profile.username && (
+                  <p className="text-pink-300/90 text-sm mb-2 font-medium">@{profile.username}</p>
+                )}
+                
+                {profile.location && (
+                  <div className="flex items-center text-white/90 text-sm mb-3">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {profile.location}
+                  </div>
+                )}
+                
+                {profile.shortBio && (
+                  <p className="text-white/80 text-sm leading-relaxed drop-shadow-sm">
+                    {profile.shortBio}
+                  </p>
+                )}
               </div>
-            )}
-
-          <div className="flex justify-center gap-4 pt-2">
-
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full w-12 h-12 border-secondary/50 hover:bg-secondary hover:text-secondary-foreground hover:shadow-[0_0_20px_hsl(var(--secondary))] transition-all duration-300"
-              onClick={handleMessage}
-              disabled={loading}
-            >
-              <MessageCircle className="w-5 h-5" />
-            </Button>
-
-            <Button
-  variant="outline"
-  size="icon"
-  className="rounded-full w-12 h-12 border-primary/50 text-pink-500 hover:bg-pink-500 hover:text-white hover:shadow-[0_0_20px_hsl(var(--primary))] transition-all duration-300 active:scale-95"
-  onClick={handleDateRequest}
-  disabled={loading}
->
-  <Heart className="w-5 h-5 fill-current" />
-</Button>
-          </div>
-
-            {/* Swipe instruction text */}
-            <div className="text-center text-xs text-muted-foreground/70 mt-2">
-              <span className="block sm:hidden">Swipe left to pass, right to like</span>
-              <span className="hidden sm:block">Drag left to pass, right to like • Or use buttons</span>
             </div>
-        </div>
-      </CardContent>
-    </Card>
+
+            {/* Enhanced Profile Details Section */}
+            <div className="p-6 space-y-4 bg-gradient-to-b from-card to-card/95">
+              {profile.description && (
+                <div>
+                  <span className="text-sm font-semibold text-accent flex items-center gap-2 mb-2">
+                    <Zap className="w-4 h-4" />
+                    About
+                  </span>
+                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+                    {profile.description}
+                  </p>
+                </div>
+              )}
+
+              {profile.interests && profile.interests.length > 0 && (
+                <div>
+                  <span className="text-sm font-semibold text-secondary flex items-center gap-2 mb-3">
+                    <Heart className="w-4 h-4" />
+                    Interests
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.interests.slice(0, 6).map((interest, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="secondary" 
+                        className="text-xs px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 transition-colors"
+                      >
+                        {interest}
+                      </Badge>
+                    ))}
+                    {profile.interests.length > 6 && (
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs px-3 py-1 border-muted-foreground/30 text-muted-foreground hover:border-primary/30 hover:text-primary transition-colors"
+                      >
+                        +{profile.interests.length - 6} more
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Enhanced Action Buttons */}
+              <div className="flex justify-center gap-4 pt-4">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="flex-1 max-w-[120px] h-12 rounded-full border-secondary/30 hover:border-secondary hover:bg-secondary/10 text-secondary hover:text-secondary transition-all duration-300 hover:scale-105 hover:shadow-lg group"
+                  onClick={handleMessage}
+                  disabled={loading}
+                >
+                  <MessageCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  Chat
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="flex-1 max-w-[120px] h-12 rounded-full border-pink-500/30 bg-gradient-to-r from-pink-500/10 to-rose-500/10 text-pink-500 hover:from-pink-500 hover:to-rose-500 hover:text-white hover:border-transparent transition-all duration-300 hover:scale-105 hover:shadow-lg group active:scale-95"
+                  onClick={handleDateRequest}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Heart className="w-5 h-5 mr-2 fill-current group-hover:scale-110 transition-transform" />
+                  )}
+                  Like
+                </Button>
+              </div>
+
+              {/* Enhanced Swipe Instructions */}
+              <div className="text-center text-xs text-muted-foreground/70 pt-3 border-t border-border/30">
+                <span className="block sm:hidden bg-muted/20 px-3 py-2 rounded-full">
+                  💫 Swipe left to pass, right to like
+                </span>
+                <span className="hidden sm:block bg-muted/20 px-4 py-2 rounded-full">
+                  ⚡ Drag or use arrows to navigate • Click to view profile
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
