@@ -309,14 +309,23 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-secondary p-1">
-            <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center profile-bg relative overflow-hidden">
+        {/* Background Effects for Loading */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="floating-orb"></div>
+          <div className="floating-orb"></div>
+        </div>
+        
+        <div className="text-center relative z-10">
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-xl opacity-50 animate-pulse"></div>
+            <div className="relative w-20 h-20 mx-auto bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
             </div>
           </div>
-          <p className="text-muted-foreground">Loading your profile...</p>
+          <div className="bg-black/20 backdrop-blur-sm px-6 py-3 rounded-full border border-white/10">
+            <p className="text-white/90 font-medium">Loading your profile...</p>
+          </div>
         </div>
       </div>
     );
