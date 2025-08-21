@@ -5,15 +5,12 @@
 
 import { v2 as cloudinary } from 'cloudinary';
 
-// Cloudinary configuration
+// Cloudinary configuration from environment variables
 const CLOUDINARY_CONFIG = {
-  cloud_name: 'dlnatlmdq',
-  api_key: '855887866717832',
-  api_secret: 'hOrFPVEjc3Pvdz9g3ZevGHMjA5c'
+  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dlnatlmdq',
+  api_key: import.meta.env.VITE_CLOUDINARY_API_KEY || '855887866717832',
+  upload_preset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'heartbeat_preset'
 };
-
-// Configure Cloudinary (for server-side operations if needed)
-cloudinary.config(CLOUDINARY_CONFIG);
 
 /**
  * Upload image to Cloudinary using the Upload API
