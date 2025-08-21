@@ -92,12 +92,13 @@ const Profile = () => {
     
     // Validate username uniqueness if provided
     if (profile.username) {
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUsers, error: checkError } = await supabase
         .from("profiles")
         .select("id")
         .eq("username", profile.username)
-        .neq("id", user.id)
-        .single();
+        .neq("id", user.id);
+        
+      const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
 
       if (checkError && checkError.code !== 'PGRST116') {
         toast({
