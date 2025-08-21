@@ -1,14 +1,16 @@
 [build]
   command = "./build.sh"
   publish = "frontend/dist"
-
-# Alternative build commands if the main one fails:
-# command = "npm install && npm run build"
-# command = "cd frontend && yarn install && yarn build"
-
+  
 [build.environment]
   NODE_VERSION = "18"
   YARN_VERSION = "1.22.19"
+  NPM_FLAGS = "--no-fund --no-audit"
+
+# Build command alternatives for troubleshooting:
+# If build.sh fails, try these commands in Netlify:
+# 1. npm install && cd frontend && yarn install && yarn build
+# 2. cd frontend && yarn install --frozen-lockfile && yarn build
 
 [[redirects]]
   from = "/*"
@@ -24,3 +26,9 @@
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
