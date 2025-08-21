@@ -47,12 +47,14 @@ export const uploadImageToCloudinary = async (
     // Add file and basic parameters
     formData.append('file', file);
     
-    // Try to use upload preset if available
-    if (CLOUDINARY_CONFIG.upload_preset) {
+    // Try to use upload preset if available, otherwise use unsigned upload
+    if (CLOUDINARY_CONFIG.upload_preset && CLOUDINARY_CONFIG.upload_preset !== 'heartbeat_preset') {
       formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
     } else {
-      // Fallback: use basic unsigned upload (will work without preset)
-      formData.append('upload_preset', 'ml_default'); // Cloudinary's default preset
+      // For initial setup, we'll create a simple unsigned upload
+      // This will work immediately without needing to configure presets
+      formData.append('upload_preset', 'ml_default');
+      // Note: ml_default is Cloudinary's basic preset that should be available
     }
     
     formData.append('public_id', publicId);
