@@ -1,5 +1,5 @@
 [build]
-  command = "./build.sh"
+  command = "cd frontend && yarn install --frozen-lockfile && yarn build"
   publish = "frontend/dist"
   
 [build.environment]
@@ -7,10 +7,9 @@
   YARN_VERSION = "1.22.19"
   NPM_FLAGS = "--no-fund --no-audit"
 
-# Build command alternatives for troubleshooting:
-# If build.sh fails, try these commands in Netlify:
-# 1. npm install && cd frontend && yarn install && yarn build
-# 2. cd frontend && yarn install --frozen-lockfile && yarn build
+# Alternative build commands for troubleshooting:
+# If above fails, try: npm install && cd frontend && yarn install && yarn build
+# Or use the build script: ./build.sh
 
 [[redirects]]
   from = "/*"
