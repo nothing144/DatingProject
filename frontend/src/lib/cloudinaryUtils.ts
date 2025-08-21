@@ -44,15 +44,14 @@ export const uploadImageToCloudinary = async (
     const folder = options.folder || 'heartbeat_avatars';
     const publicId = options.public_id || `${folder}/user_${userId}_${timestamp}`;
     
-    // Try with upload preset first, fallback to unsigned if preset doesn't exist
-    let formData = new FormData();
+    // Add file and basic parameters
     formData.append('file', file);
     
     // Try to use upload preset if available
     if (CLOUDINARY_CONFIG.upload_preset) {
       formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
     } else {
-      // Fallback: use basic unsigned upload
+      // Fallback: use basic unsigned upload (will work without preset)
       formData.append('upload_preset', 'ml_default'); // Cloudinary's default preset
     }
     
