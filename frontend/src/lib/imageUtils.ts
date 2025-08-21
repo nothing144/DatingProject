@@ -146,9 +146,20 @@ export const getOptimizedImageUrl = (
 };
 
 /**
- * Get thumbnail version of image for grid view
+ * Get thumbnail version of image - Updated to use Cloudinary
  */
 export const getThumbnailUrl = (originalUrl: string): string => {
+  if (!originalUrl) return '';
+  
+  // Use Cloudinary thumbnail if it's a Cloudinary URL
+  if (isCloudinaryUrl(originalUrl)) {
+    const publicId = extractPublicIdFromUrl(originalUrl);
+    if (publicId) {
+      return getCloudinaryThumbnailUrl(publicId);
+    }
+  }
+  
+  // Fallback to optimized URL for non-Cloudinary images
   return getOptimizedImageUrl(originalUrl, {
     width: 300,
     height: 300,
@@ -159,9 +170,20 @@ export const getThumbnailUrl = (originalUrl: string): string => {
 };
 
 /**
- * Get high quality version of image for single profile view
+ * Get high quality version of image - Updated to use Cloudinary
  */
 export const getHighQualityUrl = (originalUrl: string): string => {
+  if (!originalUrl) return '';
+  
+  // Use Cloudinary high quality if it's a Cloudinary URL
+  if (isCloudinaryUrl(originalUrl)) {
+    const publicId = extractPublicIdFromUrl(originalUrl);
+    if (publicId) {
+      return getCloudinaryHighQualityUrl(publicId);
+    }
+  }
+  
+  // Fallback to optimized URL for non-Cloudinary images
   return getOptimizedImageUrl(originalUrl, {
     width: 800,
     height: 800,
