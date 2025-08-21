@@ -48,70 +48,34 @@ export const uploadImageToCloudinary = async (
     formData.append('file', file);
     formData.append('public_id', publicId);
     
-    // Use a simple approach: try the custom preset, fall back to a working method
-    try {
-      // First try with custom preset if available
-      if (CLOUDINARY_CONFIG.upload_preset) {
-        formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
-      } else {
-        // Create a basic upload without preset
-        formData.append('api_key', CLOUDINARY_CONFIG.api_key);
-        formData.append('timestamp', Math.round(Date.now() / 1000).toString());
-        // Add transformation parameters directly
-        formData.append('quality', 'auto');
-        formData.append('format', 'auto');
-        formData.append('crop', 'fill');
-        formData.append('gravity', 'auto');
-      }
-      
-      // Upload to Cloudinary using unsigned upload
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || `Upload failed: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      return {
-        url: data.secure_url,
-        public_id: data.public_id
-      };
-    } catch (presetError) {
-      // If preset fails, try a simple unsigned upload approach
-      console.warn('Upload preset failed, trying alternative approach:', presetError);
-      
-      // Clear form data and try again with minimal parameters
-      const simpleFormData = new FormData();
-      simpleFormData.append('file', file);
-      
-      const simpleResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/upload`,
-        {
-          method: 'POST',
-          body: simpleFormData,
-        }
-      );
-      
-      if (!simpleResponse.ok) {
-        const errorData = await simpleResponse.json();
-        throw new Error(errorData.error?.message || 'Upload failed with fallback method');
-      }
-      
-      const simpleData = await simpleResponse.json();
-      
-      return {
-        url: simpleData.secure_url,
-        public_id: simpleData.public_id
-      };
+    // Use the upload preset for unsigned upload
+    if (CLOUDINARY_CONFIG.upload_preset) {
+      formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
+    } else {
+      throw new Error('Upload preset is required for unsigned uploads');
     }
+    
+    // Upload to Cloudinary using unsigned upload
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Cloudinary upload error:', errorData);
+      throw new Error(errorData.error?.message || `Upload failed: ${response.status} - ${errorData.error?.details || 'Unknown error'}`);
+    }
+    
+    const data = await response.json();
+    
+    return {
+      url: data.secure_url,
+      public_id: data.public_id
+    };
   } catch (error) {
     console.error('Cloudinary upload error:', error);
     throw error;
