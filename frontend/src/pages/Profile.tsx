@@ -234,7 +234,7 @@ const Profile = () => {
     if (!user) return;
     
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete your profile? This action cannot be undone and will remove all your data including messages, date requests, and announcements."
+      "Are you sure you want to delete your profile? This action cannot be undone and will remove all your data including messages, date requests, and announcements. Your email will also be deleted from authentication, so you'll need to sign up again if you want to use the app."
     );
     
     if (!confirmDelete) return;
@@ -249,7 +249,65 @@ const Profile = () => {
         }
       }
 
-      // Delete profile from Supabase database (keeping database logic intact)
+      // Delete related data first (in proper order due to foreign key constraints)
+      
+      // Delete messages sent by user
+      const { error: messagesError } = await supabase
+        .from("messages")
+        .delete()
+        .eq("sender_id", user.id);
+      
+      if (messagesError) console.warn("Error deleting messages:", messagesError);
+
+      // Delete conversations where user is participant
+      const { error: conversationsError } = await supabase
+        .from("conversations")
+        .delete()
+        .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`);
+      
+      if (conversationsError) console.warn("Error deleting conversations:", conversationsError);
+
+      // Delete date requests
+      const { error: dateRequestsError } = await supabase
+        .from("date_requests")
+        .delete()
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`);
+      
+      if (dateRequestsError) console.warn("Error deleting date requests:", dateRequestsError);
+
+      // Delete announcements
+      const { error: announcementsError } = await supabase
+        .from("announcements")
+        .delete()
+        .eq("author_id", user.id);
+      
+      if (announcementsError) console.warn("Error deleting announcements:", announcementsError);
+
+      // Delete confessions
+      const { error: confessionsError } = await supabase
+        .from("confessions")
+        .delete()
+        .eq("author_id", user.id);
+      
+      if (confessionsError) console.warn("Error deleting confessions:", confessionsError);
+
+      // Delete notifications
+      const { error: notificationsError } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("user_id", user.id);
+      
+      if (notificationsError) console.warn("Error deleting notifications:", notificationsError);
+
+      // Delete favorites
+      const { error: favoritesError } = await supabase
+        .from("favorites")
+        .delete()
+        .or(`user_id.eq.${user.id},profile_id.eq.${user.id}`);
+      
+      if (favoritesError) console.warn("Error deleting favorites:", favoritesError);
+
+      // Finally, delete profile
       const { error: profileError } = await supabase
         .from("profiles")
         .delete()
@@ -257,7 +315,7 @@ const Profile = () => {
 
       if (profileError) throw profileError;
 
-      // Keep the auth user deletion logic intact (Supabase auth remains unchanged)
+      // Try to delete auth user via edge function, but don't fail if it doesn't work
       const { data: session } = await supabase.auth.getSession();
       if (session?.session?.access_token) {
         try {
@@ -270,25 +328,42 @@ const Profile = () => {
           });
 
           if (!response.ok) {
-            console.warn('Could not delete auth user via edge function:', await response.text());
+            console.warn('Edge function failed, user auth record will remain. Response:', await response.text());
+            toast({
+              title: "Profile Deleted (Partial)",
+              description: "Your profile data has been deleted, but you may need to contact support to fully remove your account authentication. Images were removed from Cloudinary.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Profile Completely Deleted",
+              description: "Your profile and all associated data have been completely deleted, including authentication. Images were removed from Cloudinary."
+            });
           }
         } catch (edgeError) {
-          console.warn('Edge function not available, user auth record will remain:', edgeError);
+          console.warn('Edge function not available or failed:', edgeError);
+          toast({
+            title: "Profile Deleted (Data Only)",
+            description: "Your profile data has been deleted and images removed from Cloudinary. Your authentication remains - you can still sign in but will need to recreate your profile.",
+            variant: "destructive"
+          });
         }
+      } else {
+        toast({
+          title: "Profile Data Deleted",
+          description: "Your profile data has been deleted and images removed from Cloudinary."
+        });
       }
-
-      toast({
-        title: "Profile Deleted",
-        description: "Your profile and all associated data have been deleted. Images were removed from Cloudinary."
-      });
       
+      // Sign out and redirect
       await supabase.auth.signOut();
       navigate("/auth");
       
     } catch (error: any) {
+      console.error("Profile deletion error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to delete profile completely. Some data may remain.",
         variant: "destructive"
       });
     } finally {
