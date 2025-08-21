@@ -1,0 +1,26 @@
+[build]
+  command = "./build.sh"
+  publish = "frontend/dist"
+
+# Alternative build commands if the main one fails:
+# command = "npm install && npm run build"
+# command = "cd frontend && yarn install && yarn build"
+
+[build.environment]
+  NODE_VERSION = "18"
+  YARN_VERSION = "1.22.19"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
