@@ -105,42 +105,44 @@ export const compressImage = async (
 };
 
 /**
- * Generate optimized image URL using Supabase image transformations
+ * Generate optimized image URL - Updated to use Cloudinary
+ * Now supports both legacy Supabase URLs and new Cloudinary URLs
  */
 export const getOptimizedImageUrl = (
   originalUrl: string,
   options: {
     width?: number;
     height?: number;
-    quality?: number;
-    format?: 'webp' | 'jpg' | 'png';
+    quality?: number | 'auto';
+    format?: 'webp' | 'jpg' | 'png' | 'auto';
     resize?: 'cover' | 'contain' | 'fill';
   } = {}
 ): string => {
-  if (!originalUrl || !originalUrl.includes('supabase')) {
-    // Return original URL if not a Supabase URL
+  if (!originalUrl) return '';
+
+  // If it's a Cloudinary URL, use Cloudinary optimization
+  if (isCloudinaryUrl(originalUrl)) {
+    const publicId = extractPublicIdFromUrl(originalUrl);
+    if (publicId) {
+      return getOptimizedCloudinaryUrl(publicId, {
+        width: options.width,
+        height: options.height,
+        quality: options.quality || 'auto',
+        format: options.format || 'auto',
+        crop: options.resize === 'cover' ? 'fill' : 'fit'
+      });
+    }
+  }
+
+  // Legacy support for non-Cloudinary URLs (fallback)
+  if (originalUrl.includes('supabase')) {
+    console.warn('Supabase storage URL detected. Consider migrating to Cloudinary for better performance.');
+    // Return original URL for legacy Supabase images
     return originalUrl;
   }
 
-  const {
-    width = 400,
-    height = 400,
-    quality = 80,
-    format = 'webp',
-    resize = 'cover'
-  } = options;
-
-  // Build Supabase image transformation URL
-  const baseUrl = originalUrl.split('?')[0]; // Remove existing query params
-  const transformParams = new URLSearchParams();
-  
-  transformParams.set('width', width.toString());
-  transformParams.set('height', height.toString());
-  transformParams.set('quality', quality.toString());
-  transformParams.set('format', format);
-  transformParams.set('resize', resize);
-
-  return `${baseUrl}?${transformParams.toString()}`;
+  // Return original URL if not recognized
+  return originalUrl;
 };
 
 /**
