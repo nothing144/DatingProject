@@ -9,6 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { User, Camera, Save, Plus, X, Heart, MapPin, Mail, Zap, Sparkles, Trash2 } from "lucide-react";
+import { 
+  uploadImageToCloudinary, 
+  deleteImageFromCloudinary, 
+  extractPublicIdFromUrl,
+  isCloudinaryUrl,
+  validateImageFile 
+} from "@/lib/cloudinaryUtils";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
