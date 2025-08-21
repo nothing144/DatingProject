@@ -218,8 +218,9 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
 };
 
 /**
- * Create fallback avatar URL
+ * Create fallback avatar URL - Updated to use Cloudinary
  */
 export const getFallbackAvatarUrl = (name: string, size: number = 400): string => {
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=${size}&format=png`;
+  // Use Cloudinary fallback avatar for better performance
+  return getCloudinaryFallbackAvatarUrl(name, size);
 };
