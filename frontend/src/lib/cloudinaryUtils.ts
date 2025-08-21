@@ -13,8 +13,13 @@ const CLOUDINARY_CONFIG = {
 };
 
 /**
- * Upload image to Cloudinary using the Upload API
+ * Upload image to Cloudinary using unsigned upload
  * This replaces Supabase storage upload functionality
+ * 
+ * Why we use unsigned upload:
+ * - More secure for client-side uploads (no API secret exposed)
+ * - Uses upload presets configured in Cloudinary dashboard
+ * - Better for production applications
  */
 export const uploadImageToCloudinary = async (
   file: File,
@@ -31,20 +36,20 @@ export const uploadImageToCloudinary = async (
     
     // Generate unique public_id
     const timestamp = Date.now();
-    const publicId = options.public_id || `user_${userId}_${timestamp}`;
     const folder = options.folder || 'heartbeat_avatars';
+    const publicId = options.public_id || `${folder}/user_${userId}_${timestamp}`;
     
     formData.append('file', file);
-    formData.append('upload_preset', 'heartbeat_preset'); // We'll create this preset
-    formData.append('public_id', `${folder}/${publicId}`);
-    formData.append('folder', folder);
+    formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
+    formData.append('public_id', publicId);
     
-    // Add transformations for optimization
-    if (options.transformation) {
-      formData.append('transformation', JSON.stringify(options.transformation));
-    }
+    // Add basic optimizations
+    formData.append('quality', 'auto');
+    formData.append('format', 'auto');
+    formData.append('crop', 'fill');
+    formData.append('gravity', 'face');
     
-    // Upload to Cloudinary
+    // Upload to Cloudinary using unsigned upload
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/upload`,
       {
