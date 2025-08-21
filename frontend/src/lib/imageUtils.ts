@@ -1,6 +1,18 @@
 /**
- * Image compression utilities for optimizing profile images
+ * Image utilities - Updated to use Cloudinary instead of Supabase Storage
+ * 
+ * MIGRATION NOTE: This file now imports functions from cloudinaryUtils.ts
+ * to maintain backward compatibility while using Cloudinary for better performance
  */
+
+import { 
+  getOptimizedCloudinaryUrl,
+  getCloudinaryThumbnailUrl, 
+  getCloudinaryHighQualityUrl,
+  getCloudinaryFallbackAvatarUrl,
+  isCloudinaryUrl,
+  extractPublicIdFromUrl
+} from './cloudinaryUtils';
 
 export interface CompressedImage {
   file: File;
