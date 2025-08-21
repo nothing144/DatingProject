@@ -1,9 +1,14 @@
 /**
  * Cloudinary utilities for image upload and optimization
  * Replaces Supabase Storage for better performance and optimization
+ * 
+ * Benefits of Cloudinary over Supabase Storage:
+ * - Global CDN with automatic optimization
+ * - Advanced image transformations (resize, format conversion, quality optimization)
+ * - Automatic WebP/AVIF conversion for modern browsers
+ * - Better bandwidth and performance for image-heavy dating apps
+ * - Cost-effective for high-traffic applications
  */
-
-import { v2 as cloudinary } from 'cloudinary';
 
 // Cloudinary configuration from environment variables
 const CLOUDINARY_CONFIG = {
