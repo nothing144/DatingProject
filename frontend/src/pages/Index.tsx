@@ -1359,9 +1359,9 @@ const Index = () => {
 
       .rpc("get_or_create_conversation", {
 
-        user1_id: user.id,
+        user1: user.id,
 
-        user2_id: otherUser.id
+        user2: otherUser.id
 
       });
 
