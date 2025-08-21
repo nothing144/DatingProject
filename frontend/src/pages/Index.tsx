@@ -1508,7 +1508,9 @@ const Index = () => {
 
                 <Button 
 
-                  className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white shadow-[var(--shadow-lightning)]"
+                  className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 shadow-[var(--shadow-lightning)]"
+                  
+                  style={{ color: '#be185d' }}
 
                   onClick={() => navigate("/profile")}
 
