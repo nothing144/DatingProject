@@ -240,15 +240,15 @@ const Profile = () => {
     
     setSaving(true);
     try {
-      if (profile.avatar_url && profile.avatar_url.includes('supabase')) {
-        const fileName = profile.avatar_url.split('/').pop();
-        if (fileName) {
-          await supabase.storage
-            .from('avatars')
-            .remove([`avatars/${fileName}`]);
+      // Delete image from Cloudinary if it exists
+      if (profile.avatar_url && isCloudinaryUrl(profile.avatar_url)) {
+        const publicId = extractPublicIdFromUrl(profile.avatar_url);
+        if (publicId) {
+          await deleteImageFromCloudinary(publicId);
         }
       }
 
+      // Delete profile from Supabase database (keeping database logic intact)
       const { error: profileError } = await supabase
         .from("profiles")
         .delete()
@@ -256,6 +256,7 @@ const Profile = () => {
 
       if (profileError) throw profileError;
 
+      // Keep the auth user deletion logic intact (Supabase auth remains unchanged)
       const { data: session } = await supabase.auth.getSession();
       if (session?.session?.access_token) {
         try {
@@ -277,7 +278,7 @@ const Profile = () => {
 
       toast({
         title: "Profile Deleted",
-        description: "Your profile and all associated data have been deleted."
+        description: "Your profile and all associated data have been deleted. Images were removed from Cloudinary."
       });
       
       await supabase.auth.signOut();
