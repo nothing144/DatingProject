@@ -256,13 +256,19 @@ export const isCloudinaryUrl = (url: string): boolean => {
 };
 
 /**
- * Fallback avatar URL generator using Cloudinary
- * Replaces getFallbackAvatarUrl from imageUtils.ts
+ * Fallback avatar URL generator 
+ * Uses UI Avatars as primary fallback, Cloudinary as secondary option
  */
 export const getCloudinaryFallbackAvatarUrl = (name: string, size: number = 400): string => {
-  // Use Cloudinary's text overlay feature to create avatar
-  const encodedName = encodeURIComponent(name);
-  return `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloud_name}/image/upload/w_${size},h_${size},c_fill,b_rgb:6366f1,co_rgb:ffffff,l_text:Arial_${Math.round(size/4)}:${encodedName},g_center/v1/transparent_placeholder.png`;
+  // Primary: Use UI Avatars (more reliable for fallback)
+  const uiAvatarsUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=${size}&format=png`;
+  
+  // Return UI Avatars URL as it's more reliable for fallbacks
+  return uiAvatarsUrl;
+  
+  // Secondary option (Cloudinary text overlay) - can be enabled if needed:
+  // const encodedName = encodeURIComponent(name);
+  // return `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloud_name}/image/upload/w_${size},h_${size},c_fill,b_rgb:6366f1,co_rgb:ffffff,l_text:Arial_${Math.round(size/4)}:${encodedName},g_center/v1/sample.jpg`;
 };
 
 /**
