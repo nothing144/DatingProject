@@ -177,73 +177,53 @@ const Profile = () => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file using Cloudinary validation
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload a JPEG, PNG, or WebP image.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (file.size > maxSize) {
-      toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 5MB.",
+        title: "Invalid file",
+        description: validation.error,
         variant: "destructive"
       });
       return;
     }
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      // Show loading state
+      toast({
+        title: "Uploading photo...",
+        description: "Please wait while we upload your image to Cloudinary."
+      });
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      if (urlData?.publicUrl) {
-        if (profile.avatar_url && profile.avatar_url.includes('supabase')) {
-          const oldFileName = profile.avatar_url.split('/').pop();
-          if (oldFileName) {
-            await supabase.storage
-              .from('avatars')
-              .remove([`avatars/${oldFileName}`]);
-          }
+      // Delete old image from Cloudinary if it exists
+      if (profile.avatar_url && isCloudinaryUrl(profile.avatar_url)) {
+        const oldPublicId = extractPublicIdFromUrl(profile.avatar_url);
+        if (oldPublicId) {
+          await deleteImageFromCloudinary(oldPublicId);
         }
-
-        setProfile(prev => ({
-          ...prev,
-          avatar_url: urlData.publicUrl
-        }));
-
-        toast({
-          title: "Photo Updated! 📸",
-          description: "Your profile photo has been updated successfully."
-        });
       }
+
+      // Upload new image to Cloudinary
+      const uploadResult = await uploadImageToCloudinary(file, user.id, {
+        folder: 'heartbeat_avatars'
+      });
+
+      // Update profile with new Cloudinary URL
+      setProfile(prev => ({
+        ...prev,
+        avatar_url: uploadResult.url
+      }));
+
+      toast({
+        title: "Photo Updated! 📸",
+        description: "Your profile photo has been uploaded to Cloudinary and optimized for better performance."
+      });
+
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error('Cloudinary upload error:', error);
       toast({
         title: "Upload Failed",
-        description: error.message || "Failed to upload image. Please try again.",
+        description: error.message || "Failed to upload image to Cloudinary. Please try again.",
         variant: "destructive"
       });
     }
