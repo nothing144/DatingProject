@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "cd frontend && yarn dev",
     "start": "cd frontend && yarn start",
-    "build": "cd frontend && yarn build",
+    "build": "cd frontend && yarn install --frozen-lockfile && yarn build",
     "preview": "cd frontend && yarn preview",
     "install-deps": "cd frontend && yarn install",
-    "postinstall": "cd frontend && yarn install"
+    "postinstall": "cd frontend && yarn install",
+    "netlify-build": "./build.sh"
   },
   "devDependencies": {
     "vite": "^5.4.19"
@@ -23,7 +24,9 @@
   "author": "Heartbeat@ITER Team",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0",
+    "yarn": ">=1.22.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.55.0"
