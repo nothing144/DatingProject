@@ -247,12 +247,15 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)]">
-      {/* Notice for limited messaging */}
-      <Alert className="mb-4 border-destructive bg-destructive/10">
-        <AlertTriangle className="h-4 w-4 text-destructive" />
-        <AlertDescription className="text-destructive">
-          <strong>Limited Messaging:</strong> Only {MESSAGE_LIMIT} messages per conversation. Exchange contact details quickly and move to WhatsApp, Instagram, or other platforms.
-          Because database usage requires subscription help us to keep our community free.
+      {/* Enhanced Community Notice */}
+      <Alert className="mb-4 border-slate-700 bg-slate-950/50">
+        <AlertTriangle className="h-4 w-4 text-amber-400" />
+        <AlertDescription className="text-slate-300">
+          <strong>🚨 Community Notice:</strong> To keep the community running on a free plan, we need to reduce database load.
+          <br />
+          <span className="text-red-400 font-medium">💡 Critical:</span> If your date request has been accepted, please delete your profile after exchanging contact details. This helps us maintain free access for everyone.
+          <br />
+          <span className="text-blue-400">📱 Only {MESSAGE_LIMIT} messages per conversation.</span> Exchange WhatsApp/Instagram quickly!
         </AlertDescription>
       </Alert>
 
