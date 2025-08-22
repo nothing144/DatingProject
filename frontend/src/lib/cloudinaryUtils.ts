@@ -85,33 +85,34 @@ export const uploadImageToCloudinary = async (
 /**
  * Delete image from Cloudinary
  * This replaces Supabase storage delete functionality
+ * 
+ * Note: Client-side deletion requires proper signature generation for security.
+ * For user account deletion, this will be handled by the edge function.
+ * For individual image updates, we handle it client-side with unsigned uploads.
  */
-export const deleteImageFromCloudinary = async (publicId: string): Promise<void> => {
+export const deleteImageFromCloudinary = async (publicId: string): Promise<{ success: boolean; error?: string }> => {
   try {
-    // For client-side deletion, we'll need to call our backend or use admin API
-    // For now, we'll use the destroy method (requires API credentials)
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/destroy`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          public_id: publicId,
-          api_key: CLOUDINARY_CONFIG.api_key,
-          timestamp: Math.round(Date.now() / 1000),
-          // Note: In production, you'd generate signature server-side for security
-        }),
-      }
-    );
+    console.log(`🗑️ Attempting to delete Cloudinary image: ${publicId}`);
     
-    if (!response.ok) {
-      console.warn('Failed to delete image from Cloudinary:', await response.text());
-    }
+    // For individual image deletion (like profile photo updates),
+    // we can't securely delete from client-side without exposing API secrets.
+    // Instead, we'll rely on Cloudinary's transformation features and overwrite.
+    
+    // For account deletion, the edge function will handle secure deletion.
+    console.warn('⚠️ Client-side Cloudinary deletion is not secure. Relying on server-side deletion via edge function.');
+    
+    return { 
+      success: false, 
+      error: 'Client-side deletion not implemented for security. Use edge function for account deletion.' 
+    };
+    
   } catch (error) {
-    console.warn('Error deleting image from Cloudinary:', error);
-  }
+    console.error('Error in deleteImageFromCloudinary:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  } 
 };
 
 /**
