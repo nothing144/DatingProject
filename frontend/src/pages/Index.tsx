@@ -1463,25 +1463,63 @@ const Index = () => {
 
                           </div>
 
-                          {isReceived && request.status === 'pending' && (
-                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => handleDateRequestResponse(request.id, 'accepted')}
-                                className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
-                              >
-                                Accept
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleDateRequestResponse(request.id, 'rejected')}
-                                className="w-full sm:w-auto"
-                              >
-                                Reject
-                              </Button>
-                            </div>
-                          )}
+                          <div className="flex flex-col gap-2">
+                            {/* Accept/Reject buttons for received pending requests */}
+                            {isReceived && request.status === 'pending' && (
+                              <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleDateRequestResponse(request.id, 'accepted')}
+                                  className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
+                                >
+                                  Accept
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleDateRequestResponse(request.id, 'rejected')}
+                                  className="w-full sm:w-auto"
+                                >
+                                  Reject
+                                </Button>
+                              </div>
+                            )}
+                            
+                            {/* Delete button for all requests */}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-red-700 text-red-400 hover:bg-red-950 hover:text-red-300 w-full sm:w-auto"
+                                >
+                                  <Trash2 className="w-3 h-3 mr-1" />
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-slate-900 border-slate-700">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-slate-100">Delete Date Request?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-slate-300">
+                                    This will permanently delete this date request. This action cannot be undone.
+                                    <br /><br />
+                                    <span className="text-amber-400">💡 Regular cleanup helps keep our database clean and maintain the free plan for everyone.</span>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700">
+                                    Cancel
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteDateRequest(request.id)}
+                                    className="bg-red-900 hover:bg-red-800 text-white"
+                                  >
+                                    Delete Request
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
 
                         </div>
 
