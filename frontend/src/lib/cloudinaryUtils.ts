@@ -77,3 +77,53 @@ export const getOptimizedImageUrl = (url: string, options: {
   // Insert transformations into Cloudinary URL
   return url.replace('/upload/', `/upload/${transformString}/`);
 };
+
+// Helper functions
+export const isCloudinaryUrl = (url: string): boolean => {
+  return url.includes('cloudinary.com');
+};
+
+export const extractPublicIdFromUrl = (url: string): string | null => {
+  if (!isCloudinaryUrl(url)) return null;
+  const matches = url.match(/\/v\d+\/(.+)\./);
+  return matches ? matches[1] : null;
+};
+
+export const validateImageFile = (file: File): { valid: boolean; error?: string } => {
+  const maxSize = 10 * 1024 * 1024; // 10MB max before compression
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      valid: false,
+      error: 'Please select a valid image file (JPEG, PNG, or WebP)'
+    };
+  }
+  
+  if (file.size > maxSize) {
+    return {
+      valid: false,
+      error: 'Image file is too large. Please select an image under 10MB.'
+    };
+  }
+  
+  return { valid: true };
+};
+
+export const deleteImageFromCloudinary = async (publicId: string): Promise<boolean> => {
+  try {
+    // Call your secure edge function instead of direct Cloudinary API
+    const response = await fetch('/api/delete-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ publicId }),
+    });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Error deleting image from Cloudinary:', error);
+    return false;
+  }
+};
