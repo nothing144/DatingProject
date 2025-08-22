@@ -6,12 +6,7 @@
  */
 
 import { 
-  getOptimizedCloudinaryUrl,
-  getCloudinaryThumbnailUrl, 
-  getCloudinaryHighQualityUrl,
-  getCloudinaryFallbackAvatarUrl,
-  isCloudinaryUrl,
-  extractPublicIdFromUrl
+  getOptimizedImageUrl as getOptimizedCloudinaryUrl
 } from './cloudinaryUtils';
 
 export interface CompressedImage {
