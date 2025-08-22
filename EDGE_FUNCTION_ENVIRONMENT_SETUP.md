@@ -35,7 +35,7 @@ supabase secrets set CLOUDINARY_API_SECRET=your_actual_api_secret_here
 
 # Set other required secrets (if not already set)
 supabase secrets set CLOUDINARY_CLOUD_NAME=dlnatlmdq
-supabase secrets set CLOUDINARY_API_KEY=855887866717832
+supabase secrets set CLOUDINARY_API_KEY=your_cloudinary_api_key_here
 ```
 
 ### **4. Verify Edge Function Deployment**
