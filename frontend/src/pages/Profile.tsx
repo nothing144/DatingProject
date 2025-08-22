@@ -637,13 +637,14 @@ const Profile = () => {
     // Show appropriate success message based on what was deleted
     const deletedItems = Object.values(deletionResults).filter(Boolean).length;
     const totalItems = Object.keys(deletionResults).length;
+    const cloudinaryStatus = deletionResults.cloudinaryImage ? '✅' : '❌';
     
     toast({
       title: "Profile Data Deleted ✅",
-      description: `Successfully deleted your profile and associated data (${deletedItems}/${totalItems} items). Note: Authentication and Cloudinary images may still exist.`
+      description: `Successfully deleted your profile and associated data (${deletedItems}/${totalItems} items). Cloudinary Images: ${cloudinaryStatus}`
     });
     
-    console.log(`Manual profile deletion completed. Deleted ${deletedItems}/${totalItems} data types.`);
+    console.log(`Manual profile deletion completed. Deleted ${deletedItems}/${totalItems} data types. Cloudinary: ${cloudinaryStatus}`);
   };
 
   if (loading) {
