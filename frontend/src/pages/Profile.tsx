@@ -462,7 +462,7 @@ const Profile = () => {
       console.warn("⚠️ Exception deleting notifications:", err);
     }
 
-    // Delete favorites
+    // Delete favorites (ignore if table doesn't exist as requested by user)
     try {
       const { error: favoritesError } = await supabase
         .from("favorites")
@@ -473,10 +473,13 @@ const Profile = () => {
         deletionResults.favorites = true;
         console.log("✅ Favorites deleted");
       } else {
-        console.warn("⚠️ Error deleting favorites:", favoritesError);
+        // Ignore favorites table errors as requested
+        console.warn("⚠️ Error deleting favorites (ignoring as requested):", favoritesError);
+        deletionResults.favorites = true; // Mark as success since user said to ignore
       }
     } catch (err) {
-      console.warn("⚠️ Exception deleting favorites:", err);
+      console.warn("⚠️ Exception deleting favorites (ignoring as requested):", err);
+      deletionResults.favorites = true; // Mark as success since user said to ignore
     }
 
     // Finally, delete profile (this is critical)
