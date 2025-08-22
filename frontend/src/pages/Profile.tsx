@@ -254,13 +254,20 @@ const Profile = () => {
       if (session?.session?.access_token) {
         console.log("📡 Calling edge function for complete user deletion...");
         
-        const response = await fetch(`${supabase.supabaseUrl}/functions/v1/delete-user`, {
+        const edgeFunctionUrl = `${supabase.supabaseUrl}/functions/v1/delete-user`;
+        console.log("🔗 Edge function URL:", edgeFunctionUrl);
+        
+        const response = await fetch(edgeFunctionUrl, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${session.session.access_token}`,
             'Content-Type': 'application/json',
+            'x-client-info': 'heartbeat-web',
           },
+          mode: 'cors',
         });
+
+        console.log("📡 Edge function response status:", response.status);
 
         if (response.ok) {
           const result = await response.json();
@@ -283,12 +290,26 @@ const Profile = () => {
           console.log("🎉 Complete account deletion successful");
           
         } else {
-          const errorData = await response.json();
-          console.error("❌ Edge function failed:", errorData);
+          const errorData = await response.text();
+          console.error("❌ Edge function failed:", response.status, errorData);
+          
+          let errorMessage;
+          try {
+            const parsedError = JSON.parse(errorData);
+            errorMessage = parsedError.error || parsedError.message || 'Unknown error';
+          } catch {
+            errorMessage = errorData || 'Unknown error';
+          }
           
           // If edge function failed, fall back to manual cleanup
           console.log("🔄 Falling back to manual cleanup...");
           await performManualCleanup();
+          
+          toast({
+            title: "Partial Deletion Completed",
+            description: `Edge function failed (${errorMessage}), but manual cleanup was performed.`,
+            variant: "destructive"
+          });
         }
       } else {
         console.warn("⚠️ No session found, performing manual cleanup...");
