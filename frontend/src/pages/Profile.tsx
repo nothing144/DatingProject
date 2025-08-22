@@ -196,12 +196,11 @@ const Profile = () => {
         description: "Please wait while we upload your image to Cloudinary."
       });
 
-      // Delete old image from Cloudinary if it exists
+      // Note: We skip client-side deletion of old image for security reasons
+      // The old image will remain in Cloudinary but won't be referenced in the database
+      // When the user deletes their account, the edge function will handle proper cleanup
       if (profile.avatar_url && isCloudinaryUrl(profile.avatar_url)) {
-        const oldPublicId = extractPublicIdFromUrl(profile.avatar_url);
-        if (oldPublicId) {
-          await deleteImageFromCloudinary(oldPublicId);
-        }
+        console.log("ℹ️ Old Cloudinary image will be replaced but not deleted (security limitation)");
       }
 
       // Upload new image to Cloudinary
