@@ -23,27 +23,50 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
   }, []);
 
   const handleLogout = async () => {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      // If Supabase returns an error, throw it to the catch block
-      throw error;
+    console.log("Logout button clicked - starting logout process");
+    
+    try {
+      // Clear local storage first to ensure clean state
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Attempt to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.warn("Supabase signOut returned error:", error);
+        // Don't throw here - we'll still proceed with local cleanup
+      }
+      
+      console.log("Logout successful - navigating to auth page");
+      
+      // Always navigate to auth page and show success message
+      toast({
+        title: "Logged Out Successfully! 👋",
+        description: "You have been signed out safely."
+      });
+      
+      // Force page reload to clear any cached auth state
+      window.location.href = "/auth";
+      
+    } catch (error: any) {
+      // Even if there's an error, we should still clear local state and redirect
+      console.error("Error during logout process:", error);
+      
+      // Clear storage anyway
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      toast({
+        title: "Logged Out (with cleanup)",
+        description: "Session cleared. If you experience issues, please refresh the page.",
+        variant: "destructive"
+      });
+      
+      // Force redirect regardless of error
+      window.location.href = "/auth";
     }
-    // This will run on successful logout
-    navigate("/auth");
-  } catch (error: any) {
-    // This will catch any network errors or errors thrown from above
-    console.error("Error logging out:", error);
-    toast({
-      title: "Logout Failed",
-      description: "There was a problem logging out. Please try again.",
-      variant: "destructive",
-    });
-    // Forcibly navigate to the auth page even if logout fails,
-    // as the session is likely invalid anyway.
-    navigate("/auth");
-  }
-};
+  };
 
   const navItems = [
     { 
