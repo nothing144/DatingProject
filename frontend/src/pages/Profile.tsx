@@ -393,11 +393,15 @@ const Profile = () => {
     try {
       console.log('🖼️ Attempting manual Cloudinary deletion...');
       
-      // Cloudinary config (same as edge function)
+      // SECURITY WARNING: This manual deletion should not be used in production
+      // Image deletion should be handled by secure edge functions only
+      console.warn('⚠️ Manual Cloudinary deletion is insecure and should not be used in production');
+      
       const CLOUDINARY_CONFIG = {
-        cloud_name: 'dlnatlmdq',
-        api_key: '855887866717832',
-        api_secret: import.meta.env.VITE_CLOUDINARY_API_SECRET || '', // Get from environment
+        cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dlnatlmdq',
+        api_key: import.meta.env.VITE_CLOUDINARY_API_KEY || '855887866717832',
+        // API_SECRET removed from frontend for security
+        api_secret: '', // This should never be in frontend code
       };
 
       const publicId = extractPublicIdFromUrl(avatarUrl);
