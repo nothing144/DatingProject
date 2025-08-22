@@ -1,61 +1,19 @@
-/**
- * Cloudinary utilities for image upload and optimization
- * Replaces Supabase Storage for better performance and optimization
- * 
- * Benefits of Cloudinary over Supabase Storage:
- * - Global CDN with automatic optimization
- * - Advanced image transformations (resize, format conversion, quality optimization)
- * - Automatic WebP/AVIF conversion for modern browsers
- * - Better bandwidth and performance for image-heavy dating apps
- * - Cost-effective for high-traffic applications
- */
+// Cloudinary utilities - FRONTEND SAFE VERSION
+// Note: This file should only contain PUBLIC operations
 
-// Cloudinary configuration from environment variables
+// Cloudinary configuration - PUBLIC KEYS ONLY
 const CLOUDINARY_CONFIG = {
-  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dlnatlmdq',
+  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'your_cloudinary_cloud_name',
   api_key: import.meta.env.VITE_CLOUDINARY_API_KEY || '855887866717832',
-  upload_preset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'heartbeat_preset'
+  // API_SECRET REMOVED - Should never be in frontend code
 };
 
-/**
- * Upload image to Cloudinary using unsigned upload
- * This replaces Supabase storage upload functionality
- * 
- * Why we use unsigned upload:
- * - More secure for client-side uploads (no API secret exposed)
- * - Uses upload presets configured in Cloudinary dashboard
- * - Better for production applications
- */
-export const uploadImageToCloudinary = async (
-  file: File,
-  userId: string,
-  options: {
-    folder?: string;
-    transformation?: any[];
-    public_id?: string;
-  } = {}
-): Promise<{ url: string; public_id: string }> => {
+export const uploadImageToCloudinary = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'unsigned_preset'); // Use unsigned preset for frontend uploads
+  
   try {
-    // Create form data for upload
-    const formData = new FormData();
-    
-    // Generate unique public_id
-    const timestamp = Date.now();
-    const folder = options.folder || 'heartbeat_avatars';
-    const publicId = options.public_id || `${folder}/user_${userId}_${timestamp}`;
-    
-    // Add file and basic parameters
-    formData.append('file', file);
-    formData.append('public_id', publicId);
-    
-    // Use the upload preset for unsigned upload
-    if (CLOUDINARY_CONFIG.upload_preset) {
-      formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
-    } else {
-      throw new Error('Upload preset is required for unsigned uploads');
-    }
-    
-    // Upload to Cloudinary using unsigned upload
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/upload`,
       {
@@ -65,242 +23,57 @@ export const uploadImageToCloudinary = async (
     );
     
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Cloudinary upload error:', errorData);
-      throw new Error(errorData.error?.message || `Upload failed: ${response.status} - ${errorData.error?.details || 'Unknown error'}`);
+      throw new Error('Failed to upload image');
     }
     
     const data = await response.json();
-    
-    return {
-      url: data.secure_url,
-      public_id: data.public_id
-    };
+    return data.secure_url;
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
+    console.error('Error uploading to Cloudinary:', error);
     throw error;
   }
 };
 
-/**
- * Delete image from Cloudinary
- * This replaces Supabase storage delete functionality
- * 
- * Note: Client-side deletion requires proper signature generation for security.
- * For user account deletion, this will be handled by the edge function.
- * For individual image updates, we handle it client-side with unsigned uploads.
- */
-export const deleteImageFromCloudinary = async (publicId: string): Promise<{ success: boolean; error?: string }> => {
+// SECURITY NOTE: Image deletion should be handled by edge functions/backend
+// This avoids exposing API secrets in frontend code
+export const requestImageDeletion = async (publicId: string): Promise<boolean> => {
   try {
-    console.log(`🗑️ Attempting to delete Cloudinary image: ${publicId}`);
+    // Call your secure edge function instead of direct Cloudinary API
+    const response = await fetch('/api/delete-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ publicId }),
+    });
     
-    // For individual image deletion (like profile photo updates),
-    // we can't securely delete from client-side without exposing API secrets.
-    // Instead, we'll rely on Cloudinary's transformation features and overwrite.
-    
-    // For account deletion, the edge function will handle secure deletion.
-    console.warn('⚠️ Client-side Cloudinary deletion is not secure. Relying on server-side deletion via edge function.');
-    
-    return { 
-      success: false, 
-      error: 'Client-side deletion not implemented for security. Use edge function for account deletion.' 
-    };
-    
+    return response.ok;
   } catch (error) {
-    console.error('Error in deleteImageFromCloudinary:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
-    };
-  } 
+    console.error('Error requesting image deletion:', error);
+    return false;
+  }
 };
 
-/**
- * Generate optimized Cloudinary URL with transformations
- * This replaces the Supabase image URL generation
- */
-export const getOptimizedCloudinaryUrl = (
-  publicId: string,
-  options: {
-    width?: number;
-    height?: number;
-    quality?: number | 'auto';
-    format?: string | 'auto';
-    crop?: 'fill' | 'fit' | 'crop' | 'scale' | 'thumb';
-    gravity?: 'face' | 'faces' | 'center' | 'auto';
-    radius?: number | 'max';
-    effect?: string;
-  } = {}
-): string => {
-  if (!publicId) return '';
+export const getOptimizedImageUrl = (url: string, options: {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: string;
+} = {}): string => {
+  if (!url || !url.includes('cloudinary.com')) {
+    return url;
+  }
   
-  const {
-    width = 400,
-    height = 400,
-    quality = 'auto',
-    format = 'auto',
-    crop = 'fill',
-    gravity = 'face',
-    radius,
-    effect
-  } = options;
+  const { width, height, quality = 80, format = 'auto' } = options;
   
   // Build transformation string
   const transformations = [];
-  
-  // Basic transformations
-  if (width || height) {
-    transformations.push(`w_${width},h_${height},c_${crop}`);
-  }
-  
-  if (gravity) {
-    transformations.push(`g_${gravity}`);
-  }
-  
-  if (quality) {
-    transformations.push(`q_${quality}`);
-  }
-  
-  if (format) {
-    transformations.push(`f_${format}`);
-  }
-  
-  if (radius) {
-    transformations.push(`r_${radius}`);
-  }
-  
-  if (effect) {
-    transformations.push(`e_${effect}`);
-  }
+  if (width) transformations.push(`w_${width}`);
+  if (height) transformations.push(`h_${height}`);
+  transformations.push(`q_${quality}`, `f_${format}`);
   
   const transformString = transformations.join(',');
   
-  // Return Cloudinary URL
-  return `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloud_name}/image/upload/${transformString}/${publicId}`;
-};
-
-/**
- * Get thumbnail version of image for grid view
- * Replaces getThumbnailUrl from imageUtils.ts
- */
-export const getCloudinaryThumbnailUrl = (publicId: string): string => {
-  return getOptimizedCloudinaryUrl(publicId, {
-    width: 300,
-    height: 300,
-    quality: 'auto',
-    format: 'auto',
-    crop: 'fill',
-    gravity: 'face'
-  });
-};
-
-/**
- * Get high quality version of image for single profile view
- * Replaces getHighQualityUrl from imageUtils.ts
- */
-export const getCloudinaryHighQualityUrl = (publicId: string): string => {
-  return getOptimizedCloudinaryUrl(publicId, {
-    width: 800,
-    height: 800,
-    quality: 'auto',
-    format: 'auto',
-    crop: 'fill',
-    gravity: 'face'
-  });
-};
-
-/**
- * Extract public_id from Cloudinary URL
- * Helper function to get public_id from existing URLs
- */
-export const extractPublicIdFromUrl = (url: string): string | null => {
-  if (!url || !url.includes('cloudinary.com')) {
-    return null;
-  }
-  
-  try {
-    // Extract public_id from Cloudinary URL
-    // Format: https://res.cloudinary.com/cloud_name/image/upload/transformations/public_id.extension
-    const urlParts = url.split('/');
-    const uploadIndex = urlParts.indexOf('upload');
-    
-    if (uploadIndex === -1) return null;
-    
-    // Get everything after 'upload' and potential transformations
-    let pathAfterUpload = urlParts.slice(uploadIndex + 1).join('/');
-    
-    // Remove transformation parameters (they start with letters like w_, h_, etc.)
-    const transformationRegex = /^[a-z]_[^\/]+,?/;
-    while (transformationRegex.test(pathAfterUpload)) {
-      pathAfterUpload = pathAfterUpload.replace(/^[^\/]+\//, '');
-    }
-    
-    // Remove file extension
-    const publicId = pathAfterUpload.replace(/\.[^.]+$/, '');
-    
-    return publicId;
-  } catch (error) {
-    console.error('Error extracting public_id from URL:', error);
-    return null;
-  }
-};
-
-/**
- * Check if URL is a Cloudinary URL
- */
-export const isCloudinaryUrl = (url: string): boolean => {
-  return url && url.includes('cloudinary.com');
-};
-
-/**
- * Fallback avatar URL generator 
- * Uses UI Avatars as primary fallback, Cloudinary as secondary option
- */
-export const getCloudinaryFallbackAvatarUrl = (name: string, size: number = 400): string => {
-  // Primary: Use UI Avatars (more reliable for fallback)
-  const uiAvatarsUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=${size}&format=png`;
-  
-  // Return UI Avatars URL as it's more reliable for fallbacks
-  return uiAvatarsUrl;
-  
-  // Secondary option (Cloudinary text overlay) - can be enabled if needed:
-  // const encodedName = encodeURIComponent(name);
-  // return `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloud_name}/image/upload/w_${size},h_${size},c_fill,b_rgb:6366f1,co_rgb:ffffff,l_text:Arial_${Math.round(size/4)}:${encodedName},g_center/v1/sample.jpg`;
-};
-
-/**
- * Validate image file before upload
- * Same as imageUtils.ts but adapted for Cloudinary
- */
-export const validateImageFile = (file: File): { valid: boolean; error?: string } => {
-  const maxSize = 10 * 1024 * 1024; // 10MB max
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  
-  if (!allowedTypes.includes(file.type)) {
-    return {
-      valid: false,
-      error: 'Please select a valid image file (JPEG, PNG, or WebP)'
-    };
-  }
-  
-  if (file.size > maxSize) {
-    return {
-      valid: false,
-      error: 'Image file is too large. Please select an image under 10MB.'
-    };
-  }
-  
-  return { valid: true };
-};
-
-export default {
-  uploadImageToCloudinary,
-  deleteImageFromCloudinary,
-  getOptimizedCloudinaryUrl,
-  getCloudinaryThumbnailUrl,
-  getCloudinaryHighQualityUrl,
-  extractPublicIdFromUrl,
-  isCloudinaryUrl,
-  getCloudinaryFallbackAvatarUrl,
-  validateImageFile
+  // Insert transformations into Cloudinary URL
+  return url.replace('/upload/', `/upload/${transformString}/`);
 };
