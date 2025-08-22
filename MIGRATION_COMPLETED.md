@@ -123,7 +123,7 @@ if (isCloudinaryUrl(url)) {
 Added to `/app/frontend/.env`:
 ```env
 VITE_CLOUDINARY_CLOUD_NAME=dlnatlmdq
-VITE_CLOUDINARY_API_KEY=855887866717832
+VITE_CLOUDINARY_API_KEY=your_cloudinary_api_key_here
 VITE_CLOUDINARY_UPLOAD_PRESET=heartbeat_preset
 ```
 
