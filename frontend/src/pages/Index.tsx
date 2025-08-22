@@ -1317,6 +1317,15 @@ const Index = () => {
 
             </div>
 
+            {/* Database Management Warning */}
+            {dateRequests.length > 0 && (
+              <Alert className="border-slate-700 bg-slate-950/50">
+                <AlertTriangle className="h-4 w-4 text-amber-400" />
+                <AlertDescription className="text-slate-300">
+                  <strong>📊 Database Management:</strong> Please delete unwanted date requests regularly to keep the database clean and stay within the free plan.
+                </AlertDescription>
+              </Alert>
+            )}
             
 
             {dateRequests.length > 0 ? (
