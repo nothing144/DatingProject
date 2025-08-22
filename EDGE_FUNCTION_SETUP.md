@@ -27,7 +27,7 @@ The edge function requires these environment variables to be set in Supabase:
 
 ### **Mandatory Variables:**
 ```bash
-SUPABASE_URL=https://ljjyipvvxmduvxoyzvhf.supabase.co
+SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
