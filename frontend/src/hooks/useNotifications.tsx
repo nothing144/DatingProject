@@ -73,6 +73,31 @@ export const useNotifications = (userId: string | undefined) => {
     }
   };
 
+  const deleteAllNotifications = async () => {
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Error deleting all notifications:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete notifications",
+        variant: "destructive"
+      });
+    } else {
+      setNotifications([]);
+      setUnreadCount(0);
+      toast({
+        title: "All notifications deleted",
+        description: "Your notifications have been cleared to reduce database load"
+      });
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
 
