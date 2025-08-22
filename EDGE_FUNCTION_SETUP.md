@@ -58,7 +58,7 @@ supabase functions deploy delete-user
 
 # 4. Set the required environment variables
 supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-supabase secrets set SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqanlpcHZ2eG1kdXZ4b3l6dmhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDcxNzMsImV4cCI6MjA2OTUyMzE3M30.fWaVeL9482grgbXGcwYQu-ehDV5L3xyG-vix8Os8hno
+supabase secrets set SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # 5. Optional: Set Cloudinary secrets (for image deletion)
 supabase secrets set CLOUDINARY_API_SECRET=your_cloudinary_api_secret_here
