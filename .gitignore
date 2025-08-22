@@ -30,10 +30,23 @@ next-env.d.ts
 dist/
 dist
 
-# Environment files (comprehensive coverage)
+# Environment files (comprehensive coverage - SECURITY CRITICAL)
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+**/.env
+**/.env.local
+**/.env.development
+**/.env.production
+**/.env.*.local
 
+# Security-sensitive files
 *token.json*
 *credentials.json*
+*secret*
+*keys*
 
 # Logs and debug files
 npm-debug.log*
