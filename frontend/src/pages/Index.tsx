@@ -931,13 +931,17 @@ const Index = () => {
 
             <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
 
-              <Alert className="border-destructive bg-destructive/10">
+              <Alert className="border-slate-700 bg-slate-950/50">
 
-                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertTriangle className="h-4 w-4 text-amber-400" />
 
-                <AlertDescription className="text-destructive">
+                <AlertDescription className="text-slate-300">
 
-                  <strong>Limited Messaging:</strong> Exchange contact details quickly and move to other platforms for better communication.
+                  <strong>🚨 Community Notice:</strong> To keep the community running on a free plan, we need to reduce database load.
+                  <br />
+                  <span className="text-red-400 font-medium">💡 Important:</span> If your date request has been accepted, please delete your profile after that. You can always come back later by signing in again and creating a new profile.
+                  <br />
+                  <span className="text-blue-400">📱 Quick tip:</span> Exchange contact details and move to WhatsApp/Instagram for better communication.
 
                 </AlertDescription>
 
