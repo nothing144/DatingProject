@@ -312,13 +312,18 @@ serve(async (req) => {
       console.warn('⚠️ Notifications deletion exception:', err);
     }
 
-    // Delete favorites
+    // Delete favorites (wrap in try-catch since user mentioned this table might not exist)
     try {
       const { error } = await supabaseAdmin.from('favorites').delete().or(`user_id.eq.${user.id},profile_id.eq.${user.id}`);
       deletionResults.favorites = !error;
-      if (error) console.warn('⚠️ Favorites deletion error:', error);
+      if (error) {
+        console.warn('⚠️ Favorites deletion error (table might not exist):', error);
+      } else {
+        console.log('✅ Favorites deleted');
+      }
     } catch (err) {
-      console.warn('⚠️ Favorites deletion exception:', err);
+      console.warn('⚠️ Favorites deletion exception (ignoring as requested):', err);
+      deletionResults.favorites = true; // Mark as success since user said to ignore
     }
 
     // Delete profile (critical step)
