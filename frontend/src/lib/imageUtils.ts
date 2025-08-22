@@ -141,16 +141,12 @@ export const getOptimizedImageUrl = (
 
   // If it's a Cloudinary URL, use Cloudinary optimization
   if (isCloudinaryUrl(originalUrl)) {
-    const publicId = extractPublicIdFromUrl(originalUrl);
-    if (publicId) {
-      return getOptimizedCloudinaryUrl(publicId, {
-        width: options.width,
-        height: options.height,
-        quality: options.quality || 'auto',
-        format: options.format || 'auto',
-        crop: options.resize === 'cover' ? 'fill' : 'fit'
-      });
-    }
+    return getOptimizedCloudinaryUrl(originalUrl, {
+      width: options.width,
+      height: options.height,
+      quality: typeof options.quality === 'number' ? options.quality : 80,
+      format: options.format === 'auto' ? 'auto' : (options.format || 'auto')
+    });
   }
 
   // Legacy support for non-Cloudinary URLs (fallback)
