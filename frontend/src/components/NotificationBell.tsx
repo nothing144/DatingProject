@@ -61,6 +61,54 @@ const NotificationBell = ({ userId }: NotificationBellProps) => {
             </div>
           </SheetTitle>
         </SheetHeader>
+
+        {/* Database Performance Tip */}
+        {notifications.length > 0 && (
+          <Alert className="mt-4 border-amber-700 bg-amber-950/30">
+            <AlertDescription className="text-amber-200 text-sm">
+              <strong>💡 Tip:</strong> After reading, delete notifications to reduce database load and keep your app fast.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Delete All Button */}
+        {notifications.length > 0 && (
+          <div className="mt-3">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  className="w-full bg-red-900 hover:bg-red-800 border-red-700"
+                >
+                  <Trash2 className="h-3 w-3 mr-2" />
+                  Delete All Notifications
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-slate-900 border-slate-700">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-slate-100">Delete All Notifications?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-slate-300">
+                    This will permanently delete all your notifications. This action cannot be undone.
+                    <br /><br />
+                    <span className="text-amber-400">💡 This helps reduce database load and keeps the app running smoothly for everyone.</span>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={deleteAllNotifications}
+                    className="bg-red-900 hover:bg-red-800 text-white"
+                  >
+                    Delete All
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
         <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
           <div className="space-y-2">
             {notifications.length === 0 ? (
