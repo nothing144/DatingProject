@@ -10,9 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { User, Camera, Save, Plus, X, Heart, MapPin, Mail, Zap, Sparkles, Trash2 } from "lucide-react";
 import { 
-  uploadImageToCloudinary
+  uploadImageToCloudinary,
+  deleteImageFromCloudinary,
+  extractPublicIdFromUrl,
+  isCloudinaryUrl,
+  validateImageFile
 } from "@/lib/cloudinaryUtils";
-import { validateImageFile } from "@/lib/imageUtils";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
