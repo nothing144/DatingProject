@@ -397,7 +397,7 @@ const Profile = () => {
       const CLOUDINARY_CONFIG = {
         cloud_name: 'dlnatlmdq',
         api_key: '855887866717832',
-        api_secret: '', // We don't have the secret in frontend, will skip if needed
+        api_secret: import.meta.env.VITE_CLOUDINARY_API_SECRET || '', // Get from environment
       };
 
       const publicId = extractPublicIdFromUrl(avatarUrl);
