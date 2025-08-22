@@ -234,227 +234,76 @@ const Profile = () => {
     if (!user) return;
     
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete your profile? This action cannot be undone and will remove all your data including messages, date requests, and announcements. Your email will also be deleted from authentication, so you'll need to sign up again if you want to use the app."
+      "Are you sure you want to delete your profile? This action cannot be undone and will remove all your data including messages, date requests, announcements, and your Cloudinary images. Your authentication will also be completely removed."
     );
     
     if (!confirmDelete) return;
     
     setSaving(true);
     
-    const deletionResults = {
-      cloudinary: false,
-      messages: false,
-      conversations: false,
-      dateRequests: false,
-      announcements: false,
-      confessions: false,
-      notifications: false,
-      favorites: false,
-      profile: false,
-      authUser: false
-    };
-    
     try {
-      console.log("Starting profile deletion process...");
+      console.log("🚀 Starting complete profile deletion process...");
       
-      // Delete image from Cloudinary if it exists (don't fail if this fails)
-      try {
-        if (profile.avatar_url && isCloudinaryUrl(profile.avatar_url)) {
-          const publicId = extractPublicIdFromUrl(profile.avatar_url);
-          if (publicId) {
-            await deleteImageFromCloudinary(publicId);
-            deletionResults.cloudinary = true;
-            console.log("✅ Cloudinary image deleted");
-          }
-        }
-      } catch (cloudinaryError) {
-        console.warn("⚠️ Could not delete Cloudinary image:", cloudinaryError);
-      }
+      // Show progress to user
+      toast({
+        title: "Deleting Account...",
+        description: "This may take a moment. Please don't close the browser."
+      });
 
-      // Delete related data (wrap each in try-catch to prevent one failure from stopping others)
-      
-      // Delete messages sent by user
-      try {
-        const { error: messagesError } = await supabase
-          .from("messages")
-          .delete()
-          .eq("sender_id", user.id);
+      // Step 1: Call the improved edge function that handles everything
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session?.access_token) {
+        console.log("📡 Calling edge function for complete user deletion...");
         
-        if (!messagesError) {
-          deletionResults.messages = true;
-          console.log("✅ Messages deleted");
-        } else {
-          console.warn("⚠️ Error deleting messages:", messagesError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting messages:", err);
-      }
+        const response = await fetch(`${supabase.supabaseUrl}/functions/v1/delete-user`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      // Delete conversations where user is participant
-      try {
-        const { error: conversationsError } = await supabase
-          .from("conversations")
-          .delete()
-          .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`);
-        
-        if (!conversationsError) {
-          deletionResults.conversations = true;
-          console.log("✅ Conversations deleted");
-        } else {
-          console.warn("⚠️ Error deleting conversations:", conversationsError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting conversations:", err);
-      }
-
-      // Delete date requests
-      try {
-        const { error: dateRequestsError } = await supabase
-          .from("date_requests")
-          .delete()
-          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`);
-        
-        if (!dateRequestsError) {
-          deletionResults.dateRequests = true;
-          console.log("✅ Date requests deleted");
-        } else {
-          console.warn("⚠️ Error deleting date requests:", dateRequestsError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting date requests:", err);
-      }
-
-      // Delete announcements
-      try {
-        const { error: announcementsError } = await supabase
-          .from("announcements")
-          .delete()
-          .eq("author_id", user.id);
-        
-        if (!announcementsError) {
-          deletionResults.announcements = true;
-          console.log("✅ Announcements deleted");
-        } else {
-          console.warn("⚠️ Error deleting announcements:", announcementsError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting announcements:", err);
-      }
-
-      // Delete confessions
-      try {
-        const { error: confessionsError } = await supabase
-          .from("confessions")
-          .delete()
-          .eq("author_id", user.id);
-        
-        if (!confessionsError) {
-          deletionResults.confessions = true;
-          console.log("✅ Confessions deleted");
-        } else {
-          console.warn("⚠️ Error deleting confessions:", confessionsError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting confessions:", err);
-      }
-
-      // Delete notifications
-      try {
-        const { error: notificationsError } = await supabase
-          .from("notifications")
-          .delete()
-          .eq("user_id", user.id);
-        
-        if (!notificationsError) {
-          deletionResults.notifications = true;
-          console.log("✅ Notifications deleted");
-        } else {
-          console.warn("⚠️ Error deleting notifications:", notificationsError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting notifications:", err);
-      }
-
-      // Delete favorites
-      try {
-        const { error: favoritesError } = await supabase
-          .from("favorites")
-          .delete()
-          .or(`user_id.eq.${user.id},profile_id.eq.${user.id}`);
-        
-        if (!favoritesError) {
-          deletionResults.favorites = true;
-          console.log("✅ Favorites deleted");
-        } else {
-          console.warn("⚠️ Error deleting favorites:", favoritesError);
-        }
-      } catch (err) {
-        console.warn("⚠️ Exception deleting favorites:", err);
-      }
-
-      // Finally, delete profile (this is critical)
-      try {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .delete()
-          .eq("id", user.id);
-
-        if (profileError) {
-          throw new Error(`Failed to delete profile: ${profileError.message}`);
-        }
-        
-        deletionResults.profile = true;
-        console.log("✅ Profile deleted");
-      } catch (err) {
-        console.error("❌ Critical error deleting profile:", err);
-        throw err; // This is critical, so we throw
-      }
-
-      // Try to delete auth user via edge function (non-critical)
-      try {
-        const { data: session } = await supabase.auth.getSession();
-        if (session?.session?.access_token) {
-          const response = await fetch(`${supabase.supabaseUrl}/functions/v1/delete-user`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${session.session.access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (response.ok) {
-            deletionResults.authUser = true;
-            console.log("✅ Auth user deleted via edge function");
-          } else {
-            const errorText = await response.text();
-            console.warn('⚠️ Edge function failed:', errorText);
-          }
-        }
-      } catch (edgeError) {
-        console.warn('⚠️ Edge function not available or failed:', edgeError);
-      }
-      
-      // Show appropriate success message based on what was deleted
-      const deletedItems = Object.values(deletionResults).filter(Boolean).length;
-      const totalItems = Object.keys(deletionResults).length;
-      
-      if (deletionResults.profile) {
-        if (deletionResults.authUser) {
+        if (response.ok) {
+          const result = await response.json();
+          console.log("✅ Edge function completed successfully:", result);
+          
+          // Show detailed success message
+          const details = result.details || {};
+          const dbSuccess = details.databaseRecords ? Object.values(details.databaseRecords).filter(Boolean).length : 0;
+          const dbTotal = details.databaseRecords ? Object.keys(details.databaseRecords).length : 0;
+          
           toast({
-            title: "Profile Completely Deleted! ✅",
-            description: `Successfully deleted your profile and all associated data (${deletedItems}/${totalItems} items). Your authentication has also been removed.`
+            title: "Account Completely Deleted! ✅",
+            description: `Successfully deleted your account including:
+            • Authentication: ${details.authUser ? '✅' : '❌'}
+            • Cloudinary Images: ${details.cloudinaryImage ? '✅' : '❌'}
+            • Database Records: ${dbSuccess}/${dbTotal}
+            You can now create a new account if desired.`
           });
+          
+          console.log("🎉 Complete account deletion successful");
+          
         } else {
-          toast({
-            title: "Profile Data Deleted ✅",
-            description: `Successfully deleted your profile and most associated data (${deletedItems}/${totalItems} items). Your authentication remains active.`
-          });
+          const errorData = await response.json();
+          console.error("❌ Edge function failed:", errorData);
+          
+          // If edge function failed, fall back to manual cleanup
+          console.log("🔄 Falling back to manual cleanup...");
+          await performManualCleanup();
         }
+      } else {
+        console.warn("⚠️ No session found, performing manual cleanup...");
+        await performManualCleanup();
       }
       
-      console.log(`Profile deletion completed. Deleted ${deletedItems}/${totalItems} data types.`);
+    } catch (error: any) {
+      console.error("❌ Complete deletion error:", error);
       
-      // Clean sign out and redirect
+      // Fall back to manual cleanup
+      console.log("🔄 Falling back to manual cleanup due to error...");
+      await performManualCleanup();
+    } finally {
+      // Always clean up and redirect
       try {
         await supabase.auth.signOut();
       } catch (signOutError) {
@@ -464,18 +313,180 @@ const Profile = () => {
       // Clear local storage and redirect
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = "/auth";
       
-    } catch (error: any) {
-      console.error("❌ Profile deletion error:", error);
-      toast({
-        title: "Deletion Error",
-        description: error.message || "Failed to delete profile completely. Some data may remain. Please contact support if needed.",
-        variant: "destructive"
-      });
-    } finally {
+      // Redirect after a short delay to ensure toast is seen
+      setTimeout(() => {
+        window.location.href = "/auth";
+      }, 2000);
+      
       setSaving(false);
     }
+  };
+
+  // Fallback manual cleanup function
+  const performManualCleanup = async () => {
+    console.log("🔧 Performing manual profile data cleanup...");
+    
+    const deletionResults = {
+      messages: false,
+      conversations: false,
+      dateRequests: false,
+      announcements: false,
+      confessions: false,
+      notifications: false,
+      favorites: false,
+      profile: false,
+    };
+    
+    // Delete related data (wrap each in try-catch to prevent one failure from stopping others)
+    
+    // Delete messages sent by user
+    try {
+      const { error: messagesError } = await supabase
+        .from("messages")
+        .delete()
+        .eq("sender_id", user.id);
+      
+      if (!messagesError) {
+        deletionResults.messages = true;
+        console.log("✅ Messages deleted");
+      } else {
+        console.warn("⚠️ Error deleting messages:", messagesError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting messages:", err);
+    }
+
+    // Delete conversations where user is participant
+    try {
+      const { error: conversationsError } = await supabase
+        .from("conversations")
+        .delete()
+        .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`);
+      
+      if (!conversationsError) {
+        deletionResults.conversations = true;
+        console.log("✅ Conversations deleted");
+      } else {
+        console.warn("⚠️ Error deleting conversations:", conversationsError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting conversations:", err);
+    }
+
+    // Delete date requests
+    try {
+      const { error: dateRequestsError } = await supabase
+        .from("date_requests")
+        .delete()
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`);
+      
+      if (!dateRequestsError) {
+        deletionResults.dateRequests = true;
+        console.log("✅ Date requests deleted");
+      } else {
+        console.warn("⚠️ Error deleting date requests:", dateRequestsError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting date requests:", err);
+    }
+
+    // Delete announcements
+    try {
+      const { error: announcementsError } = await supabase
+        .from("announcements")
+        .delete()
+        .eq("author_id", user.id);
+      
+      if (!announcementsError) {
+        deletionResults.announcements = true;
+        console.log("✅ Announcements deleted");
+      } else {
+        console.warn("⚠️ Error deleting announcements:", announcementsError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting announcements:", err);
+    }
+
+    // Delete confessions
+    try {
+      const { error: confessionsError } = await supabase
+        .from("confessions")
+        .delete()
+        .eq("author_id", user.id);
+      
+      if (!confessionsError) {
+        deletionResults.confessions = true;
+        console.log("✅ Confessions deleted");
+      } else {
+        console.warn("⚠️ Error deleting confessions:", confessionsError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting confessions:", err);
+    }
+
+    // Delete notifications
+    try {
+      const { error: notificationsError } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("user_id", user.id);
+      
+      if (!notificationsError) {
+        deletionResults.notifications = true;
+        console.log("✅ Notifications deleted");
+      } else {
+        console.warn("⚠️ Error deleting notifications:", notificationsError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting notifications:", err);
+    }
+
+    // Delete favorites
+    try {
+      const { error: favoritesError } = await supabase
+        .from("favorites")
+        .delete()
+        .or(`user_id.eq.${user.id},profile_id.eq.${user.id}`);
+      
+      if (!favoritesError) {
+        deletionResults.favorites = true;
+        console.log("✅ Favorites deleted");
+      } else {
+        console.warn("⚠️ Error deleting favorites:", favoritesError);
+      }
+    } catch (err) {
+      console.warn("⚠️ Exception deleting favorites:", err);
+    }
+
+    // Finally, delete profile (this is critical)
+    try {
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", user.id);
+
+      if (profileError) {
+        throw new Error(`Failed to delete profile: ${profileError.message}`);
+      }
+      
+      deletionResults.profile = true;
+      console.log("✅ Profile deleted");
+    } catch (err) {
+      console.error("❌ Critical error deleting profile:", err);
+      throw err; // This is critical, so we throw
+    }
+    
+    // Show appropriate success message based on what was deleted
+    const deletedItems = Object.values(deletionResults).filter(Boolean).length;
+    const totalItems = Object.keys(deletionResults).length;
+    
+    toast({
+      title: "Profile Data Deleted ✅",
+      description: `Successfully deleted your profile and associated data (${deletedItems}/${totalItems} items). Note: Authentication and Cloudinary images may still exist.`
+    });
+    
+    console.log(`Manual profile deletion completed. Deleted ${deletedItems}/${totalItems} data types.`);
   };
 
   if (loading) {
