@@ -495,6 +495,27 @@ const Index = () => {
 
   };
 
+  const handleDeleteDateRequest = async (requestId: string) => {
+    const { error } = await supabase
+      .from("date_requests")
+      .delete()
+      .eq("id", requestId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      fetchDateRequests();
+      toast({
+        title: "Date request deleted",
+        description: "Request has been permanently removed to keep the database clean"
+      });
+    }
+  };
+
 
 
   const handleLike = async () => {
