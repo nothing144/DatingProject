@@ -111,41 +111,40 @@ const Index = () => {
 
 
   useEffect(() => {
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-
+      console.log("Auth state change:", event, session?.user?.id || 'no user');
+      
       setSession(session);
-
       setUser(session?.user || null);
-
-      if (!session) {
+      
+      if (event === 'SIGNED_OUT' || !session) {
+        console.log("User signed out - redirecting to auth");
+        // Clear any cached data when user logs out
+        setProfiles([]);
+        setAllProfiles([]);
+        setConversations([]);
+        setAnnouncements([]);
+        setConfessions([]);
+        setDateRequests([]);
         navigate("/auth");
       }
-
     });
-
-
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-
+      console.log("Initial session check:", session?.user?.id || 'no user');
+      
       setSession(session);
-
       setUser(session?.user || null);
-
+      
       if (!session) {
+        console.log("No session found - redirecting to auth");
         navigate("/auth");
       } else {
-
         setLoading(false);
-
       }
-
     });
 
-
-
     return () => subscription.unsubscribe();
-
   }, [navigate]);
 
 
