@@ -42,7 +42,7 @@ supabase link --project-ref ljjyipvvxmduvxoyzvhf
 ### **Step 4: Set Environment Variables**
 ```bash
 # Set the required environment variables for the edge function
-supabase secrets set SUPABASE_URL=https://ljjyipvvxmduvxoyzvhf.supabase.co
+supabase secrets set SUPABASE_URL=https://your-project-ref.supabase.co
 supabase secrets set SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # ⚠️ YOU NEED TO GET THIS FROM YOUR SUPABASE DASHBOARD
