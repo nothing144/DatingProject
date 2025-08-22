@@ -15,7 +15,7 @@ interface NotificationBellProps {
 
 const NotificationBell = ({ userId }: NotificationBellProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead, fetchNotifications } = useNotifications(userId);
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead, fetchNotifications, deleteAllNotifications } = useNotifications(userId);
 
   const handleNotificationClick = (notificationId: string, read: boolean) => {
     if (!read) {
