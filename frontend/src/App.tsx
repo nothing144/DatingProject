@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ViewProfilePage from "@/pages/ViewProfilePage";
 import TestDiscover from "@/pages/TestDiscover";
+import "@/utils/adminCleanup"; // Import admin cleanup utilities
 
 const queryClient = new QueryClient();
 
