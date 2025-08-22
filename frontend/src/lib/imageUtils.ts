@@ -9,6 +9,30 @@ import {
   getOptimizedImageUrl as getOptimizedCloudinaryUrl
 } from './cloudinaryUtils';
 
+// Helper functions for Cloudinary URL handling
+const isCloudinaryUrl = (url: string): boolean => {
+  return url.includes('cloudinary.com');
+};
+
+const extractPublicIdFromUrl = (url: string): string | null => {
+  if (!isCloudinaryUrl(url)) return null;
+  const matches = url.match(/\/v\d+\/(.+)\./);
+  return matches ? matches[1] : null;
+};
+
+const getCloudinaryThumbnailUrl = (publicId: string): string => {
+  return `https://res.cloudinary.com/your-cloud/image/upload/c_fill,w_300,h_300/${publicId}`;
+};
+
+const getCloudinaryHighQualityUrl = (publicId: string): string => {
+  return `https://res.cloudinary.com/your-cloud/image/upload/c_fill,w_800,h_800,q_85/${publicId}`;
+};
+
+const getCloudinaryFallbackAvatarUrl = (name: string, size: number = 400): string => {
+  const initial = name.charAt(0).toUpperCase();
+  return `https://ui-avatars.com/api/?name=${initial}&size=${size}&background=random`;
+};
+
 export interface CompressedImage {
   file: File;
   preview: string;
