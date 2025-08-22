@@ -29,7 +29,7 @@ The edge function requires these environment variables to be set in Supabase:
 ```bash
 SUPABASE_URL=https://ljjyipvvxmduvxoyzvhf.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqanlpcHZ2eG1kdXZ4b3l6dmhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDcxNzMsImV4cCI6MjA2OTUyMzE3M30.fWaVeL9482grgbXGcwYQu-ehDV5L3xyG-vix8Os8hno
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
 ### **Optional Variables (for Cloudinary image deletion):**
