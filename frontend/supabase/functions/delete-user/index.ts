@@ -12,7 +12,7 @@ const corsHeaders = {
 // Cloudinary configuration
 const CLOUDINARY_CONFIG = {
   cloud_name: Deno.env.get('CLOUDINARY_CLOUD_NAME') || 'dlnatlmdq',
-  api_key: Deno.env.get('CLOUDINARY_API_KEY') || '855887866717832',
+  api_key: Deno.env.get('CLOUDINARY_API_KEY') || 'your_cloudinary_api_key_here',
   api_secret: Deno.env.get('CLOUDINARY_API_SECRET') || '', // This should be set in Supabase edge function secrets
 };
 
