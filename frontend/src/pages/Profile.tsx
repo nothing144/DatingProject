@@ -461,6 +461,39 @@ const Profile = () => {
     
     // Delete related data (wrap each in try-catch to prevent one failure from stopping others)
     
+    // Step 1: Get user's avatar for Cloudinary deletion
+    let avatarUrl = null;
+    try {
+      console.log('📸 Fetching user profile for avatar deletion...');
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single();
+      
+      avatarUrl = profileData?.avatar_url;
+      console.log(`📸 User avatar URL: ${avatarUrl || 'none'}`);
+    } catch (error) {
+      console.warn('⚠️ Could not fetch user profile for avatar deletion:', error);
+    }
+
+    // Step 2: Delete avatar from Cloudinary if it exists
+    if (avatarUrl && avatarUrl.includes('cloudinary.com')) {
+      console.log('🖼️ Processing manual Cloudinary image deletion...');
+      const cloudinaryResult = await deleteImageFromCloudinaryManual(avatarUrl);
+      deletionResults.cloudinaryImage = cloudinaryResult.success;
+      if (cloudinaryResult.success) {
+        console.log('✅ Cloudinary image deleted manually');
+      } else {
+        console.warn('⚠️ Manual Cloudinary image deletion failed:', cloudinaryResult.error);
+      }
+    } else {
+      console.log('ℹ️ No Cloudinary image to delete');
+      deletionResults.cloudinaryImage = true; // Mark as success since no image to delete
+    }
+    
+    // Step 3: Delete database records
+    
     // Delete messages sent by user
     try {
       const { error: messagesError } = await supabase
