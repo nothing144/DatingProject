@@ -35,7 +35,7 @@ SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 ### **Optional Variables (for Cloudinary image deletion):**
 ```bash
 CLOUDINARY_CLOUD_NAME=dlnatlmdq
-CLOUDINARY_API_KEY=855887866717832
+CLOUDINARY_API_KEY=your_cloudinary_api_key_here
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret_here
 ```
 
