@@ -2,6 +2,16 @@
 
 A modern college dating application built with React, TypeScript, and Supabase.
 
+## 🔒 Security Setup (IMPORTANT!)
+
+**Before running the app, you MUST configure environment variables:**
+
+1. Copy `/frontend/.env.example` to `/frontend/.env`
+2. Fill in your actual API keys (see `/SECURITY_SETUP.md` for details)
+3. Never commit `.env` files to version control
+
+⚠️ **Security Note**: This app now uses secure environment variable configuration. All API secrets have been moved server-side for security.
+
 ## 🚀 Quick Start
 
 ### Development
