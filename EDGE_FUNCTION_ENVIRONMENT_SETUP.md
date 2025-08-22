@@ -14,7 +14,7 @@ You need to set these secrets in your Supabase project dashboard:
 
 ```bash
 CLOUDINARY_CLOUD_NAME=dlnatlmdq
-CLOUDINARY_API_KEY=855887866717832
+CLOUDINARY_API_KEY=your_cloudinary_api_key_here
 CLOUDINARY_API_SECRET=your_api_secret_here
 ```
 
