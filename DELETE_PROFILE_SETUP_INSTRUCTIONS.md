@@ -43,7 +43,7 @@ supabase link --project-ref ljjyipvvxmduvxoyzvhf
 ```bash
 # Set the required environment variables for the edge function
 supabase secrets set SUPABASE_URL=https://ljjyipvvxmduvxoyzvhf.supabase.co
-supabase secrets set SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqanlpcHZ2eG1kdXZ4b3l6dmhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDcxNzMsImV4cCI6MjA2OTUyMzE3M30.fWaVeL9482grgbXGcwYQu-ehDV5L3xyG-vix8Os8hno
+supabase secrets set SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # ⚠️ YOU NEED TO GET THIS FROM YOUR SUPABASE DASHBOARD
 supabase secrets set SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
