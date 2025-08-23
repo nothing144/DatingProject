@@ -2,11 +2,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // ✅ Fixed: Allow all origins for development
+  'Access-Control-Allow-Origin': 'https://iterdating.netlify.app', // ✅ Fixed for production domain
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-requested-with, accept',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'false',
+  'Access-Control-Allow-Credentials': 'true', // Enable credentials for authenticated requests
 }
 
 // Cloudinary configuration
