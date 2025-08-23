@@ -1026,6 +1026,9 @@ const Profile = () => {
               <div className="text-center bg-muted/20 px-4 py-3 rounded-lg">
                 <p className="text-xs text-muted-foreground">
                   * indicates mandatory fields. All fields except "About You" and "Interests" are required.
+                  {isFirstTimeUser && (
+                    <><br/><span className="text-primary">Complete your profile to start discovering amazing people! 🌟</span></>
+                  )}
                 </p>
               </div>
               
@@ -1037,35 +1040,47 @@ const Profile = () => {
                 {saving ? (
                   <div className="flex items-center gap-3">
                     <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                    Saving your profile...
+                    {isFirstTimeUser ? "Creating your profile..." : "Saving your profile..."}
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     <Save className="w-5 h-5" />
-                    Save Profile
+                    {isFirstTimeUser ? "Create Profile & Start Matching" : "Save Profile"}
                   </div>
                 )}
               </Button>
               
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/")}
-                  className="btn-secondary-enhanced py-3"
-                >
-                  Cancel
-                </Button>
-                
-                <Button
-                  variant="destructive"
-                  onClick={handleDeleteProfile}
-                  disabled={saving}
-                  className="py-3 bg-destructive hover:bg-destructive-hover text-destructive-foreground font-semibold transition-all duration-300 hover:scale-105"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
-              </div>
+              {/* Conditionally show cancel button and delete button only for returning users */}
+              {!isFirstTimeUser && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/")}
+                    className="btn-secondary-enhanced py-3"
+                  >
+                    Cancel
+                  </Button>
+                  
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteProfile}
+                    disabled={saving}
+                    className="py-3 bg-destructive hover:bg-destructive-hover text-destructive-foreground font-semibold transition-all duration-300 hover:scale-105"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              )}
+              
+              {/* For first-time users, show only helpful message */}
+              {isFirstTimeUser && (
+                <div className="text-center bg-gradient-to-r from-primary/10 to-secondary/10 px-4 py-3 rounded-lg border border-primary/20">
+                  <p className="text-sm text-primary font-medium">
+                    🎉 Almost there! Fill in all required fields to join the HeartBeat community
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
