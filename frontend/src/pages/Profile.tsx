@@ -29,7 +29,9 @@ const Profile = () => {
     description: "",
     shortBio: "",
     interests: [] as string[],
-    avatar_url: ""
+    avatar_url: "",
+    branch: "",
+    year: ""
   });
   const [newInterest, setNewInterest] = useState("");
   const navigate = useNavigate();
