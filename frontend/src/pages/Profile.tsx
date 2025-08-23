@@ -22,6 +22,7 @@ const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     username: "",
