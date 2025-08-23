@@ -504,9 +504,11 @@ const Index = () => {
       .eq("id", requestId);
 
     if (error) {
+      console.error("Error deleting date request:", error);
+      console.error("Full error details:", JSON.stringify(error, null, 2));
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Database Error",
+        description: `Failed to delete date request: ${error.message || 'Unknown error'}. Check console for details.`,
         variant: "destructive"
       });
     } else {
