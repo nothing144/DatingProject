@@ -79,7 +79,9 @@ const Profile = () => {
           description: data.description || "",
           shortBio: data.shortBio || "",
           interests: data.interests || [],
-          avatar_url: data.avatar_url || ""
+          avatar_url: data.avatar_url || "",
+          branch: data.branch || "",
+          year: data.year?.toString() || ""
         });
       }
     } catch (error: any) {
