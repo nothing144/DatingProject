@@ -21,11 +21,11 @@ const extractPublicIdFromUrl = (url: string): string | null => {
 };
 
 const getCloudinaryThumbnailUrl = (publicId: string): string => {
-  return `https://res.cloudinary.com/your-cloud/image/upload/c_fill,w_300,h_300/${publicId}`;
+  return `https://res.cloudinary.com/dlnatlmdq/image/upload/c_fill,w_300,h_300/${publicId}`;
 };
 
 const getCloudinaryHighQualityUrl = (publicId: string): string => {
-  return `https://res.cloudinary.com/your-cloud/image/upload/c_fill,w_800,h_800,q_85/${publicId}`;
+  return `https://res.cloudinary.com/dlnatlmdq/image/upload/c_fill,w_800,h_800,q_85/${publicId}`;
 };
 
 const getCloudinaryFallbackAvatarUrl = (name: string, size: number = 400): string => {
