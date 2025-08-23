@@ -806,7 +806,7 @@ const Profile = () => {
                 />
               </div>
               <p className="text-sm text-muted-foreground mt-3 bg-muted/20 px-4 py-2 rounded-full inline-block">
-                📸 Tap the camera icon to add or change your photo
+                📸 Tap the camera icon to add or change your photo *
               </p>
             </div>
 
