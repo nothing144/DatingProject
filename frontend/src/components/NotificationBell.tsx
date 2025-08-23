@@ -121,14 +121,16 @@ const NotificationBell = ({ userId }: NotificationBellProps) => {
               notifications.map((notification) => (
                 <Card 
                   key={notification.id}
-                  className={`cursor-pointer transition-colors ${
+                  className={`cursor-pointer transition-colors group ${
                     notification.read ? 'bg-muted/30' : 'bg-primary/5 border-primary/30'
                   }`}
-                  onClick={() => handleNotificationClick(notification.id, notification.read)}
                 >
                   <CardContent className="p-3">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
+                      <div 
+                        className="flex-1"
+                        onClick={() => handleNotificationClick(notification.id, notification.read)}
+                      >
                         <h4 className="font-semibold text-sm">{notification.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1">
                           {notification.message}
@@ -137,9 +139,22 @@ const NotificationBell = ({ userId }: NotificationBellProps) => {
                           {new Date(notification.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      {!notification.read && (
-                        <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {!notification.read && (
+                          <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6 text-muted-foreground hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteNotification(notification.id);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
