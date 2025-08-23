@@ -210,6 +210,7 @@ export const useNotifications = (userId: string | undefined) => {
     fetchNotifications,
     markAsRead,
     markAllAsRead,
+    deleteNotification,
     deleteAllNotifications
   };
 };
