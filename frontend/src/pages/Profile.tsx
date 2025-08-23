@@ -770,9 +770,11 @@ const Profile = () => {
             </div>
           </div>
           <h1 className="heading-primary text-center mb-2">
-            Your Profile
+            {isFirstTimeUser ? "Welcome to HeartBeat! 💖" : "Your Profile"}
           </h1>
-          <p className="text-gradient text-center text-base font-medium">Make yourself shine ⚡</p>
+          <p className="text-gradient text-center text-base font-medium">
+            {isFirstTimeUser ? "Let's set up your amazing profile ⚡" : "Make yourself shine ⚡"}
+          </p>
         </div>
 
         <Card className="card-enhanced animate-fadeInScale">
