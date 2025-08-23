@@ -941,7 +941,7 @@ const Index = () => {
 
                   <strong>🚨 Community Notice:</strong> To keep the community running on a free plan, we need to reduce database load.
                   <br />
-                  <span className="text-red-400 font-medium">💡 Important:</span> If your date request has been accepted, please delete your profile after that. You can always come back later by signing in again and creating a new profile.
+                  <span className="text-red-400 font-medium">💡 Important:</span> If your date request has been accepted, please exchange contact details and delete your profile after that. You can always come back later by signing in again and creating a new profile.
                   <br />
                   <span className="text-blue-400">📱 Quick tip:</span> Exchange contact details and move to WhatsApp/Instagram for better communication.
 
