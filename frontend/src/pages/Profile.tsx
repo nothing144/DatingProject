@@ -930,7 +930,7 @@ const Profile = () => {
               <div className="space-y-2">
                 <Label htmlFor="shortBio" className="text-sm font-semibold text-accent flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
-                  Short Bio
+                  Short Bio *
                 </Label>
                 <Input
                   id="shortBio"
