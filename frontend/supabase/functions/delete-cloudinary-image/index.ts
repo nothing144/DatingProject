@@ -128,6 +128,25 @@ serve(async (req) => {
   }
 
   try {
+    // Parse request body only for POST requests (OPTIONS requests don't have a body)
+    let body = {};
+    if (req.method === 'POST') {
+      try {
+        body = await req.json();
+      } catch (jsonError) {
+        console.error('❌ Invalid JSON in request body:', jsonError);
+        return new Response(
+          JSON.stringify({ error: 'Invalid JSON in request body' }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+    }
+
+    const { imageUrl, publicId } = body;
+
     // Get authorization header to verify user is authenticated
     const authHeader = req.headers.get('Authorization')
     
@@ -141,10 +160,6 @@ serve(async (req) => {
         }
       )
     }
-
-    // Parse request body to get image URL or public_id
-    const body = await req.json();
-    const { imageUrl, publicId } = body;
 
     if (!imageUrl && !publicId) {
       return new Response(
