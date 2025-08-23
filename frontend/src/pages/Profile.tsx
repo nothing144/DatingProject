@@ -885,26 +885,25 @@ const Profile = () => {
                     <Zap className="w-4 h-4" />
                     Branch *
                   </Label>
-                  <select
-                    id="branch"
-                    value={profile.branch}
-                    onChange={(e) => setProfile(prev => ({ ...prev, branch: e.target.value }))}
-                    className="input-enhanced focus:border-accent focus:ring-accent/20 bg-card"
-                  >
-                    <option value="">Select Branch</option>
-                    <option value="Computer Science & Engineering">Computer Science & Engineering</option>
-                    <option value="Electronics & Communication Engineering">Electronics & Communication Engineering</option>
-                    <option value="Electrical Engineering">Electrical Engineering</option>
-                    <option value="Mechanical Engineering">Mechanical Engineering</option>
-                    <option value="Civil Engineering">Civil Engineering</option>
-                    <option value="Chemical Engineering">Chemical Engineering</option>
-                    <option value="Metallurgical & Materials Engineering">Metallurgical & Materials Engineering</option>
-                    <option value="Biotechnology & Biochemical Engineering">Biotechnology & Biochemical Engineering</option>
-                    <option value="Electronics & Instrumentation Engineering">Electronics & Instrumentation Engineering</option>
-                    <option value="Production Engineering">Production Engineering</option>
-                    <option value="Aerospace Engineering">Aerospace Engineering</option>
-                    <option value="Fashion & Apparel Technology">Fashion & Apparel Technology</option>
-                  </select>
+                  <Select value={profile.branch} onValueChange={(value) => setProfile(prev => ({ ...prev, branch: value }))}>
+                    <SelectTrigger className="input-enhanced focus:border-accent focus:ring-accent/20">
+                      <SelectValue placeholder="Select Branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Computer Science & Engineering">Computer Science & Engineering</SelectItem>
+                      <SelectItem value="Electronics & Communication Engineering">Electronics & Communication Engineering</SelectItem>
+                      <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                      <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                      <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                      <SelectItem value="Chemical Engineering">Chemical Engineering</SelectItem>
+                      <SelectItem value="Metallurgical & Materials Engineering">Metallurgical & Materials Engineering</SelectItem>
+                      <SelectItem value="Biotechnology & Biochemical Engineering">Biotechnology & Biochemical Engineering</SelectItem>
+                      <SelectItem value="Electronics & Instrumentation Engineering">Electronics & Instrumentation Engineering</SelectItem>
+                      <SelectItem value="Production Engineering">Production Engineering</SelectItem>
+                      <SelectItem value="Aerospace Engineering">Aerospace Engineering</SelectItem>
+                      <SelectItem value="Fashion & Apparel Technology">Fashion & Apparel Technology</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
