@@ -188,6 +188,7 @@ const Index = () => {
       
       if (!session) {
         console.log("No session found - redirecting to auth");
+        setLoading(false); // Fix: Set loading to false before navigation
         navigate("/auth");
       } else {
         // Check if user has complete profile before allowing access to main page
