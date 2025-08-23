@@ -449,15 +449,15 @@ const Profile = () => {
       console.warn('⚠️ Could not fetch user profile for avatar deletion:', error);
     }
 
-    // Step 2: Delete avatar from Cloudinary if it exists
+    // Step 2: Delete avatar from Cloudinary if it exists (using secure method)
     if (avatarUrl && avatarUrl.includes('cloudinary.com')) {
-      console.log('🖼️ Processing manual Cloudinary image deletion...');
-      const cloudinaryResult = await deleteImageFromCloudinaryManual(avatarUrl);
+      console.log('🖼️ Processing secure Cloudinary image deletion...');
+      const cloudinaryResult = await deleteImageFromCloudinary(avatarUrl);
       deletionResults.cloudinaryImage = cloudinaryResult.success;
       if (cloudinaryResult.success) {
-        console.log('✅ Cloudinary image deleted manually');
+        console.log('✅ Cloudinary image deleted securely');
       } else {
-        console.warn('⚠️ Manual Cloudinary image deletion failed:', cloudinaryResult.error);
+        console.warn('⚠️ Secure Cloudinary image deletion failed:', cloudinaryResult.error);
       }
     } else {
       console.log('ℹ️ No Cloudinary image to delete');
