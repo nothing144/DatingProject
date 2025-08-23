@@ -83,9 +83,10 @@ export const useNotifications = (userId: string | undefined) => {
 
     if (error) {
       console.error("Error deleting all notifications:", error);
+      console.error("Full error details:", JSON.stringify(error, null, 2));
       toast({
-        title: "Error",
-        description: "Failed to delete notifications",
+        title: "Database Error",
+        description: `Failed to delete notifications: ${error.message || 'Unknown error'}. Check console for details.`,
         variant: "destructive"
       });
     } else {
