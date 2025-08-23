@@ -166,13 +166,15 @@ const Profile = () => {
       const profileData = {
         id: user.id,
         name: profile.name,
-        username: profile.username || null,
-        age: profile.age ? parseInt(profile.age) : null,
+        username: profile.username,
+        age: parseInt(profile.age),
         location: profile.location,
         description: profile.description,
         shortBio: profile.shortBio,
         interests: profile.interests,
         avatar_url: profile.avatar_url,
+        branch: profile.branch,
+        year: parseInt(profile.year),
         email: user.email
       };
 
