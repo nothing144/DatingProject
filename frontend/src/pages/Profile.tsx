@@ -72,7 +72,17 @@ const Profile = () => {
         throw error;
       }
 
+      // Check if user is first-time (no profile data or incomplete mandatory fields)
+      let isFirstTime = true;
       if (data) {
+        const mandatoryFields = ['name', 'username', 'age', 'location', 'shortBio', 'avatar_url', 'branch', 'year'];
+        const hasAllMandatoryFields = mandatoryFields.every(field => {
+          const value = data[field];
+          return value && (typeof value !== 'string' || value.trim() !== '');
+        });
+        
+        isFirstTime = !hasAllMandatoryFields;
+        
         setProfile({
           name: data.name || "",
           username: data.username || "",
@@ -86,8 +96,12 @@ const Profile = () => {
           year: data.year?.toString() || ""
         });
       }
+      
+      setIsFirstTimeUser(isFirstTime);
     } catch (error: any) {
       console.error("Error fetching profile:", error);
+      // If there's an error fetching profile, assume it's a first-time user
+      setIsFirstTimeUser(true);
     } finally {
       setLoading(false);
     }
