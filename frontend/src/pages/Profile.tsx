@@ -258,11 +258,19 @@ const Profile = () => {
         description: "Please wait while we upload your image to Cloudinary."
       });
 
-      // Note: We skip client-side deletion of old image for security reasons
-      // The old image will remain in Cloudinary but won't be referenced in the database
-      // When the user deletes their account, the edge function will handle proper cleanup
+      // Delete old image from Cloudinary before uploading new one (secure approach)
       if (profile.avatar_url && isCloudinaryUrl(profile.avatar_url)) {
-        console.log("ℹ️ Old Cloudinary image will be replaced but not deleted (security limitation)");
+        console.log("🗑️ Deleting old Cloudinary image before uploading new one...");
+        try {
+          const deleteResult = await deleteImageFromCloudinary(profile.avatar_url);
+          if (deleteResult.success) {
+            console.log("✅ Old Cloudinary image deleted successfully");
+          } else {
+            console.warn("⚠️ Failed to delete old image, but continuing with upload:", deleteResult.error);
+          }
+        } catch (error) {
+          console.warn("⚠️ Error deleting old image, but continuing with upload:", error);
+        }
       }
 
       // Upload new image to Cloudinary
