@@ -104,7 +104,7 @@ function extractPublicIdFromUrl(url: string): string | null {
 serve(async (req) => {
   console.log(`🚀 Edge function called with method: ${req.method}`);
   
-  // Handle CORS preflight requests
+  // Handle CORS preflight requests FIRST (before any JSON parsing)
   if (req.method === 'OPTIONS') {
     console.log('📋 Handling OPTIONS request');
     return new Response('ok', { 
@@ -113,7 +113,7 @@ serve(async (req) => {
     })
   }
 
-  // Only allow POST method
+  // Only allow POST method after OPTIONS
   if (req.method !== 'POST') {
     console.log(`❌ Method ${req.method} not allowed`);
     return new Response(
