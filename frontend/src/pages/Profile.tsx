@@ -94,7 +94,45 @@ const Profile = () => {
   const handleSave = async () => {
     if (!user) return;
     
-    // Validate username uniqueness if provided
+    // Validate mandatory fields
+    const mandatoryFields = [
+      { field: 'name', label: 'Full Name' },
+      { field: 'username', label: 'Username' },
+      { field: 'age', label: 'Age' },
+      { field: 'location', label: 'Location' },
+      { field: 'shortBio', label: 'Short Bio' },
+      { field: 'avatar_url', label: 'Profile Photo' },
+      { field: 'branch', label: 'Branch' },
+      { field: 'year', label: 'Academic Year' }
+    ];
+
+    const missingFields = mandatoryFields.filter(({ field }) => {
+      const value = profile[field as keyof typeof profile];
+      return !value || (typeof value === 'string' && value.trim() === '');
+    });
+
+    if (missingFields.length > 0) {
+      const missingFieldNames = missingFields.map(({ label }) => label).join(', ');
+      toast({
+        title: "Missing Required Fields",
+        description: `Please fill in the following mandatory fields: ${missingFieldNames}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate academic year range
+    const yearNum = parseInt(profile.year);
+    if (yearNum < 1 || yearNum > 4) {
+      toast({
+        title: "Invalid Academic Year",
+        description: "Academic year must be between 1 and 4",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate username uniqueness
     if (profile.username) {
       const { data: existingUsers, error: checkError } = await supabase
         .from("profiles")
