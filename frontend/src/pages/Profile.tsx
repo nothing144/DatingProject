@@ -850,7 +850,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <Label htmlFor="age" className="text-sm font-semibold text-secondary flex items-center gap-2">
                     <Heart className="w-4 h-4" />
-                    Age
+                    Age *
                   </Label>
                   <Input
                     id="age"
@@ -865,7 +865,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <Label htmlFor="location" className="text-sm font-semibold text-secondary flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    Location
+                    Location *
                   </Label>
                   <Input
                     id="location"
@@ -874,6 +874,55 @@ const Profile = () => {
                     placeholder="City, State"
                     className="input-enhanced focus:border-secondary focus:ring-secondary/20"
                   />
+                </div>
+              </div>
+
+              {/* Branch and Academic Year */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="branch" className="text-sm font-semibold text-accent flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    Branch *
+                  </Label>
+                  <select
+                    id="branch"
+                    value={profile.branch}
+                    onChange={(e) => setProfile(prev => ({ ...prev, branch: e.target.value }))}
+                    className="input-enhanced focus:border-accent focus:ring-accent/20 bg-card"
+                  >
+                    <option value="">Select Branch</option>
+                    <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                    <option value="Electronics & Communication Engineering">Electronics & Communication Engineering</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Chemical Engineering">Chemical Engineering</option>
+                    <option value="Metallurgical & Materials Engineering">Metallurgical & Materials Engineering</option>
+                    <option value="Biotechnology & Biochemical Engineering">Biotechnology & Biochemical Engineering</option>
+                    <option value="Electronics & Instrumentation Engineering">Electronics & Instrumentation Engineering</option>
+                    <option value="Production Engineering">Production Engineering</option>
+                    <option value="Aerospace Engineering">Aerospace Engineering</option>
+                    <option value="Fashion & Apparel Technology">Fashion & Apparel Technology</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="year" className="text-sm font-semibold text-accent flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Academic Year *
+                  </Label>
+                  <select
+                    id="year"
+                    value={profile.year}
+                    onChange={(e) => setProfile(prev => ({ ...prev, year: e.target.value }))}
+                    className="input-enhanced focus:border-accent focus:ring-accent/20 bg-card"
+                  >
+                    <option value="">Select Year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
                 </div>
               </div>
 
