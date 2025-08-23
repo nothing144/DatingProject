@@ -8,10 +8,25 @@ const CLOUDINARY_CONFIG = {
   // API_SECRET REMOVED - Should never be in frontend code
 };
 
-export const uploadImageToCloudinary = async (file: File): Promise<string> => {
+export const uploadImageToCloudinary = async (
+  file: File, 
+  userId?: string, 
+  options: { folder?: string } = {}
+): Promise<{ url: string; public_id: string }> => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('upload_preset', 'unsigned_preset'); // Use unsigned preset for frontend uploads
+  formData.append('upload_preset', 'heartbeat_preset'); // Use the correct preset name
+  
+  // Add folder if specified
+  if (options.folder) {
+    formData.append('folder', options.folder);
+  }
+  
+  // Add public_id with user prefix if userId provided
+  if (userId) {
+    const timestamp = Date.now();
+    formData.append('public_id', `${options.folder || 'avatars'}/${userId}_${timestamp}`);
+  }
   
   try {
     const response = await fetch(
@@ -23,11 +38,16 @@ export const uploadImageToCloudinary = async (file: File): Promise<string> => {
     );
     
     if (!response.ok) {
-      throw new Error('Failed to upload image');
+      const errorData = await response.text();
+      console.error('Cloudinary upload failed:', errorData);
+      throw new Error(`Failed to upload image: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
-    return data.secure_url;
+    return {
+      url: data.secure_url,
+      public_id: data.public_id
+    };
   } catch (error) {
     console.error('Error uploading to Cloudinary:', error);
     throw error;
