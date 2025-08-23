@@ -831,7 +831,7 @@ const Profile = () => {
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-semibold text-accent flex items-center gap-2">
                   <Zap className="w-4 h-4" />
-                  Username
+                  Username *
                 </Label>
                 <Input
                   id="username"
