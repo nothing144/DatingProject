@@ -1006,9 +1006,16 @@ const Profile = () => {
 
             {/* Enhanced Action Buttons */}
             <div className="space-y-3 pt-6">
+              {/* Mandatory fields notice */}
+              <div className="text-center bg-muted/20 px-4 py-3 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  * indicates mandatory fields. All fields except "About You" and "Interests" are required.
+                </p>
+              </div>
+              
               <Button
                 onClick={handleSave}
-                disabled={saving || !profile.name}
+                disabled={saving}
                 className="btn-primary-enhanced w-full py-4 text-base font-semibold"
               >
                 {saving ? (
