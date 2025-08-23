@@ -783,7 +783,7 @@ const Profile = () => {
               <div className="p-2 bg-gradient-to-br from-primary to-secondary rounded-lg">
                 <Heart className="w-5 h-5 text-white" />
               </div>
-              Profile Setup
+              {isFirstTimeUser ? "Create Your Profile" : "Profile Setup"}
             </CardTitle>
           </CardHeader>
           
