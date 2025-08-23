@@ -201,8 +201,10 @@ const Profile = () => {
       if (error) throw error;
 
       toast({
-        title: "Profile Saved! ✨",
-        description: "Your profile has been updated successfully."
+        title: isFirstTimeUser ? "Welcome to HeartBeat! 🎉" : "Profile Saved! ✨",
+        description: isFirstTimeUser 
+          ? "Your profile has been created successfully! Now you can start discovering amazing people on campus." 
+          : "Your profile has been updated successfully."
       });
       
       navigate("/");
