@@ -88,7 +88,21 @@ async function deleteImageFromCloudinary(publicId: string): Promise<{ success: b
       }
     );
 
-    const result = await response.json();
+    let result: any = {}
+try {
+  const contentType = response.headers.get("content-type") || ""
+
+  if (contentType.includes("application/json")) {
+    result = await response.json()
+  } else {
+    const text = await response.text()
+    console.warn("⚠️ Cloudinary non-JSON response:", text)
+    result = { raw: text }
+  }
+} catch (e) {
+  console.error("⚠️ Failed to parse Cloudinary response:", e)
+}
+
     
     if (response.ok && result.result === 'ok') {
       console.log(`✅ Cloudinary image deleted successfully: ${publicId}`);
