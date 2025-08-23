@@ -911,18 +911,17 @@ const Profile = () => {
                     <Sparkles className="w-4 h-4" />
                     Academic Year *
                   </Label>
-                  <select
-                    id="year"
-                    value={profile.year}
-                    onChange={(e) => setProfile(prev => ({ ...prev, year: e.target.value }))}
-                    className="input-enhanced focus:border-accent focus:ring-accent/20 bg-card"
-                  >
-                    <option value="">Select Year</option>
-                    <option value="1">1st Year</option>
-                    <option value="2">2nd Year</option>
-                    <option value="3">3rd Year</option>
-                    <option value="4">4th Year</option>
-                  </select>
+                  <Select value={profile.year} onValueChange={(value) => setProfile(prev => ({ ...prev, year: value }))}>
+                    <SelectTrigger className="input-enhanced focus:border-accent focus:ring-accent/20">
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1st Year</SelectItem>
+                      <SelectItem value="2">2nd Year</SelectItem>
+                      <SelectItem value="3">3rd Year</SelectItem>
+                      <SelectItem value="4">4th Year</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
