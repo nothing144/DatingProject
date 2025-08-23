@@ -1,5 +1,5 @@
 // Direct CORS testing for Cloudinary deletion edge function
-const fetch = require('node-fetch');
+// Using built-in fetch (Node.js 18+)
 
 async function testCorsDirectly() {
     console.log('🧪 Testing CORS directly on Cloudinary deletion edge function...');
