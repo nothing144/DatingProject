@@ -3,7 +3,7 @@
 
 // Cloudinary configuration - PUBLIC KEYS ONLY
 const CLOUDINARY_CONFIG = {
-  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'your_cloudinary_cloud_name',
+  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dlnatlmdq',
   api_key: import.meta.env.VITE_CLOUDINARY_API_KEY || '855887866717832',
   // API_SECRET REMOVED - Should never be in frontend code
 };
