@@ -32,7 +32,7 @@ const Auth = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name")
+        .select("id, name, username, age, location, shortBio, avatar_url, branch, year")
         .eq("id", userId)
         .single();
 
@@ -42,9 +42,24 @@ const Auth = () => {
         return;
       }
 
-      if (!data || !data.name) {
+      // Check if user has complete profile (all mandatory fields filled)
+      if (!data) {
+        console.log("New user - redirecting to profile creation");
+        navigate("/profile");
+        return;
+      }
+
+      const mandatoryFields = ['name', 'username', 'age', 'location', 'shortBio', 'avatar_url', 'branch', 'year'];
+      const hasAllMandatoryFields = mandatoryFields.every(field => {
+        const value = data[field];
+        return value && (typeof value !== 'string' || value.trim() !== '');
+      });
+
+      if (!hasAllMandatoryFields) {
+        console.log("Incomplete profile - redirecting to profile completion");
         navigate("/profile");
       } else {
+        console.log("Complete profile found - redirecting to main page");
         navigate("/");
       }
     } catch (error) {
