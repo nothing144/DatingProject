@@ -1,11 +1,13 @@
 // Cloudinary utilities - FRONTEND SAFE VERSION
 // Note: This file should only contain PUBLIC operations
 
-// Cloudinary configuration - PUBLIC KEYS ONLY
+import { supabase } from "@/integrations/supabase/client";
+
+// Cloudinary configuration - PUBLIC KEYS ONLY (from environment variables)
 const CLOUDINARY_CONFIG = {
-  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dlnatlmdq',
-  api_key: import.meta.env.VITE_CLOUDINARY_API_KEY || '855887866717832',
-  // API_SECRET REMOVED - Should never be in frontend code
+  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
+  api_key: import.meta.env.VITE_CLOUDINARY_API_KEY,
+  // API_SECRET is NEVER included in frontend - always kept server-side
 };
 
 export const uploadImageToCloudinary = async (
@@ -54,23 +56,87 @@ export const uploadImageToCloudinary = async (
   }
 };
 
-// SECURITY NOTE: Image deletion should be handled by edge functions/backend
-// This avoids exposing API secrets in frontend code
-export const requestImageDeletion = async (publicId: string): Promise<boolean> => {
+// SECURE IMAGE DELETION: This function calls our secure edge function
+export const deleteImageFromCloudinary = async (imageUrl: string): Promise<{ success: boolean; error?: string }> => {
   try {
-    // Call your secure edge function instead of direct Cloudinary API
-    const response = await fetch('/api/delete-image', {
+    console.log('🖼️ Requesting secure image deletion via edge function...');
+    
+    // Get current session for authentication
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      console.error('❌ No authentication session found');
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    // Call our secure edge function for image deletion
+    const edgeFunctionUrl = `${supabase.supabaseUrl}/functions/v1/delete-cloudinary-image`;
+    
+    const response = await fetch(edgeFunctionUrl, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
+        'x-client-info': 'heartbeat-web',
+      },
+      body: JSON.stringify({ imageUrl }),
+    });
+
+    const result = await response.json();
+    
+    if (response.ok && result.success) {
+      console.log('✅ Image deleted successfully via secure edge function');
+      return { success: true };
+    } else {
+      console.warn('⚠️ Secure image deletion failed:', result.error);
+      return { success: false, error: result.error || 'Deletion failed' };
+    }
+    
+  } catch (error: any) {
+    console.error('❌ Error calling secure image deletion:', error);
+    return { success: false, error: error.message || 'Network error' };
+  }
+};
+
+// Alternative method for direct public_id deletion
+export const deleteImageByPublicId = async (publicId: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    console.log('🖼️ Requesting secure image deletion by public_id via edge function...');
+    
+    // Get current session for authentication
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      console.error('❌ No authentication session found');
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    // Call our secure edge function for image deletion
+    const edgeFunctionUrl = `${supabase.supabaseUrl}/functions/v1/delete-cloudinary-image`;
+    
+    const response = await fetch(edgeFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+        'x-client-info': 'heartbeat-web',
       },
       body: JSON.stringify({ publicId }),
     });
+
+    const result = await response.json();
     
-    return response.ok;
-  } catch (error) {
-    console.error('Error requesting image deletion:', error);
-    return false;
+    if (response.ok && result.success) {
+      console.log('✅ Image deleted successfully by public_id via secure edge function');
+      return { success: true };
+    } else {
+      console.warn('⚠️ Secure image deletion by public_id failed:', result.error);
+      return { success: false, error: result.error || 'Deletion failed' };
+    }
+    
+  } catch (error: any) {
+    console.error('❌ Error calling secure image deletion by public_id:', error);
+    return { success: false, error: error.message || 'Network error' };
   }
 };
 
@@ -105,8 +171,30 @@ export const isCloudinaryUrl = (url: string): boolean => {
 
 export const extractPublicIdFromUrl = (url: string): string | null => {
   if (!isCloudinaryUrl(url)) return null;
-  const matches = url.match(/\/v\d+\/(.+)\./);
-  return matches ? matches[1] : null;
+  
+  try {
+    const urlParts = url.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    
+    if (uploadIndex === -1) return null;
+    
+    // Get everything after 'upload' and potential transformations
+    let pathAfterUpload = urlParts.slice(uploadIndex + 1).join('/');
+    
+    // Remove transformation parameters (they start with letters like w_, h_, etc.)
+    const transformationRegex = /^[a-z]_[^\/]+,?/;
+    while (transformationRegex.test(pathAfterUpload)) {
+      pathAfterUpload = pathAfterUpload.replace(/^[^\/]+\//, '');
+    }
+    
+    // Remove file extension
+    const publicId = pathAfterUpload.replace(/\.[^.]+$/, '');
+    
+    return publicId;
+  } catch (error) {
+    console.error('Error extracting public_id from URL:', error);
+    return null;
+  }
 };
 
 export const validateImageFile = (file: File): { valid: boolean; error?: string } => {
@@ -128,22 +216,4 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
   }
   
   return { valid: true };
-};
-
-export const deleteImageFromCloudinary = async (publicId: string): Promise<boolean> => {
-  try {
-    // Call your secure edge function instead of direct Cloudinary API
-    const response = await fetch('/api/delete-image', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ publicId }),
-    });
-    
-    return response.ok;
-  } catch (error) {
-    console.error('Error deleting image from Cloudinary:', error);
-    return false;
-  }
 };
