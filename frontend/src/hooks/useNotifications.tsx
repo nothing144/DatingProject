@@ -73,6 +73,39 @@ export const useNotifications = (userId: string | undefined) => {
     }
   };
 
+  const deleteNotification = async (notificationId: string) => {
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", notificationId)
+      .eq("user_id", userId); // Double-check user ownership
+
+    if (error) {
+      console.error("Error deleting notification:", error);
+      console.error("Full error details:", JSON.stringify(error, null, 2));
+      toast({
+        title: "Database Error",
+        description: `Failed to delete notification: ${error.message || 'Unknown error'}. Check console for details.`,
+        variant: "destructive"
+      });
+    } else {
+      // Update local state
+      setNotifications(prev => {
+        const filteredNotifications = prev.filter(n => n.id !== notificationId);
+        const deletedNotification = prev.find(n => n.id === notificationId);
+        if (deletedNotification && !deletedNotification.read) {
+          setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+        }
+        return filteredNotifications;
+      });
+      
+      toast({
+        title: "Notification deleted",
+        description: "Notification has been permanently removed"
+      });
+    }
+  };
+
   const deleteAllNotifications = async () => {
     if (!userId) return;
 
