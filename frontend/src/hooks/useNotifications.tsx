@@ -126,6 +126,42 @@ export const useNotifications = (userId: string | undefined) => {
             });
           }
         )
+        .on(
+          'postgres_changes',
+          {
+            event: 'DELETE',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${userId}`
+          },
+          (payload) => {
+            const deletedNotification = payload.old as Notification;
+            console.log('Notification deleted in real-time:', deletedNotification.id);
+            setNotifications(prev => prev.filter(n => n.id !== deletedNotification.id));
+            setUnreadCount(prev => Math.max(0, prev - (deletedNotification.read ? 0 : 1)));
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${userId}`
+          },
+          (payload) => {
+            const updatedNotification = payload.new as Notification;
+            setNotifications(prev => 
+              prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
+            );
+            // Recalculate unread count based on current notifications
+            setNotifications(currentNotifications => {
+              const unreadCount = currentNotifications.filter(n => !n.read).length;
+              setUnreadCount(unreadCount);
+              return currentNotifications;
+            });
+          }
+        )
         .subscribe();
 
       return () => {
