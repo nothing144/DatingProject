@@ -166,6 +166,7 @@ const Index = () => {
         setAnnouncements([]);
         setConfessions([]);
         setDateRequests([]);
+        setLoading(false); // Fix: Set loading to false before navigation
         navigate("/auth");
       } else if (session?.user) {
         // Check if user has complete profile before allowing access to main page
