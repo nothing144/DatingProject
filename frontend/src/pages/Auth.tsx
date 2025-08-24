@@ -277,6 +277,13 @@ const Auth = () => {
                   type="submit" 
                   className="btn-primary-enhanced w-full py-3 text-base font-semibold"
                   disabled={loading}
+                  onClick={(e) => {
+                    console.log("🔘 Button clicked - event handler triggered");
+                    console.log("Event type:", e.type);
+                    console.log("Button disabled:", loading);
+                    console.log("Email state:", email);
+                    console.log("Password state:", password);
+                  }}
                 >
                   {loading ? (
                     <div className="flex items-center gap-2">
