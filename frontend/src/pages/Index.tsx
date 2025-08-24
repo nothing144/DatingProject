@@ -915,10 +915,11 @@ useEffect(() => {
                   variant="outline" 
                   size="sm"
                   onClick={handleRefresh}
-                  className="flex items-center gap-2 border-primary/30 hover:border-primary hover:bg-primary/10 text-primary transition-all duration-300 hover:scale-105"
+                  disabled={refreshing}
+                  className="flex items-center gap-2 border-primary/30 hover:border-primary hover:bg-primary/10 text-primary transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <RotateCcw className="h-4 w-4" />
-                  <span className="font-medium">Refresh</span>
+                  <RotateCcw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  <span className="font-medium">{refreshing ? 'Refreshing...' : 'Refresh'}</span>
                 </Button>
               </div>
             </div>
