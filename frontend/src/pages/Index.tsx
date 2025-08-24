@@ -182,6 +182,7 @@ const Index = () => {
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
         if (!hasCompleteProfile) {
           console.log("User needs to complete profile - redirecting to profile page");
+          setLoading(false);
           navigate("/profile", { replace: true });
           return;
         }
