@@ -49,6 +49,11 @@ const Auth = () => {
   }, []);
 
   const checkProfileAndRedirect = async (userId: string) => {
+    // Prevent redirect loops by checking current location
+    if (window.location.pathname !== '/auth') {
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -58,14 +63,14 @@ const Auth = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error("Error checking profile:", error);
-        navigate("/profile");
+        navigate("/profile", { replace: true });
         return;
       }
 
       // Check if user has complete profile (all mandatory fields filled)
       if (!data) {
         console.log("New user - redirecting to profile creation");
-        navigate("/profile");
+        navigate("/profile", { replace: true });
         return;
       }
 
@@ -77,14 +82,14 @@ const Auth = () => {
 
       if (!hasAllMandatoryFields) {
         console.log("Incomplete profile - redirecting to profile completion");
-        navigate("/profile");
+        navigate("/profile", { replace: true });
       } else {
         console.log("Complete profile found - redirecting to main page");
-        navigate("/");
+        navigate("/", { replace: true });
       }
     } catch (error) {
       console.error("Error checking profile:", error);
-      navigate("/profile");
+      navigate("/profile", { replace: true });
     }
   };
 
