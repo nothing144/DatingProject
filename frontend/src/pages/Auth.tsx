@@ -25,6 +25,8 @@ const Auth = () => {
         setTimeout(() => {
           checkProfileAndRedirect(session.user.id);
         }, 100);
+        // Also proactively clear loading on this page to avoid spinner lock
+        setLoading(false);
       }
     });
 
