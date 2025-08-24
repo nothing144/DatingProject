@@ -39,25 +39,54 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    let mounted = true;
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
+      console.log("🔐 Profile page auth state change:", event, session?.user?.id || "no user");
+      
       setUser(session?.user || null);
+      
       if (!session) {
-        navigate("/auth");
+        console.log("❌ No session in Profile - redirecting to auth");
+        navigate("/auth", { replace: true });
       } else {
-        fetchProfile(session.user.id);
+        console.log("✅ Session found in Profile - fetching profile data");
+        await fetchProfile(session.user.id);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-      if (!session) {
-        navigate("/auth");
-      } else {
-        fetchProfile(session.user.id);
+    // Initial session check
+    const checkInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        setUser(session?.user || null);
+        
+        if (!session) {
+          console.log("❌ No initial session in Profile - redirecting to auth");
+          navigate("/auth", { replace: true });
+        } else {
+          console.log("✅ Initial session found in Profile - fetching profile data");
+          await fetchProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error("❌ Error checking session in Profile:", error);
+        if (mounted) {
+          navigate("/auth", { replace: true });
+        }
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    checkInitialSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const fetchProfile = async (userId: string) => {
