@@ -221,7 +221,7 @@ const Index = () => {
         console.error("Error checking initial session:", error);
         if (mounted) {
           setLoading(false);
-          navigate("/auth");
+          navigate("/auth", { replace: true });
         }
       }
     };
