@@ -10,17 +10,8 @@ interface NavigationProps {
   user?: any; // Accept user as prop instead of managing own state
 }
 
-const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
-  const [user, setUser] = useState<any>(null);
+const Navigation = ({ activeTab, onTabChange, user }: NavigationProps) => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     console.log("Logout button clicked - starting logout process");
