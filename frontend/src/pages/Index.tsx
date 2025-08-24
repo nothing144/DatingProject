@@ -114,6 +114,11 @@ const Index = () => {
 
   // Function to check if user has complete profile
   const checkUserProfileComplete = async (userId: string) => {
+    // Prevent redirect loops by checking current location
+    if (window.location.pathname !== '/') {
+      return true; // Don't check if we're not on the main page
+    }
+
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -128,7 +133,7 @@ const Index = () => {
 
       // Check if user has complete profile (all mandatory fields filled)
       if (!data) {
-        console.log("No profile found - redirecting to profile creation");
+        console.log("No profile found - needs profile creation");
         return false;
       }
 
@@ -139,7 +144,7 @@ const Index = () => {
       });
 
       if (!hasAllMandatoryFields) {
-        console.log("Incomplete profile - redirecting to profile completion");
+        console.log("Incomplete profile - needs profile completion");
         return false;
       }
 
