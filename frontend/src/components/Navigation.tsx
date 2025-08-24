@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, User, Megaphone, LogOut, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 interface NavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  user?: any; // Accept user as prop instead of managing own state
 }
 
 const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
