@@ -1759,7 +1759,7 @@ const fetchConfessions = async () => {
 
     </div>
 
-    <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+    <Navigation activeTab={activeTab} onTabChange={setActiveTab} user={user} />
 
     </div>
 
