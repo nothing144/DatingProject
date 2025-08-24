@@ -2,18 +2,18 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://iterdating.netlify.app', // ✅ Fixed for production domain
+  'Access-Control-Allow-Origin': 'https://iterdating.netlify.app',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-requested-with, accept',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'true', // Enable credentials for authenticated requests
+  'Access-Control-Allow-Credentials': 'true',
 }
 
 // Cloudinary configuration
 const CLOUDINARY_CONFIG = {
   cloud_name: Deno.env.get('CLOUDINARY_CLOUD_NAME') || 'dlnatlmdq',
-  api_key: Deno.env.get('CLOUDINARY_API_KEY') || 'your_cloudinary_api_key_here',
-  api_secret: Deno.env.get('CLOUDINARY_API_SECRET') || '', // This should be set in Supabase edge function secrets
+  api_key: Deno.env.get('CLOUDINARY_API_KEY') || '855887866717832',
+  api_secret: Deno.env.get('CLOUDINARY_API_SECRET'), // This should be set in Supabase edge function secrets
 };
 
 // Helper function to generate signature for Cloudinary deletion
@@ -55,7 +55,20 @@ async function deleteImageFromCloudinary(publicId: string): Promise<{ success: b
       }
     );
 
-    const result = await response.json();
+    let result: any = {}
+    try {
+      const contentType = response.headers.get("content-type") || ""
+
+      if (contentType.includes("application/json")) {
+        result = await response.json()
+      } else {
+        const text = await response.text()
+        console.warn("⚠️ Cloudinary non-JSON response:", text)
+        result = { raw: text }
+      }
+    } catch (e) {
+      console.error("⚠️ Failed to parse Cloudinary response:", e)
+    }
     
     if (response.ok && result.result === 'ok') {
       console.log(`✅ Cloudinary image deleted: ${publicId}`);

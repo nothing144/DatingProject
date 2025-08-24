@@ -2,11 +2,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://iterdating.netlify.app', // ✅ Fixed for production domain
+  'Access-Control-Allow-Origin': 'https://iterdating.netlify.app',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-requested-with, accept',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'true', // Enable credentials for authenticated requests
+  'Access-Control-Allow-Credentials': 'true',
 }
 
 // Cloudinary configuration from environment variables
@@ -89,20 +89,19 @@ async function deleteImageFromCloudinary(publicId: string): Promise<{ success: b
     );
 
     let result: any = {}
-try {
-  const contentType = response.headers.get("content-type") || ""
+    try {
+      const contentType = response.headers.get("content-type") || ""
 
-  if (contentType.includes("application/json")) {
-    result = await response.json()
-  } else {
-    const text = await response.text()
-    console.warn("⚠️ Cloudinary non-JSON response:", text)
-    result = { raw: text }
-  }
-} catch (e) {
-  console.error("⚠️ Failed to parse Cloudinary response:", e)
-}
-
+      if (contentType.includes("application/json")) {
+        result = await response.json()
+      } else {
+        const text = await response.text()
+        console.warn("⚠️ Cloudinary non-JSON response:", text)
+        result = { raw: text }
+      }
+    } catch (e) {
+      console.error("⚠️ Failed to parse Cloudinary response:", e)
+    }
     
     if (response.ok && result.result === 'ok') {
       console.log(`✅ Cloudinary image deleted successfully: ${publicId}`);
@@ -120,7 +119,7 @@ try {
 serve(async (req) => {
   console.log(`🚀 Cloudinary deletion edge function called with method: ${req.method}`);
   
-  // Handle CORS preflight requests
+  // Handle CORS preflight requests FIRST (before any JSON parsing)
   if (req.method === 'OPTIONS') {
     console.log('📋 Handling OPTIONS request');
     return new Response('ok', { 
@@ -129,7 +128,7 @@ serve(async (req) => {
     })
   }
 
-  // Only allow POST method
+  // Only allow POST method after OPTIONS
   if (req.method !== 'POST') {
     console.log(`❌ Method ${req.method} not allowed`);
     return new Response(
@@ -142,24 +141,25 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request body only for POST requests (OPTIONS requests don't have a body)
+    // Parse request body safely - only for POST requests
     let body = {};
-    if (req.method === 'POST') {
-      try {
-        body = await req.json();
-      } catch (jsonError) {
-        console.error('❌ Invalid JSON in request body:', jsonError);
-        return new Response(
-          JSON.stringify({ error: 'Invalid JSON in request body' }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
+    try {
+      const bodyText = await req.text();
+      if (bodyText.trim()) {
+        body = JSON.parse(bodyText);
       }
+    } catch (jsonError) {
+      console.error('❌ Invalid JSON in request body:', jsonError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
-    const { imageUrl, publicId } = body;
+    const { imageUrl, publicId } = body as any;
 
     // Get authorization header to verify user is authenticated
     const authHeader = req.headers.get('Authorization')
