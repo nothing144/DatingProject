@@ -441,12 +441,31 @@ useEffect(() => {
     });
   };
 
-  const handleRefresh = () => {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
     console.log("🔄 Refreshing discover page...");
-    setCurrentPage(0);
-    setHasMore(true);
-    fetchProfiles();
-    setCurrentProfileIndex(0);
+    setRefreshing(true);
+    
+    try {
+      setCurrentPage(0);
+      setHasMore(true);
+      await fetchProfiles();
+      setCurrentProfileIndex(0);
+      
+      toast({
+        title: "Refreshed! ✨",
+        description: "Discover page has been refreshed with latest profiles"
+      });
+    } catch (error) {
+      toast({
+        title: "Refresh failed",
+        description: "Failed to refresh profiles. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setRefreshing(false);
+    }
   };
 
 
