@@ -207,6 +207,22 @@ const Index = () => {
     }
   }, [currentProfileIndex, profiles.length, viewMode, hasMore, loadingMore]);
 
+  // Auto-refresh discover page when user switches back to discover tab
+  useEffect(() => {
+    // Only refresh if user is authenticated and has switched to discover tab
+    // Skip the initial render and app startup to avoid double refresh
+    if (activeTab === "discover" && user?.id && profiles.length > 0) {
+      console.log("🔄 User switched back to discover - auto-refreshing...");
+      
+      // Small delay to ensure smooth tab transition
+      const refreshTimeout = setTimeout(() => {
+        handleAutoRefresh();
+      }, 500);
+
+      return () => clearTimeout(refreshTimeout);
+    }
+  }, [activeTab, user?.id]);
+
   const fetchProfiles = async (usernameFilter?: string, append: boolean = false) => {
     // Safety check - only fetch if user is authenticated (silent during app initialization)
     if (!user?.id) {
