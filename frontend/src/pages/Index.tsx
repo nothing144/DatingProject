@@ -206,7 +206,7 @@ const Index = () => {
         if (!session) {
           console.log("No session found - redirecting to auth");
           setLoading(false);
-          navigate("/auth");
+          navigate("/auth", { replace: true });
         } else {
           // Check if user has complete profile before allowing access to main page
           const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
