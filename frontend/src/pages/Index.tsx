@@ -243,7 +243,7 @@ useEffect(() => {
     mounted = false;
     subscription.unsubscribe();
   };
-}, [user]); // Add user dependency
+}, []); // Remove circular dependency - only run once on mount
 
   // Safety net: ensure loading never hangs indefinitely
   useEffect(() => {
