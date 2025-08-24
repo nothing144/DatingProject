@@ -233,8 +233,15 @@ useEffect(() => {
   };
 }, []);
 
-
-
+  // Safety net: ensure loading never hangs indefinitely
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = setTimeout(() => {
+      console.warn("Safety net: clearing loading state after timeout");
+      setLoading(false);
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [loading]);
 
   useEffect(() => {
 
