@@ -519,6 +519,11 @@ useEffect(() => {
 };
 
   const fetchConversations = async () => {
+    // Safety check - only fetch if user is authenticated
+    if (!user?.id) {
+      console.warn("⚠️ Cannot fetch conversations - user not authenticated");
+      return;
+    }
 
     const { data, error } = await supabase
 
@@ -534,7 +539,7 @@ useEffect(() => {
 
       `)
 
-      .or(`participant_1.eq.${user?.id},participant_2.eq.${user?.id}`)
+      .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
 
       .order("last_message_at", { ascending: false })
 
