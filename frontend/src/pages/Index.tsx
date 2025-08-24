@@ -452,9 +452,8 @@ const Index = () => {
   };
 
   const fetchDateRequests = async () => {
-    // Safety check - only fetch if user is authenticated
+    // Safety check - only fetch if user is authenticated (silent during app initialization)
     if (!user?.id) {
-      console.warn("⚠️ Cannot fetch date requests - user not authenticated");
       return;
     }
 
