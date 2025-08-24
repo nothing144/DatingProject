@@ -518,6 +518,45 @@ const Index = () => {
     }
   };
 
+  const handleDeleteAllDateRequests = async () => {
+    if (!user?.id) return;
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete ALL your date requests? This will permanently remove all sent and received date requests from the database. This action cannot be undone."
+    );
+    
+    if (!confirmDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("date_requests")
+        .delete()
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`);
+
+      if (error) {
+        console.error("Error deleting all date requests:", error);
+        toast({
+          title: "Database Error",
+          description: `Failed to delete all date requests: ${error.message || 'Unknown error'}`,
+          variant: "destructive"
+        });
+      } else {
+        fetchDateRequests();
+        toast({
+          title: "All date requests deleted! 🗑️",
+          description: "All your date requests have been permanently removed to keep the database clean"
+        });
+      }
+    } catch (error: any) {
+      console.error("Exception deleting all date requests:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete all date requests. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleLike = async () => {
     setCurrentProfileIndex(prev => prev + 1);
   };
