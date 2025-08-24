@@ -472,6 +472,11 @@ useEffect(() => {
 
 
   const fetchAnnouncements = async () => {
+    // Safety check - only fetch if user is authenticated
+    if (!user?.id) {
+      console.warn("⚠️ Cannot fetch announcements - user not authenticated");
+      return;
+    }
 
     const { data, error } = await supabase
 
