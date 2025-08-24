@@ -410,9 +410,8 @@ const Index = () => {
   };
 
   const fetchConfessions = async () => {
-    // Safety check - only fetch if user is authenticated
+    // Safety check - only fetch if user is authenticated (silent during app initialization)
     if (!user?.id) {
-      console.warn("⚠️ Cannot fetch confessions - user not authenticated");
       return;
     }
 
