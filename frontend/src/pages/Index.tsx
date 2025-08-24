@@ -209,6 +209,8 @@ useEffect(() => {
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
         if (!hasCompleteProfile) {
           console.log("User needs to complete profile - redirecting to profile page");
+          // Ensure we never stay stuck in loading state before navigation
+          setLoading(false);
           navigate("/profile", { replace: true });
           return;
         }
