@@ -1657,6 +1657,61 @@ useEffect(() => {
 
         )}
 
+        {/* Profile Tab - Navigate to Profile Edit Page */}
+        {activeTab === "profile" && (
+          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div className="text-center space-y-6">
+              <div className="flex justify-center items-center mb-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-lg opacity-50 animate-pulse"></div>
+                  <div className="relative bg-gradient-to-r from-primary to-secondary p-3 rounded-full">
+                    <User className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Your Profile</h2>
+                <p className="text-muted-foreground">Manage your profile information and preferences</p>
+              </div>
+              
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => navigate("/profile")}
+                  className="btn-primary-enhanced w-full max-w-sm mx-auto py-3 text-base font-semibold"
+                >
+                  <User className="w-5 h-5 mr-2" />
+                  Edit Profile
+                </Button>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+                  <div className="bg-card/50 backdrop-blur-sm rounded-lg p-4 border border-border/30">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Heart className="w-5 h-5 text-primary" />
+                      <span className="font-semibold">Profile Status</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Keep your profile updated to get better matches!</p>
+                  </div>
+                  
+                  <div className="bg-card/50 backdrop-blur-sm rounded-lg p-4 border border-border/30">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Sparkles className="w-5 h-5 text-secondary" />
+                      <span className="font-semibold">Visibility</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Your profile is visible to other students</p>
+                  </div>
+                </div>
+                
+                <div className="text-center pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    💡 Tip: Complete profiles get 3x more matches!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         </div>
 
     </div>
