@@ -160,13 +160,15 @@ const Index = () => {
 
 useEffect(() => {
   let mounted = true;
+  let authProcessing = false;
 
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      console.log("🔐 Auth state change in Index:", event, session?.user?.id || "no user");
+  const handleAuthStateChange = async (event: string, session: any) => {
+    console.log("🔐 Auth state change in Index:", event, session?.user?.id || "no user");
 
-      if (!mounted) return;
+    if (!mounted || authProcessing) return;
+    authProcessing = true;
 
+    try {
       setSession(session);
       setUser(session?.user || null);
 
@@ -182,7 +184,7 @@ useEffect(() => {
         setLoading(false);
         navigate("/auth", { replace: true });
       } 
-      else if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+      else if (session?.user) {
         console.log("🔍 User authenticated, checking profile...");
         
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
@@ -195,10 +197,18 @@ useEffect(() => {
         
         console.log("✅ Profile complete - user can access main app");
         setLoading(false);
-      } 
+      }
+    } catch (error) {
+      console.error("❌ Error in auth state change:", error);
+      setLoading(false);
+    } finally {
+      authProcessing = false;
     }
-  );
+  };
 
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+
+  // Initial session check
   const checkInitialSession = async () => {
     try {
       console.log("🔍 Checking initial session...");
@@ -206,25 +216,16 @@ useEffect(() => {
       
       if (!mounted) return;
 
-      setSession(session);
-      setUser(session?.user || null);
-
-      if (!session) {
+      // Only process if we don't already have a session
+      if (!user && session?.user) {
+        await handleAuthStateChange("INITIAL_SESSION", session);
+      } else if (!session && !user) {
         console.log("❌ No session found - redirecting to auth");
         setLoading(false);
         navigate("/auth", { replace: true });
-      } else {
-        console.log("✅ Session found, checking profile...");
-        
-        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
-        if (!hasCompleteProfile) {
-          console.log("➡️ Redirecting to profile page for completion");
-          setLoading(false);
-          navigate("/profile", { replace: true });
-          return;
-        }
-        
-        console.log("✅ Profile complete - clearing loading state");
+      } else if (user && session?.user) {
+        // User already set, just clear loading
+        console.log("✅ User already authenticated - clearing loading");
         setLoading(false);
       }
     } catch (error) {
@@ -242,7 +243,7 @@ useEffect(() => {
     mounted = false;
     subscription.unsubscribe();
   };
-}, []);
+}, [user]); // Add user dependency
 
   // Safety net: ensure loading never hangs indefinitely
   useEffect(() => {
