@@ -1,0 +1,34 @@
+{
+  "name": "heartbeat-iter",
+  "version": "1.0.0",
+  "description": "HeartBeat@ITER - College Dating App",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn install && yarn build",
+    "preview": "cd frontend && yarn preview",
+    "lint": "cd frontend && yarn lint",
+    "start": "cd frontend && yarn dev"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "dating-app",
+    "college",
+    "supabase"
+  ],
+  "author": "HeartBeat@ITER Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/heartbeat-iter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/heartbeat-iter/issues"
+  },
+  "homepage": "https://github.com/your-username/heartbeat-iter#readme"
+}
