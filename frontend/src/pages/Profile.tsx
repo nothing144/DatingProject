@@ -38,59 +38,67 @@ const Profile = () => {
   const [newInterest, setNewInterest] = useState("");
   const navigate = useNavigate();
 
+  // Simplified session management
   useEffect(() => {
-    let mounted = true;
+    let isMounted = true;
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      
-      console.log("🔐 Profile page auth state change:", event, session?.user?.id || "no user");
-      
-      setUser(session?.user || null);
-      
-      if (!session) {
-        console.log("❌ No session in Profile - redirecting to auth");
-        navigate("/auth", { replace: true });
-      } else {
-        console.log("✅ Session found in Profile - fetching profile data");
-        await fetchProfile(session.user.id);
-      }
-    });
-
-    // Initial session check
-    const checkInitialSession = async () => {
+    const initializeProfile = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log("🔍 Profile page: Getting session...");
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (!mounted) return;
-        
-        setUser(session?.user || null);
-        
-        if (!session) {
-          console.log("❌ No initial session in Profile - redirecting to auth");
-          navigate("/auth", { replace: true });
-        } else {
-          console.log("✅ Initial session found in Profile - fetching profile data");
+        if (sessionError) {
+          console.error("❌ Session error:", sessionError);
+          if (isMounted) {
+            setLoading(false);
+            navigate("/auth", { replace: true });
+          }
+          return;
+        }
+
+        if (!session?.user) {
+          console.log("❌ No session - redirecting to auth");
+          if (isMounted) {
+            setLoading(false);
+            navigate("/auth", { replace: true });
+          }
+          return;
+        }
+
+        console.log("✅ Session found, user ID:", session.user.id);
+        if (isMounted) {
+          setUser(session.user);
           await fetchProfile(session.user.id);
         }
       } catch (error) {
-        console.error("❌ Error checking session in Profile:", error);
-        if (mounted) {
+        console.error("❌ Profile initialization error:", error);
+        if (isMounted) {
+          setLoading(false);
           navigate("/auth", { replace: true });
         }
       }
     };
 
-    checkInitialSession();
+    initializeProfile();
+
+    // Simple auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("🔐 Profile auth change:", event);
+      if (event === 'SIGNED_OUT' && isMounted) {
+        navigate("/auth", { replace: true });
+      }
+    });
 
     return () => {
-      mounted = false;
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("📄 Fetching profile for user:", userId);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("id, name, username, age, location, description, shortBio, interests, avatar_url, branch, year")
@@ -98,7 +106,10 @@ const Profile = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        throw error;
+        console.error("❌ Profile fetch error:", error);
+        setIsFirstTimeUser(true);
+        setLoading(false);
+        return;
       }
 
       // Check if user is first-time (no profile data or incomplete mandatory fields)
@@ -127,11 +138,10 @@ const Profile = () => {
       }
       
       setIsFirstTimeUser(isFirstTime);
+      setLoading(false);
     } catch (error: any) {
-      console.error("Error fetching profile:", error);
-      // If there's an error fetching profile, assume it's a first-time user
+      console.error("❌ Exception fetching profile:", error);
       setIsFirstTimeUser(true);
-    } finally {
       setLoading(false);
     }
   };
@@ -441,8 +451,6 @@ const Profile = () => {
       setSaving(false);
     }
   };
-
-
 
   // Fallback manual cleanup function
   const performManualCleanup = async () => {

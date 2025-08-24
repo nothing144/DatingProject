@@ -1,72 +1,39 @@
 import { useState, useEffect } from "react";
-
 import { supabase } from "@/integrations/supabase/client";
-
 import { useNavigate } from "react-router-dom";
-
 import ProfileCard from "@/components/ProfileCard";
 import ProfileGrid from "@/components/ProfileGrid";
-
 import Navigation from "@/components/Navigation";
-
 import NotificationBell from "@/components/NotificationBell";
-
 import Chat from "@/components/Chat";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
-
 import { Textarea } from "@/components/ui/textarea";
-
 import { Badge } from "@/components/ui/badge";
-
 import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Heart, Loader2, Trash2, Sparkles } from "lucide-react";
-
 import { toast } from "@/hooks/use-toast";
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-
-
 const Index = () => {
-
   const [user, setUser] = useState<any>(null);
-
   const [session, setSession] = useState<any>(null);
-
   const [activeTab, setActiveTab] = useState("discover");
-
   const [profiles, setProfiles] = useState<any[]>([]);
-
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
-
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-
   const [viewMode, setViewMode] = useState<"single" | "grid">("grid"); // Default to grid view
-  
   const [searchUsername, setSearchUsername] = useState("");
-
   const [announcements, setAnnouncements] = useState<any[]>([]);
-
   const [confessions, setConfessions] = useState<any[]>([]);
-
   const [conversations, setConversations] = useState<any[]>([]);
-
   const [newAnnouncement, setNewAnnouncement] = useState("");
-
   const [newConfession, setNewConfession] = useState("");
-
   const [dateRequests, setDateRequests] = useState<any[]>([]);
-
   const [loading, setLoading] = useState(true);
-
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
-
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -76,49 +43,25 @@ const Index = () => {
 
   const navigate = useNavigate();
 
-
-
   // Listen for message events from ProfileCard
-
   useEffect(() => {
-
     const handleSwitchToMessages = (event: any) => {
-
       setActiveTab("messages");
-
       // Optionally auto-select the conversation
-
       setTimeout(() => {
-
         const conversation = conversations.find(c => c.id === event.detail.conversationId);
-
         if (conversation) {
-
           setSelectedConversation(conversation);
-
         }
-
       }, 100);
-
     };
 
-
-
     window.addEventListener('switchToMessages', handleSwitchToMessages);
-
     return () => window.removeEventListener('switchToMessages', handleSwitchToMessages);
-
   }, [conversations]);
-
-
 
   // Function to check if user has complete profile
   const checkUserProfileComplete = async (userId: string) => {
-    // Prevent redirect loops by checking current location
-    if (window.location.pathname !== '/') {
-      return true; // Don't check if we're not on the main page
-    }
-
     try {
       console.log("🔍 Checking profile completeness for user:", userId);
       
@@ -158,114 +101,92 @@ const Index = () => {
     }
   };
 
-useEffect(() => {
-  let mounted = true;
-  let authProcessing = false;
+  // Simplified authentication and initialization
+  useEffect(() => {
+    let isMounted = true;
+    
+    const initializeApp = async () => {
+      try {
+        console.log("🚀 Initializing app...");
+        
+        // Get current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("❌ Session error:", sessionError);
+          if (isMounted) {
+            setLoading(false);
+            navigate("/auth", { replace: true });
+          }
+          return;
+        }
 
-  const handleAuthStateChange = async (event: string, session: any) => {
-    console.log("🔐 Auth state change in Index:", event, session?.user?.id || "no user");
+        if (!session?.user) {
+          console.log("❌ No session found - redirecting to auth");
+          if (isMounted) {
+            setLoading(false);
+            navigate("/auth", { replace: true });
+          }
+          return;
+        }
 
-    if (!mounted || authProcessing) return;
-    authProcessing = true;
+        console.log("✅ Session found, user ID:", session.user.id);
+        
+        // Check if profile is complete
+        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
+        if (!hasCompleteProfile) {
+          console.log("➡️ Redirecting to profile page for completion");
+          if (isMounted) {
+            setLoading(false);
+            navigate("/profile", { replace: true });
+          }
+          return;
+        }
 
-    try {
-      setSession(session);
-      setUser(session?.user || null);
+        console.log("✅ Profile complete - initializing main app");
+        if (isMounted) {
+          setSession(session);
+          setUser(session.user);
+          setLoading(false);
+          
+          // Load initial data
+          fetchProfiles();
+          fetchAnnouncements();
+          fetchConfessions();
+          fetchConversations();
+          fetchDateRequests();
+        }
+      } catch (error) {
+        console.error("❌ App initialization error:", error);
+        if (isMounted) {
+          setLoading(false);
+          navigate("/auth", { replace: true });
+        }
+      }
+    };
 
-      if (!session || event === "SIGNED_OUT") {
+    initializeApp();
+
+    // Simple auth state listener for sign out
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("🔐 Auth state change:", event);
+      if (event === 'SIGNED_OUT' && isMounted) {
         console.log("👋 User signed out - redirecting to auth");
-        // Clear all state
         setProfiles([]);
         setAllProfiles([]);
         setConversations([]);
         setAnnouncements([]);
         setConfessions([]);
         setDateRequests([]);
-        setLoading(false);
-        navigate("/auth", { replace: true });
-      } 
-      else if (session?.user) {
-        console.log("🔍 User authenticated, checking profile...");
-        
-        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
-        if (!hasCompleteProfile) {
-          console.log("➡️ Redirecting to profile page for completion");
-          setLoading(false);
-          navigate("/profile", { replace: true });
-          return;
-        }
-        
-        console.log("✅ Profile complete - user can access main app");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("❌ Error in auth state change:", error);
-      setLoading(false);
-    } finally {
-      authProcessing = false;
-    }
-  };
-
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
-
-  // Initial session check
-  const checkInitialSession = async () => {
-    try {
-      console.log("🔍 Checking initial session...");
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!mounted) return;
-
-      // Only process if we don't already have a session
-      if (!user && session?.user) {
-        await handleAuthStateChange("INITIAL_SESSION", session);
-      } else if (!session && !user) {
-        console.log("❌ No session found - redirecting to auth");
-        setLoading(false);
-        navigate("/auth", { replace: true });
-      } else if (user && session?.user) {
-        // User already set, just clear loading
-        console.log("✅ User already authenticated - clearing loading");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("❌ Error checking initial session:", error);
-      if (mounted) {
-        setLoading(false);
         navigate("/auth", { replace: true });
       }
-    }
-  };
+    });
 
-  checkInitialSession();
-
-  return () => {
-    mounted = false;
-    subscription.unsubscribe();
-  };
-}, []); // Remove circular dependency - only run once on mount
-
-  // Safety net: ensure loading never hangs indefinitely
-  useEffect(() => {
-    if (!loading) return;
-    const timeout = setTimeout(() => {
-      console.warn("⚠️ Safety net: clearing loading state after timeout");
-      setLoading(false);
-    }, 5000); // Reduced from 8000 to 5000
-    return () => clearTimeout(timeout);
-  }, [loading]);
-
-  // Enhanced data fetching effect with better dependency management
-  useEffect(() => {
-    if (user && !loading && window.location.pathname === '/') {
-      console.log("📄 Triggering data fetch for authenticated user");
-      fetchProfiles();
-      fetchAnnouncements();
-      fetchConfessions();
-      fetchConversations();
-      fetchDateRequests();
-    }
-  }, [user, loading]); // Added loading dependency
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   // Auto-prefetch for single view when user gets close to end
   useEffect(() => {
@@ -410,8 +331,6 @@ useEffect(() => {
     }
   };
 
-
-
   const handleUsernameSearch = () => {
     console.log("🔍 Searching for username:", searchUsername);
     // Reset pagination for search
@@ -469,8 +388,6 @@ useEffect(() => {
     }
   };
 
-
-
   const fetchAnnouncements = async () => {
     // Safety check - only fetch if user is authenticated
     if (!user?.id) {
@@ -479,55 +396,39 @@ useEffect(() => {
     }
 
     const { data, error } = await supabase
-
       .from("announcements")
-
       .select(`
-
         *,
-
         profiles!fk_author_profile(name, avatar_url)
-
       `)
-
       .order("created_at", { ascending: false })
-
       .limit(10);
 
-
-
     if (error) {
-
       console.error("Error fetching announcements:", error);
-
     } else {
-
       setAnnouncements(data || []);
-
     }
-
   };
 
+  const fetchConfessions = async () => {
+    // Safety check - only fetch if user is authenticated
+    if (!user?.id) {
+      console.warn("⚠️ Cannot fetch confessions - user not authenticated");
+      return;
+    }
 
+    const { data, error } = await supabase
+      .from("confessions")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-const fetchConfessions = async () => {
-  // Safety check - only fetch if user is authenticated
-  if (!user?.id) {
-    console.warn("⚠️ Cannot fetch confessions - user not authenticated");
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from("confessions")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching confessions:", error);
-  } else {
-    setConfessions(data || []);
-  }
-};
+    if (error) {
+      console.error("Error fetching confessions:", error);
+    } else {
+      setConfessions(data || []);
+    }
+  };
 
   const fetchConversations = async () => {
     // Safety check - only fetch if user is authenticated
@@ -537,40 +438,22 @@ const fetchConfessions = async () => {
     }
 
     const { data, error } = await supabase
-
       .from("conversations")
-
       .select(`
-
         *,
-
         participant_1_profile:profiles!conversations_participant_1_fkey(name, avatar_url),
-
         participant_2_profile:profiles!conversations_participant_2_fkey(name, avatar_url)
-
       `)
-
       .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
-
       .order("last_message_at", { ascending: false })
-
       .limit(20); // Limit conversations to reduce data usage
 
-
-
     if (error) {
-
       console.error("Error fetching conversations:", error);
-
     } else {
-
       setConversations(data || []);
-
     }
-
   };
-
-
 
   const fetchDateRequests = async () => {
     // Safety check - only fetch if user is authenticated
@@ -580,77 +463,41 @@ const fetchConfessions = async () => {
     }
 
     const { data, error } = await supabase
-
       .from("date_requests")
-
       .select(`
-
         *,
-
         sender:profiles!date_requests_sender_id_fkey(id, name, avatar_url),
-
         receiver:profiles!date_requests_receiver_id_fkey(id, name, avatar_url)
-
       `)
-
       .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-
       .order("created_at", { ascending: false });
 
-
-
     if (error) {
-
       console.error("Error fetching date requests:", error);
-
     } else {
-
       setDateRequests(data || []);
-
     }
-
   };
 
-
-
   const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
-
     const { error } = await supabase
-
       .from("date_requests")
-
       .update({ status })
-
       .eq("id", requestId);
 
-
-
     if (error) {
-
       toast({
-
         title: "Error",
-
         description: error.message,
-
         variant: "destructive"
-
       });
-
     } else {
-
       fetchDateRequests();
-
       toast({
-
         title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
-
         description: `You have ${status} the date request`
-
       });
-
     }
-
   };
 
   const handleDeleteDateRequest = async (requestId: string) => {
@@ -676,127 +523,65 @@ const fetchConfessions = async () => {
     }
   };
 
-
-
   const handleLike = async () => {
-
     setCurrentProfileIndex(prev => prev + 1);
-
   };
-
-
 
   const handlePass = () => {
-
     setCurrentProfileIndex(prev => prev + 1);
-
   };
-
-
 
   const postAnnouncement = async () => {
-
     if (!newAnnouncement.trim()) return;
 
-
-
     const { error } = await supabase
-
       .from("announcements")
-
       .insert({
-
         content: newAnnouncement,
-
         author_id: user?.id
-
       });
-
-
 
     if (error) {
-
       toast({
-
         title: "Error",
-
         description: error.message,
-
         variant: "destructive"
-
       });
-
     } else {
-
       setNewAnnouncement("");
-
       fetchAnnouncements();
-
       toast({
-
         title: "Posted!",
-
         description: "Your announcement has been posted"
-
       });
-
     }
-
   };
-
-
 
   const postConfession = async () => {
-
     if (!newConfession.trim()) return;
 
-
-
     const { error } = await supabase
-
       .from("confessions")
-
       .insert({
-
         content: newConfession,
-
         author_id: user?.id
-
       });
-
-
 
     if (error) {
-
       toast({
-
         title: "Error",
-
         description: error.message,
-
         variant: "destructive"
-
       });
-
     } else {
-
       setNewConfession("");
-
       fetchConfessions();
-
       toast({
-
         title: "Posted!",
-
         description: "Your confession has been posted anonymously"
-
       });
-
     }
-
   };
-
-
 
   if (loading) {
     return (
@@ -823,19 +608,11 @@ const fetchConfessions = async () => {
     );
   }
 
-
-
   if (!user) {
-
     return null;
-
   }
 
-
-
   const currentProfile = profiles[currentProfileIndex];
-
-
 
   // Dynamic background class based on active tab
   const getBackgroundClass = () => {
@@ -850,9 +627,7 @@ const fetchConfessions = async () => {
   };
 
   return (
-
     <div className={`min-h-screen ${getBackgroundClass()} relative overflow-hidden transition-all duration-1000`}>
-
       {/* Enhanced Dynamic Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Floating Orbs */}
@@ -879,8 +654,6 @@ const fetchConfessions = async () => {
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px] rounded-3xl pointer-events-none"></div>
         
         <div className="relative z-10">
-
-
 
         {/* Enhanced Header with dynamic styling */}
         <div className="text-center mb-6 pt-4 relative z-10">
@@ -1058,646 +831,327 @@ const fetchConfessions = async () => {
           </div>
         )}
 
-
-
         {activeTab === "messages" && (
-
           selectedConversation ? (
-
             <Chat
-
               conversationId={selectedConversation.id}
-
               otherUser={selectedConversation.participant_1 === user?.id 
-
                 ? { id: selectedConversation.participant_2, ...selectedConversation.participant_2_profile }
-
                 : { id: selectedConversation.participant_1, ...selectedConversation.participant_1_profile }
-
               }
-
               currentUserId={user.id}
-
               onBack={() => setSelectedConversation(null)}
-
             />
-
           ) : (
-
             <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-
               <Alert className="border-slate-700 bg-slate-950/50">
-
                 <AlertTriangle className="h-4 w-4 text-amber-400" />
-
                 <AlertDescription className="text-slate-300">
-
                   <strong>🚨 Community Notice:</strong> To keep the community running on a free plan, we need to reduce database load.
                   <br />
                   <span className="text-red-400 font-medium">💡 Important:</span> If your date request has been accepted, please exchange contact details and delete your profile after that. You can always come back later by signing in again and creating a new profile.
                   <br />
                   <span className="text-blue-400">📱 Quick tip:</span> Exchange contact details and move to WhatsApp/Instagram for better communication.
-
                 </AlertDescription>
-
               </Alert>
-
               
-
               <div className="flex items-center justify-between mb-4">
-
                 <h2 className="text-xl font-semibold">Messages</h2>
-
                 <Button 
-
                   variant="outline" 
-
                   size="sm"
-
                   onClick={() => {
-
                     fetchConversations();
-
                     toast({ title: "Messages refreshed!" });
-
                   }}
-
                   className="flex items-center gap-2"
-
                 >
-
                   <RotateCcw className="h-4 w-4" />
-
                   Refresh
-
                 </Button>
-
               </div>
-
               {conversations.length > 0 ? (
-
                 conversations.map((conversation) => {
-
                   const otherUser = conversation.participant_1 === user?.id 
-
                     ? conversation.participant_2_profile 
-
                     : conversation.participant_1_profile;
-
                   
-
                   return (
-
                     <Card 
-
                       key={conversation.id} 
-
                       className="cursor-pointer hover:shadow-md transition-shadow"
-
                       onClick={() => setSelectedConversation(conversation)}
-
                     >
-
                       <CardContent className="p-4">
-
                         <div className="flex items-center gap-3">
-
                           <img
-
                             src={otherUser?.avatar_url || "/placeholder.svg"}
-
                             alt={otherUser?.name}
-
                             className="w-12 h-12 rounded-full object-cover"
-
                           />
-
                           <div className="flex-1">
-
                             <h3 className="font-semibold">{otherUser?.name}</h3>
-
                             <p className="text-sm text-muted-foreground">Tap to chat</p>
-
                           </div>
-
                           <MessageCircle className="w-5 h-5 text-muted-foreground" />
-
                         </div>
-
                       </CardContent>
-
                     </Card>
-
                   );
-
                 })
-
               ) : (
-
                 <Card className="text-center p-8">
-
                   <CardContent>
-
                     <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-
                     <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
-
                     <p className="text-muted-foreground">Start by liking someone's profile!</p>
-
                   </CardContent>
-
                 </Card>
-
               )}
-
             </div>
-
           )
-
         )}
-
-
 
         {activeTab === "announcements" && (
-
           <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-
             <div className="flex items-center justify-between mb-4">
-
               <h2 className="text-xl font-semibold">Campus Life</h2>
-
               <Button 
-
                 variant="outline" 
-
                 size="sm"
-
                 onClick={() => {
-
                   fetchAnnouncements();
-
                   fetchConfessions();
-
                   toast({ title: "Feed refreshed!" });
-
                 }}
-
                 className="flex items-center gap-2"
-
               >
-
                 <RotateCcw className="h-4 w-4" />
-
                 Refresh
-
               </Button>
-
             </div>
-
             
-
             {/* Post new announcement */}
-
             <Card>
-
               <CardHeader>
-
                 <CardTitle className="text-lg">Make an Announcement</CardTitle>
-
               </CardHeader>
-
               <CardContent className="space-y-3">
-
                 <Textarea
-
                   placeholder="What's happening on campus?"
-
                   value={newAnnouncement}
-
                   onChange={(e) => setNewAnnouncement(e.target.value)}
-
                 />
-
                 <Button onClick={postAnnouncement} className="w-full">
-
                   Post Announcement
-
                 </Button>
-
               </CardContent>
-
             </Card>
-
-
 
             {/* Post new confession */}
-
             <Card>
-
               <CardHeader>
-
                 <CardTitle className="text-lg">Anonymous Confession</CardTitle>
-
               </CardHeader>
-
               <CardContent className="space-y-3">
-
                 <Textarea
-
                   placeholder="Share your secret... (completely anonymous)"
-
                   value={newConfession}
-
                   onChange={(e) => setNewConfession(e.target.value)}
-
                 />
-
                 <Button onClick={postConfession} className="w-full" variant="secondary">
-
                   Post Anonymously
-
                 </Button>
-
               </CardContent>
-
             </Card>
-
             
-
             {/* Display announcements */}
-
             <div className="space-y-4">
-
               <h3 className="text-lg font-semibold">📢 Campus Announcements</h3>
-
               {announcements.map((announcement) => (
-
                 <Card key={announcement.id}>
-
                   <CardContent className="p-4">
-
                     <div className="flex items-start gap-3">
-
                       <img 
-
                         src={announcement.profiles?.avatar_url || "/placeholder.svg"} 
-
                         alt={announcement.profiles?.name || "User"}
-
                         className="w-10 h-10 rounded-full object-cover"
-
                       />
-
                       <div className="flex-1">
-
                         <div className="flex items-center gap-2 mb-2">
-
                           <span className="font-semibold">{announcement.profiles?.name || "Anonymous"}</span>
-
                           <Badge variant="outline" className="text-xs">
-
                             <Megaphone className="w-3 h-3 mr-1" />
-
                             Announcement
-
                           </Badge>
-
                         </div>
-
                         <p className="text-sm">{announcement.content}</p>
-
                         <p className="text-xs text-muted-foreground mt-2">
-
                           {new Date(announcement.created_at).toLocaleDateString()}
-
                         </p>
-
                       </div>
-
                     </div>
-
                   </CardContent>
-
                 </Card>
-
               ))}
-
             </div>
-
             
-
             {/* Display confessions */}
-
             <div className="space-y-4">
-
               <h3 className="text-lg font-semibold">🤫 Anonymous Confessions</h3>
-
               {confessions.map((confession) => (
-
                 <Card key={confession.id} className="border-dashed">
-
                   <CardContent className="p-4">
-
                     <div className="flex items-start gap-3">
-
                       <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
-
                         <User className="w-5 h-5 text-secondary" />
-
                       </div>
-
                       <div className="flex-1">
-
                         <div className="flex items-center gap-2 mb-2">
-
                           <span className="font-semibold text-secondary">Anonymous</span>
-
                           <Badge variant="secondary" className="text-xs">
-
                             Confession
-
                           </Badge>
-
                         </div>
-
                         <p className="text-sm italic">{confession.content}</p>
-
                         <p className="text-xs text-muted-foreground mt-2">
-
                           {new Date(confession.created_at).toLocaleDateString()}
-
                         </p>
-
                       </div>
-
                     </div>
-
                   </CardContent>
-
                 </Card>
-
               ))}
-
             </div>
-
           </div>
-
         )}
 
-
-
         {activeTab === "date-requests" && (
-
           <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-
             <div className="flex items-center justify-between mb-4">
-
               <h2 className="text-xl font-semibold">Date Requests</h2>
-
               <Button 
-
                 variant="outline" 
-
                 size="sm"
-
                 onClick={() => {
-
                   fetchDateRequests();
-
                   toast({ title: "Date requests refreshed!" });
-
                 }}
-
                 className="flex items-center gap-2"
-
               >
-
                 <RotateCcw className="h-4 w-4" />
-
                 Refresh
-
               </Button>
-
             </div>
-
             
-
             {dateRequests.length > 0 ? (
-
               <div className="space-y-4">
-
                 {dateRequests.map((request) => {
-
                   const isReceiver = request.receiver_id === user.id;
-
                   const otherUser = isReceiver ? request.sender : request.receiver;
-
                   
-
                   return (
-
                     <Card key={request.id}>
-
                       <CardContent className="p-4">
-
                         <div className="flex items-center justify-between">
-
                           <div className="flex items-center gap-3">
-
                             <img
-
                               src={otherUser?.avatar_url || "/placeholder.svg"}
-
                               alt={otherUser?.name}
-
                               className="w-12 h-12 rounded-full object-cover"
-
                             />
-
                             <div>
-
                               <h3 className="font-semibold">{otherUser?.name}</h3>
-
                               <p className="text-sm text-muted-foreground">
-
                                 {isReceiver ? "Sent you a date request" : "You sent a date request"}
-
                               </p>
-
                               <div className="flex items-center gap-2 mt-1">
-
                                 <Calendar className="w-4 h-4 text-muted-foreground" />
-
                                 <span className="text-xs text-muted-foreground">
-
                                   {new Date(request.created_at).toLocaleDateString()}
-
                                 </span>
-
                                 <Badge 
-
                                   variant={
-
                                     request.status === 'accepted' ? 'default' : 
-
                                     request.status === 'rejected' ? 'destructive' : 
-
                                     'secondary'
-
                                   }
-
                                   className="text-xs"
-
                                 >
-
                                   {request.status}
-
                                 </Badge>
-
                               </div>
-
                             </div>
-
                           </div>
-
                           
-
                           <div className="flex items-center gap-2">
-
                             {isReceiver && request.status === 'pending' && (
-
                               <>
-
                                 <Button
-
                                   size="sm"
-
                                   onClick={() => handleDateRequestResponse(request.id, 'accepted')}
-
                                   className="bg-green-600 hover:bg-green-700"
-
                                 >
-
                                   Accept
-
                                 </Button>
-
                                 <Button
-
                                   size="sm"
-
                                   variant="destructive"
-
                                   onClick={() => handleDateRequestResponse(request.id, 'rejected')}
-
                                 >
-
                                   Reject
-
                                 </Button>
-
                               </>
-
                             )}
-
                             
-
                             {(request.status === 'accepted' || request.status === 'rejected') && (
-
                               <AlertDialog>
-
                                 <AlertDialogTrigger asChild>
-
                                   <Button
-
                                     size="sm"
-
                                     variant="outline"
-
                                     className="text-red-600 border-red-600 hover:bg-red-50"
-
                                   >
-
                                     <Trash2 className="w-4 h-4 mr-1" />
-
                                     Delete
-
                                   </Button>
-
                                 </AlertDialogTrigger>
-
                                 <AlertDialogContent>
-
                                   <AlertDialogHeader>
-
                                     <AlertDialogTitle>Delete Date Request</AlertDialogTitle>
-
                                     <AlertDialogDescription>
-
                                       This will permanently delete this date request from the database. This action cannot be undone.
-
                                     </AlertDialogDescription>
-
                                   </AlertDialogHeader>
-
                                   <AlertDialogFooter>
-
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-
                                     <AlertDialogAction
-
                                       onClick={() => handleDeleteDateRequest(request.id)}
-
                                       className="bg-red-600 hover:bg-red-700"
-
                                     >
-
                                       Delete
-
                                     </AlertDialogAction>
-
                                   </AlertDialogFooter>
-
                                 </AlertDialogContent>
-
                               </AlertDialog>
-
                             )}
-
                           </div>
-
                         </div>
-
                       </CardContent>
-
                     </Card>
-
                   );
-
                 })}
-
               </div>
-
             ) : (
-
               <Card className="text-center p-8">
-
                 <CardContent>
-
                   <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-
                   <h3 className="text-lg font-semibold mb-2">No date requests</h3>
-
                   <p className="text-muted-foreground">Date requests will appear here when someone likes your profile!</p>
-
                 </CardContent>
-
               </Card>
-
             )}
-
           </div>
-
         )}
 
         {/* Profile Tab - Navigate to Profile Edit Page */}
@@ -1756,15 +1210,10 @@ const fetchConfessions = async () => {
         )}
 
         </div>
-
     </div>
-
     <Navigation activeTab={activeTab} onTabChange={setActiveTab} user={user} />
-
     </div>
-
   );
-
 };
 
 export default Index;
