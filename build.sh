@@ -10,11 +10,7 @@ cd "$(dirname "$0")"
 
 echo "📁 Current directory: $(pwd)"
 
-# Install root dependencies if needed
-if [ -f "package.json" ]; then
-    echo "📦 Installing root dependencies..."
-    npm install --no-fund --no-audit
-fi
+# Root package.json not needed - all dependencies are in frontend/
 
 # Navigate to frontend and install dependencies
 echo "📦 Installing frontend dependencies..."
