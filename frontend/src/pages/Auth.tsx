@@ -17,16 +17,36 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
+      // Only redirect on successful sign in, not on initial page load
+      if (session?.user && event === 'SIGNED_IN' && mounted) {
         setTimeout(() => {
           checkProfileAndRedirect(session.user.id);
-        }, 0);
+        }, 100);
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    // Check if user is already logged in on page load
+    const checkInitialAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user && mounted) {
+          checkProfileAndRedirect(session.user.id);
+        }
+      } catch (error) {
+        console.error("Error checking initial auth:", error);
+      }
+    };
+
+    checkInitialAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const checkProfileAndRedirect = async (userId: string) => {
     try {
