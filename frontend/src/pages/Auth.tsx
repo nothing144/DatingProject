@@ -33,7 +33,8 @@ const Auth = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user && mounted) {
-          checkProfileAndRedirect(session.user.id);
+          // Slight delay to allow auth state to settle
+          setTimeout(() => checkProfileAndRedirect(session.user.id), 50);
         }
       } catch (error) {
         console.error("Error checking initial auth:", error);
