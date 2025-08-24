@@ -200,9 +200,8 @@ const Index = () => {
   }, [currentProfileIndex, profiles.length, viewMode, hasMore, loadingMore]);
 
   const fetchProfiles = async (usernameFilter?: string, append: boolean = false) => {
-    // Safety check - only fetch if user is authenticated
+    // Safety check - only fetch if user is authenticated (silent during app initialization)
     if (!user?.id) {
-      console.warn("⚠️ Cannot fetch profiles - user not authenticated");
       return;
     }
 
