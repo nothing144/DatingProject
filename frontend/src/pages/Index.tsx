@@ -255,23 +255,17 @@ useEffect(() => {
     return () => clearTimeout(timeout);
   }, [loading]);
 
+  // Enhanced data fetching effect with better dependency management
   useEffect(() => {
-
-    if (user) {
-
+    if (user && !loading && window.location.pathname === '/') {
+      console.log("📄 Triggering data fetch for authenticated user");
       fetchProfiles();
-
       fetchAnnouncements();
-
       fetchConfessions();
-
       fetchConversations();
-
       fetchDateRequests();
-
     }
-
-  }, [user]);
+  }, [user, loading]); // Added loading dependency
 
   // Auto-prefetch for single view when user gets close to end
   useEffect(() => {
