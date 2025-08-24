@@ -562,6 +562,11 @@ useEffect(() => {
 
 
   const fetchDateRequests = async () => {
+    // Safety check - only fetch if user is authenticated
+    if (!user?.id) {
+      console.warn("⚠️ Cannot fetch date requests - user not authenticated");
+      return;
+    }
 
     const { data, error } = await supabase
 
@@ -577,7 +582,7 @@ useEffect(() => {
 
       `)
 
-      .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
 
       .order("created_at", { ascending: false });
 
