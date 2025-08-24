@@ -155,6 +155,14 @@ const Index = () => {
           fetchConfessions();
           fetchConversations();
           fetchDateRequests();
+          
+          // Auto-refresh discover page on app startup
+          setTimeout(() => {
+            if (isMounted) {
+              console.log("🔄 Auto-refreshing discover page on startup...");
+              handleAutoRefresh();
+            }
+          }, 1500); // Small delay to ensure initial load completes
         }
       } catch (error) {
         console.error("❌ App initialization error:", error);
