@@ -1062,20 +1062,66 @@ const Index = () => {
 
         {activeTab === "date-requests" && (
           <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            {/* Always visible cleanup notice */}
+            <Alert className="border-amber-500/30 bg-amber-50/10 backdrop-blur-sm">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <AlertDescription className="text-slate-300">
+                <strong>🚨 Database Cleanup Notice:</strong> Please regularly delete old and resolved date requests to help keep our database running smoothly on the free plan.
+                <br />
+                <span className="text-amber-400 font-medium">💡 Tip:</span> After exchanging contact details, delete your requests to free up space for other users.
+              </AlertDescription>
+            </Alert>
+
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Date Requests</h2>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  fetchDateRequests();
-                  toast({ title: "Date requests refreshed!" });
-                }}
-                className="flex items-center gap-2"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Refresh
-              </Button>
+              <div className="flex items-center gap-2">
+                {dateRequests.length > 0 && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete All
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete All Date Requests</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete ALL your date requests (both sent and received) from the database. 
+                          This action cannot be undone and helps keep our database clean.
+                          <br /><br />
+                          <strong>Are you sure you want to continue?</strong>
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAllDateRequests}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Delete All Requests
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    fetchDateRequests();
+                    toast({ title: "Date requests refreshed!" });
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Refresh
+                </Button>
+              </div>
             </div>
             
             {dateRequests.length > 0 ? (
