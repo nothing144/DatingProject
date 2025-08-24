@@ -883,7 +883,8 @@ useEffect(() => {
           </div>
         </div>
 
-
+        {/* Navigation Component - Critical for logout functionality */}
+        <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* Content based on active tab */}
         {activeTab === "discover" && (
