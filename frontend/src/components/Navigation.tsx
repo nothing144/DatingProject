@@ -118,6 +118,22 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
         </div>
       )}
 
+      {/* Enhanced Edit Profile Button - Always visible for authenticated users */}
+      {user && (
+        <div className="fixed top-4 left-4 z-50">
+          <Button
+            size="sm"
+            variant="outline"
+            className="rounded-full bg-card/80 backdrop-blur-md border-secondary/30 hover:border-secondary hover:bg-secondary/10 focus-enhanced shadow-lg text-secondary transition-all duration-300 hover:scale-105"
+            onClick={() => window.location.href = '/profile'}
+          >
+            <User className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Edit Profile</span>
+            <span className="sm:hidden">Profile</span>
+          </Button>
+        </div>
+      )}
+
       {/* Enhanced Bottom Navigation Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40">
         {/* Glass morphism background */}
