@@ -151,8 +151,12 @@ const Index = () => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state change:", event, session?.user?.id || 'no user');
+      
+      if (!mounted) return;
       
       setSession(session);
       setUser(session?.user || null);
@@ -166,44 +170,64 @@ const Index = () => {
         setAnnouncements([]);
         setConfessions([]);
         setDateRequests([]);
-        setLoading(false); // Fix: Set loading to false before navigation
+        setLoading(false);
         navigate("/auth");
+      } else if (session?.user && event === 'SIGNED_IN') {
+        // Only check profile completeness on sign in, not on page reload
+        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
+        if (!hasCompleteProfile) {
+          console.log("User needs to complete profile - redirecting to profile page");
+          navigate("/profile");
+          return;
+        }
+        setLoading(false);
       } else if (session?.user) {
-        // Check if user has complete profile before allowing access to main page
-        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
-        if (!hasCompleteProfile) {
-          console.log("User needs to complete profile - redirecting to profile page");
-          navigate("/profile");
-          return;
-        }
+        // User already signed in, just set loading to false
         setLoading(false);
       }
     });
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      console.log("Initial session check:", session?.user?.id || 'no user');
-      
-      setSession(session);
-      setUser(session?.user || null);
-      
-      if (!session) {
-        console.log("No session found - redirecting to auth");
-        setLoading(false); // Fix: Set loading to false before navigation
-        navigate("/auth");
-      } else {
-        // Check if user has complete profile before allowing access to main page
-        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
-        if (!hasCompleteProfile) {
-          console.log("User needs to complete profile - redirecting to profile page");
-          navigate("/profile");
-          return;
+    // Check initial session only once
+    const checkInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session?.user?.id || 'no user');
+        
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user || null);
+        
+        if (!session) {
+          console.log("No session found - redirecting to auth");
+          setLoading(false);
+          navigate("/auth");
+        } else {
+          // Check if user has complete profile before allowing access to main page
+          const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
+          if (!hasCompleteProfile) {
+            console.log("User needs to complete profile - redirecting to profile page");
+            navigate("/profile");
+            return;
+          }
+          setLoading(false);
         }
-        setLoading(false);
+      } catch (error) {
+        console.error("Error checking initial session:", error);
+        if (mounted) {
+          setLoading(false);
+          navigate("/auth");
+        }
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    checkInitialSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
 
 
