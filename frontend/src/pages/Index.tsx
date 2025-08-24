@@ -510,7 +510,13 @@ useEffect(() => {
 
 
 
- const fetchConfessions = async () => {
+const fetchConfessions = async () => {
+  // Safety check - only fetch if user is authenticated
+  if (!user?.id) {
+    console.warn("⚠️ Cannot fetch confessions - user not authenticated");
+    return;
+  }
+
   const { data, error } = await supabase
     .from("confessions")
     .select("*")
