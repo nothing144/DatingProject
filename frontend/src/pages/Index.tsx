@@ -1184,37 +1184,40 @@ const Index = () => {
                               </>
                             )}
                             
-                            {(request.status === 'accepted' || request.status === 'rejected') && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-red-600 border-red-600 hover:bg-red-50"
+                            {/* Show delete button for all requests regardless of status */}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 border-red-600 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-1" />
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Date Request</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will permanently delete this date request from the database. This action cannot be undone.
+                                    <br /><br />
+                                    <strong>Status:</strong> {request.status}
+                                    <br />
+                                    <strong>With:</strong> {otherUser?.name}
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteDateRequest(request.id)}
+                                    className="bg-red-600 hover:bg-red-700"
                                   >
-                                    <Trash2 className="w-4 h-4 mr-1" />
-                                    Delete
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Date Request</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This will permanently delete this date request from the database. This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleDeleteDateRequest(request.id)}
-                                      className="bg-red-600 hover:bg-red-700"
-                                    >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
+                                    Delete Request
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </div>
                       </CardContent>
