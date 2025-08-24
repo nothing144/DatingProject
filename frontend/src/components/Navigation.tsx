@@ -116,7 +116,7 @@ const Navigation = ({ activeTab, onTabChange, user }: NavigationProps) => {
             size="sm"
             variant="outline"
             className="rounded-full bg-card/80 backdrop-blur-md border-secondary/30 hover:border-secondary hover:bg-secondary/10 focus-enhanced shadow-lg text-secondary transition-all duration-300 hover:scale-105"
-            onClick={() => window.location.href = '/profile'}
+            onClick={() => navigate('/profile')}
           >
             <User className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Edit Profile</span>
