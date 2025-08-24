@@ -176,7 +176,7 @@ const Index = () => {
         setConfessions([]);
         setDateRequests([]);
         setLoading(false);
-        navigate("/auth");
+        navigate("/auth", { replace: true });
       } else if (session?.user && event === 'SIGNED_IN') {
         // Only check profile completeness on sign in, not on page reload
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
