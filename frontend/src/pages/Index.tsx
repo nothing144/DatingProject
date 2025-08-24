@@ -155,20 +155,20 @@ const Index = () => {
     }
   };
 
-  useEffect(() => {
-    let mounted = true;
+useEffect(() => {
+  let mounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", event, session?.user?.id || 'no user');
-      
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      console.log("Auth state change:", event, session?.user?.id || "no user");
+
       if (!mounted) return;
-      
+
       setSession(session);
       setUser(session?.user || null);
-      
-      if (event === 'SIGNED_OUT' || !session) {
+
+      if (event === "SIGNED_OUT" || !session) {
         console.log("User signed out - redirecting to auth");
-        // Clear any cached data when user logs out
         setProfiles([]);
         setAllProfiles([]);
         setConversations([]);
@@ -177,8 +177,8 @@ const Index = () => {
         setDateRequests([]);
         setLoading(false);
         navigate("/auth", { replace: true });
-      } else if (session?.user && event === 'SIGNED_IN') {
-        // Only check profile completeness on sign in, not on page reload
+      } 
+      else if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
         if (!hasCompleteProfile) {
           console.log("User needs to complete profile - redirecting to profile page");
@@ -187,53 +187,50 @@ const Index = () => {
           return;
         }
         setLoading(false);
-      } else if (session?.user) {
-        // User already signed in, just set loading to false
+      } 
+    }
+  );
+
+  const checkInitialSession = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Initial session check:", session?.user?.id || "no user");
+
+      if (!mounted) return;
+
+      setSession(session);
+      setUser(session?.user || null);
+
+      if (!session) {
+        console.log("No session found - redirecting to auth");
+        setLoading(false);
+        navigate("/auth", { replace: true });
+      } else {
+        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
+        if (!hasCompleteProfile) {
+          console.log("User needs to complete profile - redirecting to profile page");
+          navigate("/profile", { replace: true });
+          return;
+        }
         setLoading(false);
       }
-    });
-
-    // Check initial session only once
-    const checkInitialSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Initial session check:", session?.user?.id || 'no user');
-        
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user || null);
-        
-        if (!session) {
-          console.log("No session found - redirecting to auth");
-          setLoading(false);
-          navigate("/auth", { replace: true });
-        } else {
-          // Check if user has complete profile before allowing access to main page
-          const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
-          if (!hasCompleteProfile) {
-            console.log("User needs to complete profile - redirecting to profile page");
-            navigate("/profile", { replace: true });
-            return;
-          }
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error checking initial session:", error);
-        if (mounted) {
-          setLoading(false);
-          navigate("/auth", { replace: true });
-        }
+    } catch (error) {
+      console.error("Error checking initial session:", error);
+      if (mounted) {
+        setLoading(false);
+        navigate("/auth", { replace: true });
       }
-    };
+    }
+  };
 
-    checkInitialSession();
+  checkInitialSession();
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
+  return () => {
+    mounted = false;
+    subscription.unsubscribe();
+  };
+}, []);
+
 
 
 
