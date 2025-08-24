@@ -395,6 +395,21 @@ const Index = () => {
     }
   };
 
+  const handleAutoRefresh = async () => {
+    // Auto-refresh without visual indicators - silent refresh on startup
+    try {
+      setCurrentPage(0);
+      setHasMore(true);
+      await fetchProfiles();
+      setCurrentProfileIndex(0);
+      
+      console.log("✅ Auto-refresh completed successfully");
+    } catch (error) {
+      console.error("❌ Auto-refresh failed:", error);
+      // Silent failure - no toast notification for auto-refresh
+    }
+  };
+
   const fetchAnnouncements = async () => {
     // Safety check - only fetch if user is authenticated (silent during app initialization)
     if (!user?.id) {
