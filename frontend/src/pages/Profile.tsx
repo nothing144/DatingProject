@@ -293,8 +293,21 @@ const Profile = () => {
     try {
       // Show loading state
       toast({
-        title: "Uploading photo...",
-        description: "Please wait while we upload your image to Cloudinary."
+        title: "Processing image...",
+        description: "Compressing image to 100KB max and uploading to Cloudinary..."
+      });
+
+      // Import compression function
+      const { compressImage } = await import("@/lib/imageUtils");
+      
+      // Compress image to 100KB max
+      const compressedResult = await compressImage(file, 100); // 100KB max
+      
+      console.log(`Image compressed from ${Math.round(file.size / 1024)}KB to ${compressedResult.size}KB`);
+      
+      toast({
+        title: "Image compressed! 📦",
+        description: `Reduced from ${Math.round(file.size / 1024)}KB to ${compressedResult.size}KB (max 100KB)`
       });
 
       // Delete old image from Cloudinary before uploading new one (secure approach)
@@ -312,8 +325,8 @@ const Profile = () => {
         }
       }
 
-      // Upload new image to Cloudinary
-      const uploadResult = await uploadImageToCloudinary(file, user.id, {
+      // Upload compressed image to Cloudinary
+      const uploadResult = await uploadImageToCloudinary(compressedResult.file, user.id, {
         folder: 'heartbeat_avatars'
       });
 
@@ -325,14 +338,14 @@ const Profile = () => {
 
       toast({
         title: "Photo Updated! 📸",
-        description: "Your profile photo has been uploaded to Cloudinary and optimized for better performance."
+        description: `Your profile photo has been compressed to ${compressedResult.size}KB and uploaded to Cloudinary for optimal performance.`
       });
 
     } catch (error: any) {
-      console.error('Cloudinary upload error:', error);
+      console.error('Image processing/upload error:', error);
       toast({
         title: "Upload Failed",
-        description: error.message || "Failed to upload image to Cloudinary. Please try again.",
+        description: error.message || "Failed to process and upload image. Please try again.",
         variant: "destructive"
       });
     }
