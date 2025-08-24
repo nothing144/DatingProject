@@ -279,8 +279,14 @@ useEffect(() => {
   }, [currentProfileIndex, profiles.length, viewMode, hasMore, loadingMore]);
 
   const fetchProfiles = async (usernameFilter?: string, append: boolean = false) => {
+    // Safety check - only fetch if user is authenticated
+    if (!user?.id) {
+      console.warn("⚠️ Cannot fetch profiles - user not authenticated");
+      return;
+    }
+
     try {
-      console.log("📄 Fetching profiles...", { usernameFilter, append });
+      console.log("📄 Fetching profiles...", { usernameFilter, append, userId: user.id });
       
       const page = append ? currentPage : 0;
       const offset = page * PROFILES_PER_PAGE;
@@ -288,7 +294,7 @@ useEffect(() => {
       let query = supabase
         .from("profiles")
         .select("*", { count: 'exact' })
-        .neq("id", user?.id);
+        .neq("id", user.id);
 
       if (usernameFilter && usernameFilter.trim()) {
         query = query.ilike("username", `%${usernameFilter.trim()}%`);
