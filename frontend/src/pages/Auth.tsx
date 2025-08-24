@@ -127,27 +127,45 @@ const Auth = () => {
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
+    console.log("🔐 Sign in button clicked - starting authentication process");
     e.preventDefault();
     setLoading(true);
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    console.log("📧 Attempting sign in with email:", email);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
+      console.log("🔑 Supabase auth response:", { data, error });
+
+      if (error) {
+        console.error("❌ Authentication error:", error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        console.log("✅ Authentication successful:", data);
+        toast({
+          title: "Welcome back! ⚡",
+          description: "Successfully signed in"
+        });
+      }
+    } catch (err) {
+      console.error("❌ Exception during sign in:", err);
       toast({
         title: "Error",
-        description: error.message,
+        description: "An unexpected error occurred during sign in",
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "Welcome back! ⚡",
-        description: "Successfully signed in"
-      });
     }
+    
     setLoading(false);
+    console.log("🔐 Sign in process completed");
   };
 
   return (
