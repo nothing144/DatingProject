@@ -19,13 +19,16 @@ const Auth = () => {
   useEffect(() => {
     let mounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("🔐 Auth state change in Auth component:", event, session?.user?.id || "no user");
+      
       // Only redirect on successful sign in, not on initial page load
       if (session?.user && event === 'SIGNED_IN' && mounted) {
+        console.log("✅ Sign in successful, checking profile...");
         setTimeout(() => {
           checkProfileAndRedirect(session.user.id);
         }, 100);
-        // Also proactively clear loading on this page to avoid spinner lock
+        // Clear loading state
         setLoading(false);
       }
     });
@@ -34,12 +37,14 @@ const Auth = () => {
     const checkInitialAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("🔍 Initial auth check:", session?.user?.id || "no user");
+        
         if (session?.user && mounted) {
-          // Slight delay to allow auth state to settle
+          console.log("✅ Found existing session, checking profile...");
           setTimeout(() => checkProfileAndRedirect(session.user.id), 50);
         }
       } catch (error) {
-        console.error("Error checking initial auth:", error);
+        console.error("❌ Error checking initial auth:", error);
       }
     };
 
@@ -54,10 +59,13 @@ const Auth = () => {
   const checkProfileAndRedirect = async (userId: string) => {
     // Prevent redirect loops by checking current location
     if (window.location.pathname !== '/auth') {
+      console.log("⚠️ Not on auth page, skipping redirect");
       return;
     }
 
     try {
+      console.log("🔍 Checking profile for user:", userId);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("id, name, username, age, location, shortBio, avatar_url, branch, year")
@@ -65,14 +73,15 @@ const Auth = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error("Error checking profile:", error);
+        console.error("❌ Error checking profile:", error);
+        console.log("➡️ Redirecting to profile creation due to error");
         navigate("/profile", { replace: true });
         return;
       }
 
       // Check if user has complete profile (all mandatory fields filled)
       if (!data) {
-        console.log("New user - redirecting to profile creation");
+        console.log("👤 New user - redirecting to profile creation");
         navigate("/profile", { replace: true });
         return;
       }
@@ -84,50 +93,65 @@ const Auth = () => {
       });
 
       if (!hasAllMandatoryFields) {
-        console.log("Incomplete profile - redirecting to profile completion");
+        console.log("📋 Incomplete profile - redirecting to profile completion");
         navigate("/profile", { replace: true });
       } else {
-        console.log("Complete profile found - redirecting to main page");
+        console.log("✅ Complete profile found - redirecting to main page");
         navigate("/", { replace: true });
       }
     } catch (error) {
-      console.error("Error checking profile:", error);
+      console.error("❌ Exception during profile check:", error);
       navigate("/profile", { replace: true });
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("📝 Sign up initiated");
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          name: name
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            name: name
+          }
         }
-      }
-    });
+      });
 
-    if (error) {
+      console.log("📝 Sign up response:", { data, error });
+
+      if (error) {
+        console.error("❌ Sign up error:", error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        console.log("✅ Sign up successful");
+        toast({
+          title: "Success! ✨",
+          description: "Check your email to confirm your account"
+        });
+      }
+    } catch (err) {
+      console.error("❌ Exception during sign up:", err);
       toast({
         title: "Error",
-        description: error.message,
+        description: "An unexpected error occurred during sign up",
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "Success! ✨",
-        description: "Check your email to confirm your account"
-      });
     }
+    
     setLoading(false);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
-    console.log("🔐 Sign in button clicked - starting authentication process");
+    console.log("🔐 Sign in initiated");
     e.preventDefault();
     setLoading(true);
     
@@ -154,6 +178,7 @@ const Auth = () => {
           title: "Welcome back! ⚡",
           description: "Successfully signed in"
         });
+        // Note: Don't navigate here, let the auth state change handler do it
       }
     } catch (err) {
       console.error("❌ Exception during sign in:", err);
@@ -166,6 +191,14 @@ const Auth = () => {
     
     setLoading(false);
     console.log("🔐 Sign in process completed");
+  };
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    console.log("🔘 Button clicked - event handler triggered");
+    console.log("Event type:", e.type);
+    console.log("Button disabled:", loading);
+    console.log("Email state:", email);
+    console.log("Password state:", password);
   };
 
   return (
@@ -277,13 +310,7 @@ const Auth = () => {
                   type="submit" 
                   className="btn-primary-enhanced w-full py-3 text-base font-semibold"
                   disabled={loading}
-                  onClick={(e) => {
-                    console.log("🔘 Button clicked - event handler triggered");
-                    console.log("Event type:", e.type);
-                    console.log("Button disabled:", loading);
-                    console.log("Email state:", email);
-                    console.log("Password state:", password);
-                  }}
+                  onClick={handleButtonClick}
                 >
                   {loading ? (
                     <div className="flex items-center gap-2">

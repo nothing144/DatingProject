@@ -120,6 +120,8 @@ const Index = () => {
     }
 
     try {
+      console.log("🔍 Checking profile completeness for user:", userId);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("id, name, username, age, location, shortBio, avatar_url, branch, year")
@@ -127,13 +129,13 @@ const Index = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error("Error checking profile:", error);
+        console.error("❌ Error checking profile:", error);
         return false;
       }
 
       // Check if user has complete profile (all mandatory fields filled)
       if (!data) {
-        console.log("No profile found - needs profile creation");
+        console.log("👤 No profile found - needs profile creation");
         return false;
       }
 
@@ -144,13 +146,14 @@ const Index = () => {
       });
 
       if (!hasAllMandatoryFields) {
-        console.log("Incomplete profile - needs profile completion");
+        console.log("📋 Incomplete profile - needs profile completion");
         return false;
       }
 
+      console.log("✅ Profile is complete");
       return true;
     } catch (error) {
-      console.error("Error checking profile:", error);
+      console.error("❌ Exception checking profile:", error);
       return false;
     }
   };
@@ -160,15 +163,16 @@ useEffect(() => {
 
   const { data: { subscription } } = supabase.auth.onAuthStateChange(
     async (event, session) => {
-      console.log("Auth state change:", event, session?.user?.id || "no user");
+      console.log("🔐 Auth state change in Index:", event, session?.user?.id || "no user");
 
       if (!mounted) return;
 
       setSession(session);
       setUser(session?.user || null);
 
-      if (event === "SIGNED_OUT" || !session) {
-        console.log("User signed out - redirecting to auth");
+      if (!session || event === "SIGNED_OUT") {
+        console.log("👋 User signed out - redirecting to auth");
+        // Clear all state
         setProfiles([]);
         setAllProfiles([]);
         setConversations([]);
@@ -179,13 +183,17 @@ useEffect(() => {
         navigate("/auth", { replace: true });
       } 
       else if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+        console.log("🔍 User authenticated, checking profile...");
+        
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
         if (!hasCompleteProfile) {
-          console.log("User needs to complete profile - redirecting to profile page");
+          console.log("➡️ Redirecting to profile page for completion");
           setLoading(false);
           navigate("/profile", { replace: true });
           return;
         }
+        
+        console.log("✅ Profile complete - user can access main app");
         setLoading(false);
       } 
     }
@@ -193,31 +201,34 @@ useEffect(() => {
 
   const checkInitialSession = async () => {
     try {
+      console.log("🔍 Checking initial session...");
       const { data: { session } } = await supabase.auth.getSession();
-      console.log("Initial session check:", session?.user?.id || "no user");
-
+      
       if (!mounted) return;
 
       setSession(session);
       setUser(session?.user || null);
 
       if (!session) {
-        console.log("No session found - redirecting to auth");
+        console.log("❌ No session found - redirecting to auth");
         setLoading(false);
         navigate("/auth", { replace: true });
       } else {
+        console.log("✅ Session found, checking profile...");
+        
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
         if (!hasCompleteProfile) {
-          console.log("User needs to complete profile - redirecting to profile page");
-          // Ensure we never stay stuck in loading state before navigation
+          console.log("➡️ Redirecting to profile page for completion");
           setLoading(false);
           navigate("/profile", { replace: true });
           return;
         }
+        
+        console.log("✅ Profile complete - clearing loading state");
         setLoading(false);
       }
     } catch (error) {
-      console.error("Error checking initial session:", error);
+      console.error("❌ Error checking initial session:", error);
       if (mounted) {
         setLoading(false);
         navigate("/auth", { replace: true });
@@ -237,9 +248,9 @@ useEffect(() => {
   useEffect(() => {
     if (!loading) return;
     const timeout = setTimeout(() => {
-      console.warn("Safety net: clearing loading state after timeout");
+      console.warn("⚠️ Safety net: clearing loading state after timeout");
       setLoading(false);
-    }, 8000);
+    }, 5000); // Reduced from 8000 to 5000
     return () => clearTimeout(timeout);
   }, [loading]);
 
@@ -274,6 +285,8 @@ useEffect(() => {
 
   const fetchProfiles = async (usernameFilter?: string, append: boolean = false) => {
     try {
+      console.log("📄 Fetching profiles...", { usernameFilter, append });
+      
       const page = append ? currentPage : 0;
       const offset = page * PROFILES_PER_PAGE;
 
@@ -291,7 +304,7 @@ useEffect(() => {
         .range(offset, offset + PROFILES_PER_PAGE - 1);
 
       if (error) {
-        console.error("Error fetching profiles:", error);
+        console.error("❌ Error fetching profiles:", error);
         toast({
           title: "Error",
           description: "Failed to load profiles",
@@ -316,6 +329,7 @@ useEffect(() => {
         
         // Show success message with count (only for initial load or search)
         if (!append) {
+          console.log("📄 Profiles loaded successfully:", fetchedProfiles.length);
           toast({
             title: "Profiles loaded!",
             description: `Found ${count || 0} profiles total, showing first ${Math.min(PROFILES_PER_PAGE, fetchedProfiles.length)}`
@@ -323,7 +337,7 @@ useEffect(() => {
         }
       }
     } catch (error) {
-      console.error("Error fetching profiles:", error);
+      console.error("❌ Exception fetching profiles:", error);
       toast({
         title: "Error",
         description: "Failed to load profiles",
@@ -355,7 +369,7 @@ useEffect(() => {
         .range(offset, offset + PROFILES_PER_PAGE - 1);
 
       if (error) {
-        console.error("Error loading more profiles:", error);
+        console.error("❌ Error loading more profiles:", error);
         if (!silent) {
           toast({
             title: "Error",
@@ -382,7 +396,7 @@ useEffect(() => {
         }
       }
     } catch (error) {
-      console.error("Error loading more profiles:", error);
+      console.error("❌ Exception loading more profiles:", error);
       if (!silent) {
         toast({
           title: "Error",
@@ -398,6 +412,7 @@ useEffect(() => {
 
 
   const handleUsernameSearch = () => {
+    console.log("🔍 Searching for username:", searchUsername);
     // Reset pagination for search
     setCurrentPage(0);
     setHasMore(true);
@@ -424,6 +439,14 @@ useEffect(() => {
       title: "Profile passed",
       description: "Profile has been passed and removed from your discover feed."
     });
+  };
+
+  const handleRefresh = () => {
+    console.log("🔄 Refreshing discover page...");
+    setCurrentPage(0);
+    setHasMore(true);
+    fetchProfiles();
+    setCurrentProfileIndex(0);
   };
 
 
@@ -872,12 +895,7 @@ useEffect(() => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => {
-                    setCurrentPage(0);
-                    setHasMore(true);
-                    fetchProfiles();
-                    setCurrentProfileIndex(0);
-                  }}
+                  onClick={handleRefresh}
                   className="flex items-center gap-2"
                 >
                   <RotateCcw className="h-4 w-4" />
@@ -1243,7 +1261,7 @@ useEffect(() => {
 
                 <Textarea
 
-                  placeholder="Share something anonymously..."
+                  placeholder="Share your secret... (completely anonymous)"
 
                   value={newConfession}
 
@@ -1251,7 +1269,7 @@ useEffect(() => {
 
                 />
 
-                <Button onClick={postConfession} variant="secondary" className="w-full">
+                <Button onClick={postConfession} className="w-full" variant="secondary">
 
                   Post Anonymously
 
@@ -1261,13 +1279,13 @@ useEffect(() => {
 
             </Card>
 
+            
 
+            {/* Display announcements */}
 
-            {/* Announcements */}
+            <div className="space-y-4">
 
-            <div className="space-y-3">
-
-              <h3 className="font-semibold text-primary">Recent Announcements</h3>
+              <h3 className="text-lg font-semibold">📢 Campus Announcements</h3>
 
               {announcements.map((announcement) => (
 
@@ -1277,11 +1295,11 @@ useEffect(() => {
 
                     <div className="flex items-start gap-3">
 
-                      <img
+                      <img 
 
-                        src={announcement.profiles?.avatar_url || "/placeholder.svg"}
+                        src={announcement.profiles?.avatar_url || "/placeholder.svg"} 
 
-                        alt="Author"
+                        alt={announcement.profiles?.name || "User"}
 
                         className="w-10 h-10 rounded-full object-cover"
 
@@ -1291,9 +1309,9 @@ useEffect(() => {
 
                         <div className="flex items-center gap-2 mb-2">
 
-                          <span className="font-semibold">{announcement.profiles?.name}</span>
+                          <span className="font-semibold">{announcement.profiles?.name || "Anonymous"}</span>
 
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
 
                             <Megaphone className="w-3 h-3 mr-1" />
 
@@ -1323,17 +1341,17 @@ useEffect(() => {
 
             </div>
 
+            
 
+            {/* Display confessions */}
 
-            {/* Confessions */}
+            <div className="space-y-4">
 
-            <div className="space-y-3">
-
-              <h3 className="font-semibold text-secondary">Anonymous Confessions</h3>
+              <h3 className="text-lg font-semibold">🤫 Anonymous Confessions</h3>
 
               {confessions.map((confession) => (
 
-                <Card key={confession.id} className="bg-secondary/5">
+                <Card key={confession.id} className="border-dashed">
 
                   <CardContent className="p-4">
 
@@ -1341,7 +1359,7 @@ useEffect(() => {
 
                       <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
 
-                        <span className="text-xs">🎭</span>
+                        <User className="w-5 h-5 text-secondary" />
 
                       </div>
 
@@ -1351,11 +1369,15 @@ useEffect(() => {
 
                           <span className="font-semibold text-secondary">Anonymous</span>
 
-                          <Badge variant="secondary">Confession</Badge>
+                          <Badge variant="secondary" className="text-xs">
+
+                            Confession
+
+                          </Badge>
 
                         </div>
 
-                        <p className="text-sm">{confession.content}</p>
+                        <p className="text-sm italic">{confession.content}</p>
 
                         <p className="text-xs text-muted-foreground mt-2">
 
@@ -1415,26 +1437,17 @@ useEffect(() => {
 
             </div>
 
-            {/* Database Management Warning */}
-            {dateRequests.length > 0 && (
-              <Alert className="border-slate-700 bg-slate-950/50">
-                <AlertTriangle className="h-4 w-4 text-amber-400" />
-                <AlertDescription className="text-slate-300">
-                  <strong>📊 Database Management:</strong> Please delete unwanted date requests regularly to keep the database clean and stay within the free plan.
-                </AlertDescription>
-              </Alert>
-            )}
             
 
             {dateRequests.length > 0 ? (
 
-              <div className="space-y-3">
+              <div className="space-y-4">
 
                 {dateRequests.map((request) => {
 
-                  const isReceived = request.receiver_id === user?.id;
+                  const isReceiver = request.receiver_id === user.id;
 
-                  const otherUser = isReceived ? request.sender : request.receiver;
+                  const otherUser = isReceiver ? request.sender : request.receiver;
 
                   
 
@@ -1444,179 +1457,170 @@ useEffect(() => {
 
                       <CardContent className="p-4">
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between">
 
-                          <img
+                          <div className="flex items-center gap-3">
 
-                            src={otherUser?.avatar_url || "/placeholder.svg"}
+                            <img
 
-                            alt={otherUser?.name}
+                              src={otherUser?.avatar_url || "/placeholder.svg"}
 
-                            className="w-12 h-12 rounded-full object-cover"
+                              alt={otherUser?.name}
 
-                          />
+                              className="w-12 h-12 rounded-full object-cover"
 
-                          <div className="flex-1">
+                            />
 
-                            <h3 
+                            <div>
 
-  className={`font-semibold ${isReceived ? 'text-blue-600 underline cursor-pointer hover:opacity-80' : ''}`}
+                              <h3 className="font-semibold">{otherUser?.name}</h3>
 
-  onClick={() => {
+                              <p className="text-sm text-muted-foreground">
 
-     navigate(`/profile/${otherUser?.id}`);
+                                {isReceiver ? "Sent you a date request" : "You sent a date request"}
 
-  }}
+                              </p>
 
->
+                              <div className="flex items-center gap-2 mt-1">
 
-  {otherUser?.name}
+                                <Calendar className="w-4 h-4 text-muted-foreground" />
 
-</h3>              
+                                <span className="text-xs text-muted-foreground">
 
-                            <Button
+                                  {new Date(request.created_at).toLocaleDateString()}
 
-  size="icon"
+                                </span>
 
-  variant="ghost"
+                                <Badge 
 
-  className="mt-2"
+                                  variant={
 
-  onClick={async () => {
+                                    request.status === 'accepted' ? 'default' : 
 
-    const { data, error } = await supabase
+                                    request.status === 'rejected' ? 'destructive' : 
 
-      .rpc("get_or_create_conversation", {
+                                    'secondary'
 
-        user1: user.id,
+                                  }
 
-        user2: otherUser.id
+                                  className="text-xs"
 
-      });
+                                >
 
+                                  {request.status}
 
+                                </Badge>
 
-    if (error) {
+                              </div>
 
-      toast({
-
-        title: "Error creating conversation",
-
-        description: error.message,
-
-        variant: "destructive",
-
-      });
-
-      return;
-
-    }
-
-
-
-    const event = new CustomEvent("switchToMessages", {
-
-      detail: { conversationId: data.id },
-
-    });
-
-    window.dispatchEvent(event);
-
-  }}
-
->
-
-  <MessageCircle className="w-4 h-4" />
-
-</Button>
-
-
-
-
-                            <p className="text-sm text-muted-foreground">
-
-                              {isReceived ? "Sent you a date request" : "You sent a date request"}
-
-                            </p>
-
-                            <Badge 
-
-                              variant={
-
-                                request.status === 'accepted' ? 'default' : 
-
-                                request.status === 'rejected' ? 'destructive' : 
-
-                                'secondary'
-
-                              }
-
-                              className="mt-1"
-
-                            >
-
-                              {request.status}
-
-                            </Badge>
+                            </div>
 
                           </div>
 
-                          <div className="flex flex-col gap-2">
-                            {/* Accept/Reject buttons for received pending requests */}
-                            {isReceived && request.status === 'pending' && (
-                              <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+                          
+
+                          <div className="flex items-center gap-2">
+
+                            {isReceiver && request.status === 'pending' && (
+
+                              <>
+
                                 <Button
+
                                   size="sm"
+
                                   onClick={() => handleDateRequestResponse(request.id, 'accepted')}
-                                  className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
+
+                                  className="bg-green-600 hover:bg-green-700"
+
                                 >
+
                                   Accept
+
                                 </Button>
+
                                 <Button
+
                                   size="sm"
+
                                   variant="destructive"
+
                                   onClick={() => handleDateRequestResponse(request.id, 'rejected')}
-                                  className="w-full sm:w-auto"
+
                                 >
+
                                   Reject
+
                                 </Button>
-                              </div>
+
+                              </>
+
                             )}
+
                             
-                            {/* Delete button for all requests */}
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-red-700 text-red-400 hover:bg-red-950 hover:text-red-300 w-full sm:w-auto"
-                                >
-                                  <Trash2 className="w-3 h-3 mr-1" />
-                                  Delete
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent className="bg-slate-900 border-slate-700">
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle className="text-slate-100">Delete Date Request?</AlertDialogTitle>
-                                  <AlertDialogDescription className="text-slate-300">
-                                    This will permanently delete this date request. This action cannot be undone.
-                                    <br /><br />
-                                    <span className="text-amber-400">💡 Regular cleanup helps keep our database clean and maintain the free plan for everyone.</span>
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel className="bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700">
-                                    Cancel
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDeleteDateRequest(request.id)}
-                                    className="bg-red-900 hover:bg-red-800 text-white"
+
+                            {(request.status === 'accepted' || request.status === 'rejected') && (
+
+                              <AlertDialog>
+
+                                <AlertDialogTrigger asChild>
+
+                                  <Button
+
+                                    size="sm"
+
+                                    variant="outline"
+
+                                    className="text-red-600 border-red-600 hover:bg-red-50"
+
                                   >
-                                    Delete Request
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+
+                                    <Trash2 className="w-4 h-4 mr-1" />
+
+                                    Delete
+
+                                  </Button>
+
+                                </AlertDialogTrigger>
+
+                                <AlertDialogContent>
+
+                                  <AlertDialogHeader>
+
+                                    <AlertDialogTitle>Delete Date Request</AlertDialogTitle>
+
+                                    <AlertDialogDescription>
+
+                                      This will permanently delete this date request from the database. This action cannot be undone.
+
+                                    </AlertDialogDescription>
+
+                                  </AlertDialogHeader>
+
+                                  <AlertDialogFooter>
+
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                                    <AlertDialogAction
+
+                                      onClick={() => handleDeleteDateRequest(request.id)}
+
+                                      className="bg-red-600 hover:bg-red-700"
+
+                                    >
+
+                                      Delete
+
+                                    </AlertDialogAction>
+
+                                  </AlertDialogFooter>
+
+                                </AlertDialogContent>
+
+                              </AlertDialog>
+
+                            )}
+
                           </div>
 
                         </div>
@@ -1641,7 +1645,7 @@ useEffect(() => {
 
                   <h3 className="text-lg font-semibold mb-2">No date requests</h3>
 
-                  <p className="text-muted-foreground">Send date requests by browsing profiles!</p>
+                  <p className="text-muted-foreground">Date requests will appear here when someone likes your profile!</p>
 
                 </CardContent>
 
@@ -1653,61 +1657,16 @@ useEffect(() => {
 
         )}
 
+        </div>
 
-
-        {activeTab === "profile" && (
-
-          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-
-            <Card className="text-center p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-primary/30 shadow-[var(--shadow-electric)]">
-
-              <CardContent>
-
-                <User className="w-12 h-12 mx-auto mb-4 text-primary animate-pulse" />
-
-                <h3 className="text-lg font-semibold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-
-                  Profile Settings
-
-                </h3>
-
-                <p className="text-muted-foreground mb-4">Manage your dating profile ⚡</p>
-
-                <Button 
-
-                  className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 shadow-[var(--shadow-lightning)]"
-                  
-                  style={{ color: '#be185d' }}
-
-                  onClick={() => navigate("/profile")}
-
-                >
-
-                  Edit Profile
-
-                </Button>
-
-              </CardContent>
-
-            </Card>
-
-          </div>
-
-        )}
-
-      </div>
     </div>
 
-
-
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+    <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
     </div>
 
   );
 
 };
-
-
 
 export default Index;
