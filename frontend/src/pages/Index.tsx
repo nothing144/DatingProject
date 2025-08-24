@@ -906,7 +906,7 @@ const fetchConfessions = async () => {
         </div>
 
         {/* Navigation Component - Critical for logout functionality */}
-        <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <Navigation activeTab={activeTab} onTabChange={setActiveTab} user={user} />
 
         {/* Content based on active tab */}
         {activeTab === "discover" && (
