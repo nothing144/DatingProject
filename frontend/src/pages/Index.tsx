@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Badge } from "@/components/ui/badge";
 
-import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Heart, Loader2, Trash2 } from "lucide-react";
+import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Heart, Loader2, Trash2, Sparkles } from "lucide-react";
 
 import { toast } from "@/hooks/use-toast";
 
