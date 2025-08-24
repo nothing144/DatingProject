@@ -10,7 +10,11 @@ cd "$(dirname "$0")"
 
 echo "📁 Current directory: $(pwd)"
 
-# Root package.json not needed - all dependencies are in frontend/
+# Install root dependencies if needed
+if [ -f "package.json" ]; then
+    echo "📦 Installing root dependencies..."
+    yarn install --frozen-lockfile --non-interactive
+fi
 
 # Navigate to frontend and install dependencies
 echo "📦 Installing frontend dependencies..."
