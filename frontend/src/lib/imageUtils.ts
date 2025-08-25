@@ -1,44 +1,24 @@
 /**
- * Image utilities - Updated to use Cloudinary instead of Supabase Storage
+ * Image utilities - Pure compression without transformations
  * 
- * MIGRATION NOTE: This file now imports functions from cloudinaryUtils.ts
- * to maintain backward compatibility while using Cloudinary for better performance
+ * This file provides image compression functionality that keeps images under 100KB
+ * and serves original URLs without any post-upload transformations
  */
 
-import { 
-  getOptimizedImageUrl as getOptimizedCloudinaryUrl
-} from './cloudinaryUtils';
-
-// Helper functions for Cloudinary URL handling
-const isCloudinaryUrl = (url: string): boolean => {
-  return url.includes('cloudinary.com');
-};
-
-const extractPublicIdFromUrl = (url: string): string | null => {
-  if (!isCloudinaryUrl(url)) return null;
-  const matches = url.match(/\/v\d+\/(.+)\./);
-  return matches ? matches[1] : null;
-};
-
-const getCloudinaryThumbnailUrl = (publicId: string): string => {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  if (!cloudName) {
-    console.error('VITE_CLOUDINARY_CLOUD_NAME not configured');
-    return '';
+// Helper function for basic URL validation
+const isValidImageUrl = (url: string): boolean => {
+  if (!url) return false;
+  
+  // Check if it's a valid URL format
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
   }
-  return `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,w_300,h_300/${publicId}`;
 };
 
-const getCloudinaryHighQualityUrl = (publicId: string): string => {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  if (!cloudName) {
-    console.error('VITE_CLOUDINARY_CLOUD_NAME not configured');
-    return '';
-  }
-  return `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,w_800,h_800,q_85/${publicId}`;
-};
-
-const getCloudinaryFallbackAvatarUrl = (name: string, size: number = 400): string => {
+const getFallbackAvatarUrl = (name: string, size: number = 400): string => {
   const initial = name.charAt(0).toUpperCase();
   return `https://ui-avatars.com/api/?name=${initial}&size=${size}&background=random`;
 };
