@@ -1003,6 +1003,14 @@ const Index = () => {
                 Refresh
               </Button>
             </div>
+
+            {/* Warning message to tap refresh */}
+            <Alert className="border-blue-700 bg-blue-950/50">
+              <AlertTriangle className="h-4 w-4 text-blue-400" />
+              <AlertDescription className="text-blue-300">
+                <strong>💡 Tip:</strong> Tap the <strong>"Refresh"</strong> button above to load the latest confessions and announcements from your campus community!
+              </AlertDescription>
+            </Alert>
             
             {/* Post new announcement */}
             <Card>
