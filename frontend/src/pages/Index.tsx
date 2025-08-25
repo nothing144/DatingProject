@@ -149,20 +149,21 @@ const Index = () => {
           setUser(session.user);
           setLoading(false);
           
-          // Load initial data
-          fetchProfiles();
+          // Load initial data and ensure fresh profiles every time
+          console.log("🔄 Loading fresh profiles on website open...");
+          await fetchProfiles(); // Always fetch fresh profiles when user opens website
           fetchAnnouncements();
           fetchConfessions();
           fetchConversations();
           fetchDateRequests();
           
-          // Auto-refresh discover page on app startup
+          // Additional refresh to ensure we have the most up-to-date profiles
           setTimeout(() => {
             if (isMounted) {
-              console.log("🔄 Auto-refreshing discover page on startup...");
+              console.log("🔄 Auto-refreshing discover page to ensure freshness...");
               handleAutoRefresh();
             }
-          }, 1500); // Small delay to ensure initial load completes
+          }, 1000); // Reduced delay for faster refresh
         }
       } catch (error) {
         console.error("❌ App initialization error:", error);
