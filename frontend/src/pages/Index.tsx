@@ -210,15 +210,14 @@ const Index = () => {
 
   // Auto-refresh discover page when user switches back to discover tab
   useEffect(() => {
-    // Only refresh if user is authenticated and has switched to discover tab
-    // Skip the initial render and app startup to avoid double refresh
-    if (activeTab === "discover" && user?.id && profiles.length > 0) {
-      console.log("🔄 User switched back to discover - auto-refreshing...");
+    // Always refresh when user switches to discover tab (after initial load)
+    if (activeTab === "discover" && user?.id) {
+      console.log("🔄 User switched to discover tab - auto-refreshing profiles...");
       
       // Small delay to ensure smooth tab transition
       const refreshTimeout = setTimeout(() => {
         handleAutoRefresh();
-      }, 500);
+      }, 300); // Faster refresh
 
       return () => clearTimeout(refreshTimeout);
     }
