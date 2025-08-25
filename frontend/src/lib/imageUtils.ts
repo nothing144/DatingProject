@@ -51,6 +51,7 @@ export interface CompressedImage {
 
 /**
  * Compress an image file to under the specified size limit
+ * Enhanced with multi-stage compression and dimension reduction
  */
 export const compressImage = async (
   file: File, 
@@ -65,7 +66,7 @@ export const compressImage = async (
     const img = new Image();
 
     img.onload = () => {
-      // Calculate new dimensions while maintaining aspect ratio
+      // Calculate initial dimensions while maintaining aspect ratio
       let { width, height } = img;
       
       if (width > height) {
@@ -80,52 +81,114 @@ export const compressImage = async (
         }
       }
 
-      canvas.width = width;
-      canvas.height = height;
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
 
-      // Draw and compress
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, width, height);
+      // Multi-stage compression approach
+      let currentWidth = width;
+      let currentHeight = height;
+      let currentQuality = quality;
+      let attempts = 0;
+      const maxAttempts = 20; // Increased max attempts
+      
+      const tryCompress = () => {
+        // Set canvas dimensions
+        canvas.width = currentWidth;
+        canvas.height = currentHeight;
         
-        // Try different quality levels to get under size limit
-        let currentQuality = quality;
-        let attempts = 0;
-        const maxAttempts = 10;
+        // Clear canvas and draw image
+        ctx.clearRect(0, 0, currentWidth, currentHeight);
+        ctx.drawImage(img, 0, 0, currentWidth, currentHeight);
         
-        const tryCompress = () => {
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              reject(new Error('Failed to compress image'));
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Failed to compress image'));
+            return;
+          }
+
+          const sizeKB = blob.size / 1024;
+          
+          console.log(`🖼️ Compression attempt ${attempts + 1}: ${Math.round(sizeKB)}KB (target: ${maxSizeKB}KB) - Quality: ${currentQuality.toFixed(2)}, Dimensions: ${currentWidth}x${currentHeight}`);
+          
+          if (sizeKB <= maxSizeKB || attempts >= maxAttempts) {
+            // Success or max attempts reached
+            const compressedFile = new File([blob], file.name, {
+              type: blob.type,
+              lastModified: Date.now()
+            });
+            
+            // Final validation - if still over size limit, try one more aggressive compression
+            if (sizeKB > maxSizeKB && attempts < maxAttempts) {
+              console.log(`⚠️ Final size ${Math.round(sizeKB)}KB still over ${maxSizeKB}KB limit. Attempting final aggressive compression...`);
+              
+              // Aggressive final compression
+              currentWidth = Math.floor(currentWidth * 0.7);
+              currentHeight = Math.floor(currentHeight * 0.7);
+              currentQuality = 0.3;
+              attempts++;
+              
+              // Ensure minimum dimensions
+              if (currentWidth < 200 || currentHeight < 200) {
+                console.log(`⚠️ Reached minimum dimensions. Final size: ${Math.round(sizeKB)}KB`);
+                resolve({
+                  file: compressedFile,
+                  preview: canvas.toDataURL(blob.type, currentQuality),
+                  size: Math.round(sizeKB)
+                });
+                return;
+              }
+              
+              tryCompress();
               return;
             }
-
-            const sizeKB = blob.size / 1024;
             
-            if (sizeKB <= maxSizeKB || attempts >= maxAttempts) {
-              // Success or max attempts reached
-              const compressedFile = new File([blob], file.name, {
-                type: blob.type,
-                lastModified: Date.now()
-              });
-              
+            console.log(`✅ Image compression completed: ${Math.round(sizeKB)}KB (target: ${maxSizeKB}KB)`);
+            resolve({
+              file: compressedFile,
+              preview: canvas.toDataURL(blob.type, currentQuality),
+              size: Math.round(sizeKB)
+            });
+          } else {
+            attempts++;
+            
+            // Strategy 1: Reduce quality first (more efficient for photos)
+            if (currentQuality > 0.3) {
+              currentQuality = Math.max(0.3, currentQuality - 0.15);
+            }
+            // Strategy 2: If quality is already low, reduce dimensions
+            else if (currentWidth > 300 || currentHeight > 300) {
+              const reductionFactor = 0.85;
+              currentWidth = Math.floor(currentWidth * reductionFactor);
+              currentHeight = Math.floor(currentHeight * reductionFactor);
+              currentQuality = Math.max(0.2, currentQuality - 0.05);
+            }
+            // Strategy 3: Final aggressive reduction
+            else {
+              currentQuality = Math.max(0.1, currentQuality - 0.1);
+              const reductionFactor = 0.8;
+              currentWidth = Math.floor(currentWidth * reductionFactor);
+              currentHeight = Math.floor(currentHeight * reductionFactor);
+            }
+            
+            // Prevent infinite loop with minimum constraints
+            if (currentWidth < 200 || currentHeight < 200 || currentQuality < 0.1) {
+              console.log(`⚠️ Reached compression limits. Final size: ${Math.round(sizeKB)}KB`);
               resolve({
                 file: compressedFile,
                 preview: canvas.toDataURL(blob.type, currentQuality),
                 size: Math.round(sizeKB)
               });
-            } else {
-              // Try with lower quality
-              attempts++;
-              currentQuality = Math.max(0.1, currentQuality - 0.1);
-              tryCompress();
+              return;
             }
-          }, file.type, currentQuality);
-        };
-        
-        tryCompress();
-      } else {
-        reject(new Error('Canvas context not available'));
-      }
+            
+            tryCompress();
+          }
+        }, file.type, currentQuality);
+      };
+      
+      tryCompress();
     };
 
     img.onerror = () => reject(new Error('Failed to load image'));
