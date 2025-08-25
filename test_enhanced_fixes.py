@@ -181,9 +181,14 @@ class EnhancedFixesTester:
             has_enhanced_logging = "🖼️ Compression attempt" in content and "target:" in content
             self.log_test("Enhanced compression logging", has_enhanced_logging)
             
-            # Test 6: Check better validation
-            has_better_validation = "compressedResult.size > 120" in content
-            self.log_test("Better validation with buffer", has_better_validation)
+            # Test 6: Check better validation (this is in Profile.tsx, not imageUtils.ts)
+            try:
+                with open("/app/frontend/src/pages/Profile.tsx", "r") as profile_file:
+                    profile_content = profile_file.read()
+                has_better_validation = "compressedResult.size > 120" in profile_content
+                self.log_test("Better validation with buffer (in Profile.tsx)", has_better_validation)
+            except Exception as e:
+                self.log_test("Better validation with buffer", False, f"Error reading Profile.tsx: {e}")
             
         except Exception as e:
             self.log_test("Enhanced image compression analysis", False, f"Error: {e}")
