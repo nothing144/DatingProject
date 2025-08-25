@@ -1005,10 +1005,10 @@ const Index = () => {
             </div>
 
             {/* Warning message to tap refresh */}
-            <Alert className="border-blue-700 bg-blue-950/50">
-              <AlertTriangle className="h-4 w-4 text-blue-400" />
-              <AlertDescription className="text-blue-300">
-                <strong>💡 Tip:</strong> Tap the <strong>"Refresh"</strong> button above to load the latest confessions and announcements from your campus community!
+            <Alert className="border-amber-700 bg-amber-950/50">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <AlertDescription className="text-amber-300">
+                <strong>💡 Important:</strong> Tap the <strong>"Refresh"</strong> button above to load the latest confessions and announcements from your campus community! New content may not appear until you refresh.
               </AlertDescription>
             </Alert>
             
