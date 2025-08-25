@@ -252,9 +252,8 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
 };
 
 /**
- * Create fallback avatar URL - Updated to use Cloudinary
+ * Create fallback avatar URL - Simple fallback without Cloudinary dependency
  */
 export const getFallbackAvatarUrl = (name: string, size: number = 400): string => {
-  // Use Cloudinary fallback avatar for better performance
-  return getCloudinaryFallbackAvatarUrl(name, size);
+  return getFallbackAvatarUrl(name, size);
 };
