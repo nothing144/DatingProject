@@ -300,15 +300,24 @@ const Profile = () => {
       // Import compression function
       const { compressImage } = await import("@/lib/imageUtils");
       
-      // Compress image to 100KB max
+      // Compress image to 100KB max with enhanced validation
       const compressedResult = await compressImage(file, 100); // 100KB max
       
-      console.log(`Image compressed from ${Math.round(file.size / 1024)}KB to ${compressedResult.size}KB`);
+      console.log(`Image compression result: ${Math.round(file.size / 1024)}KB -> ${compressedResult.size}KB`);
       
-      toast({
-        title: "Image compressed! 📦",
-        description: `Reduced from ${Math.round(file.size / 1024)}KB to ${compressedResult.size}KB (max 100KB)`
-      });
+      // Additional validation to ensure compression was successful
+      if (compressedResult.size > 120) { // Allow 20KB buffer for safety
+        console.warn(`⚠️ Compressed image is still ${compressedResult.size}KB, which may be larger than expected`);
+        toast({
+          title: "Image still large ⚠️",
+          description: `Compressed to ${compressedResult.size}KB. Upload will proceed, but consider using a smaller image for better performance.`,
+        });
+      } else {
+        toast({
+          title: "Image compressed! 📦",
+          description: `Successfully reduced from ${Math.round(file.size / 1024)}KB to ${compressedResult.size}KB`
+        });
+      }
 
       // Delete old image from Cloudinary before uploading new one (secure approach)
       if (profile.avatar_url && isCloudinaryUrl(profile.avatar_url)) {
