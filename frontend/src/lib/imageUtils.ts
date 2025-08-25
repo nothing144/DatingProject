@@ -255,5 +255,6 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
  * Create fallback avatar URL - Simple fallback without Cloudinary dependency
  */
 export const getFallbackAvatarUrl = (name: string, size: number = 400): string => {
-  return getFallbackAvatarUrl(name, size);
+  const initial = name.charAt(0).toUpperCase();
+  return `https://ui-avatars.com/api/?name=${initial}&size=${size}&background=random`;
 };
