@@ -18,11 +18,6 @@ const isValidImageUrl = (url: string): boolean => {
   }
 };
 
-const getFallbackAvatarUrl = (name: string, size: number = 400): string => {
-  const initial = name.charAt(0).toUpperCase();
-  return `https://ui-avatars.com/api/?name=${initial}&size=${size}&background=random`;
-};
-
 export interface CompressedImage {
   file: File;
   preview: string;
