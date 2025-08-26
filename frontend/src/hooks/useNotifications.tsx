@@ -19,6 +19,7 @@ export const useNotifications = (userId: string | undefined) => {
   const fetchNotifications = async () => {
     if (!userId) return;
     
+    console.log("🔔 Auto-refreshing notifications on website load...");
     setLoading(true);
     const { data, error } = await supabase
       .from("notifications")
@@ -32,6 +33,7 @@ export const useNotifications = (userId: string | undefined) => {
     } else {
       setNotifications(data || []);
       setUnreadCount(data?.filter(n => !n.read).length || 0);
+      console.log("✅ Notifications refreshed successfully, found:", data?.length || 0);
     }
     setLoading(false);
   };
