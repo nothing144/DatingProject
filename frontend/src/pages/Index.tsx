@@ -149,21 +149,32 @@ const Index = () => {
           setUser(session.user);
           setLoading(false);
           
-          // Load initial data and ensure fresh profiles every time
-          console.log("🔄 Loading fresh profiles on website open...");
-          await fetchProfiles(); // Always fetch fresh profiles when user opens website
-          fetchAnnouncements();
-          fetchConfessions();
-          fetchConversations();
-          fetchDateRequests();
-          
-          // Additional refresh to ensure we have the most up-to-date profiles
-          setTimeout(() => {
+          // Wait a tiny bit to ensure state is updated, then load fresh data
+          setTimeout(async () => {
             if (isMounted) {
-              console.log("🔄 Auto-refreshing discover page to ensure freshness...");
-              handleAutoRefresh();
+              console.log("🔄 Website opened - refreshing discover page with fresh profiles...");
+              
+              try {
+                // Reset pagination and load fresh profiles
+                setCurrentPage(0);
+                setHasMore(true);
+                setCurrentProfileIndex(0);
+                
+                // Fetch fresh profiles immediately on website load
+                await fetchProfilesForWebsiteLoad(session.user.id);
+                
+                // Load other data
+                fetchAnnouncements();
+                fetchConfessions();
+                fetchConversations();
+                fetchDateRequests();
+                
+                console.log("✅ Discover page refreshed successfully on website load");
+              } catch (error) {
+                console.error("❌ Failed to refresh discover page on website load:", error);
+              }
             }
-          }, 1000); // Reduced delay for faster refresh
+          }, 100); // Small delay to ensure user state is set
         }
       } catch (error) {
         console.error("❌ App initialization error:", error);
