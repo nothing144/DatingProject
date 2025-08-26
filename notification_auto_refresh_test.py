@@ -227,7 +227,7 @@ class HeartBeatNotificationTester:
             print(f"❌ {name}: FAILED {details}")
     
     def run_code_analysis_tests(self):
-        """Analyze the notification auto-refresh and discover page implementations"""
+        """Analyze the FIXED notification auto-refresh and discover page implementations"""
         print("\n🔍 ANALYZING NOTIFICATION AUTO-REFRESH IMPLEMENTATION...")
         
         try:
@@ -253,23 +253,39 @@ class HeartBeatNotificationTester:
         except Exception as e:
             self.log_test("Notification code analysis", False, f"Error: {e}")
         
-        print("\n🔍 ANALYZING DISCOVER PAGE AUTO-REFRESH REMOVAL...")
+        print("\n🔍 ANALYZING FIXED DISCOVER PAGE AUTO-REFRESH IMPLEMENTATION...")
         
         try:
-            # Test 2: Check discover page auto-refresh removal
+            # Test 2: Check FIXED discover page auto-refresh implementation
             with open("/app/frontend/src/pages/Index.tsx", "r") as f:
                 index_content = f.read()
             
-            # Check that old discover auto-refresh logs are NOT present
-            has_old_discover_logs = "🔄 User switched to discover tab - auto-refreshing profiles" in index_content
-            self.log_test("Discover page auto-refresh removal", not has_old_discover_logs, "- Old logs not found (good)")
+            # Check for NEW website load refresh functionality
+            has_website_load_log = "🔄 Website opened - refreshing discover page with fresh profiles..." in index_content
+            self.log_test("NEW: Website load console logging", has_website_load_log)
             
-            # Check that initial profile loading is still present
-            has_initial_loading = "🔄 Loading fresh profiles on website open" in index_content
-            self.log_test("Initial profile loading implementation", has_initial_loading)
+            has_fresh_profiles_log = "✅ Fresh profiles loaded on website load:" in index_content
+            self.log_test("NEW: Fresh profiles success logging", has_fresh_profiles_log)
             
-            has_auto_refresh_discover = "🔄 Auto-refreshing discover page to ensure freshness" in index_content
-            self.log_test("Auto-refresh discover page for initial load", has_auto_refresh_discover)
+            has_fetch_profiles_for_website_load = "fetchProfilesForWebsiteLoad" in index_content
+            self.log_test("NEW: fetchProfilesForWebsiteLoad function", has_fetch_profiles_for_website_load)
+            
+            has_welcome_toast = "Welcome back! ✨" in index_content
+            self.log_test("NEW: Welcome toast message", has_welcome_toast)
+            
+            has_100ms_delay = "}, 100);" in index_content
+            self.log_test("NEW: Enhanced timing (100ms delay)", has_100ms_delay)
+            
+            # Check that OLD tab-switch auto-refresh logs are NOT present
+            has_old_tab_switch_logs = "🔄 User switched to discover tab - auto-refreshing profiles" in index_content
+            self.log_test("REMOVED: Old tab-switch auto-refresh", not has_old_tab_switch_logs, "- Old logs not found (good)")
+            
+            # Check that OLD initial loading logs are NOT present (replaced with new ones)
+            has_old_initial_loading = "🔄 Loading fresh profiles on website open" in index_content
+            self.log_test("REMOVED: Old initial loading logs", not has_old_initial_loading, "- Old logs replaced with new ones")
+            
+            has_old_auto_refresh_discover = "🔄 Auto-refreshing discover page to ensure freshness" in index_content
+            self.log_test("REMOVED: Old auto-refresh discover logs", not has_old_auto_refresh_discover, "- Old logs not found (good)")
             
         except Exception as e:
             self.log_test("Discover page code analysis", False, f"Error: {e}")
