@@ -278,16 +278,17 @@ class HeartBeatAutoRefreshTester:
 
 def main():
     """Main test execution"""
-    print("HeartBeat@ITER Auto-Refresh Functionality Test")
+    print("HeartBeat@ITER FIXED Auto-Refresh Functionality Test")
     print("=" * 60)
     print(f"Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"App Type: React + TypeScript + Supabase Dating App")
-    print(f"Focus: Discover Page Auto-Refresh on Tab Switch")
+    print(f"Focus: FIXED Discover Page Auto-Refresh on Website Load")
     
     tester = HeartBeatAutoRefreshTester()
     
     # Run all tests
     tester.run_code_analysis_tests()
+    tester.run_notification_tests()
     tester.run_ui_tests()
     tester.print_summary()
     
