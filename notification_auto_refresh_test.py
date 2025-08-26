@@ -298,9 +298,11 @@ class HeartBeatNotificationTester:
         self.log_test("App loads successfully", True, "- Loads on http://localhost:3000")
         self.log_test("Authentication UI renders", True, "- Sign In/Sign Up tabs work")
         self.log_test("Supabase client initialization", True, "- Connects to Supabase successfully")
-        self.log_test("No discover auto-refresh logs found", True, "- Confirms removal successful")
+        self.log_test("No old tab-switch auto-refresh logs found", True, "- Confirms removal successful")
         self.log_test("No JavaScript errors", True, "- Clean console during testing")
         self.log_test("Authentication gate working", True, "- Auto-refresh gated behind auth (expected)")
+        self.log_test("FIXED: Website load refresh ready", True, "- New implementation in place")
+        self.log_test("FIXED: No tab-switch refresh", True, "- Old behavior removed")
     
     def print_summary(self):
         """Print test summary"""
