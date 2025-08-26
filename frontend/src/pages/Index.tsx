@@ -287,6 +287,59 @@ const Index = () => {
     }
   };
 
+  // Special function for website load that doesn't depend on user state being set yet
+  const fetchProfilesForWebsiteLoad = async (userId: string, usernameFilter?: string) => {
+    try {
+      console.log("📄 Fetching fresh profiles on website load...", { userId });
+      
+      let query = supabase
+        .from("profiles")
+        .select("*", { count: 'exact' })
+        .neq("id", userId);
+
+      if (usernameFilter && usernameFilter.trim()) {
+        query = query.ilike("username", `%${usernameFilter.trim()}%`);
+      }
+
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .range(0, PROFILES_PER_PAGE - 1);
+
+      if (error) {
+        console.error("❌ Error fetching profiles on website load:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load fresh profiles",
+          variant: "destructive"
+        });
+      } else {
+        const fetchedProfiles = data || [];
+        
+        setProfiles(fetchedProfiles);
+        setAllProfiles(fetchedProfiles);
+        setCurrentProfileIndex(0);
+        setCurrentPage(0);
+
+        // Update pagination state
+        setTotalProfiles(count || 0);
+        setHasMore(fetchedProfiles.length === PROFILES_PER_PAGE && PROFILES_PER_PAGE < (count || 0));
+        
+        console.log("✅ Fresh profiles loaded on website load:", fetchedProfiles.length, "total available:", count);
+        toast({
+          title: "Welcome back! ✨",
+          description: `Discover page refreshed with ${count || 0} profiles available`
+        });
+      }
+    } catch (error) {
+      console.error("❌ Exception fetching profiles on website load:", error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh discover page",
+        variant: "destructive"
+      });
+    }
+  };
+
   const loadMoreProfiles = async (silent: boolean = false) => {
     if (loadingMore || !hasMore) return;
     
