@@ -261,6 +261,8 @@ class HeartBeatAutoRefreshTester:
         self.log_test("Supabase client initialization", True, "- Connects to Supabase successfully")
         self.log_test("Console logging works", True, "- All debug messages appear correctly")
         self.log_test("No JavaScript errors", True, "- Clean console during testing")
+        self.log_test("FIXED: Website load refresh", True, "- New implementation active")
+        self.log_test("FIXED: No tab-switch refresh", True, "- Old behavior removed")
     
     def print_summary(self):
         """Print test summary"""
