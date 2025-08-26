@@ -132,7 +132,9 @@ export const useNotifications = (userId: string | undefined) => {
     }
   };
 
+  // Auto-refresh notifications on website load/open
   useEffect(() => {
+    // Immediately refresh notifications when the website loads or hook mounts
     fetchNotifications();
 
     // Subscribe to real-time notifications
@@ -201,6 +203,22 @@ export const useNotifications = (userId: string | undefined) => {
         supabase.removeChannel(channel);
       };
     }
+  }, [userId]);
+
+  // Auto-refresh notifications on website visibility change (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && userId) {
+        console.log("🔔 Website became visible - auto-refreshing notifications...");
+        fetchNotifications();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [userId]);
 
   return {
