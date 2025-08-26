@@ -200,31 +200,56 @@ class HeartBeatAutoRefreshTester:
             print(f"❌ {name}: FAILED {details}")
     
     def run_code_analysis_tests(self):
-        """Analyze the auto-refresh implementation"""
-        print("\n🔍 ANALYZING AUTO-REFRESH IMPLEMENTATION...")
+        """Analyze the FIXED auto-refresh implementation"""
+        print("\n🔍 ANALYZING FIXED AUTO-REFRESH IMPLEMENTATION...")
         
-        # Test 1: Check if auto-refresh useEffect exists
+        # Test the NEW implementation
         try:
             with open("/app/frontend/src/pages/Index.tsx", "r") as f:
                 content = f.read()
                 
-            has_auto_refresh_effect = "activeTab === \"discover\" && user?.id" in content
-            self.log_test("Auto-refresh useEffect implementation", has_auto_refresh_effect)
+            # Test for NEW website load refresh functionality
+            has_website_load_log = "🔄 Website opened - refreshing discover page with fresh profiles..." in content
+            self.log_test("NEW: Website load console logging", has_website_load_log)
             
-            has_console_log = "🔄 User switched back to discover - auto-refreshing..." in content
-            self.log_test("Auto-refresh console logging", has_console_log)
+            has_fresh_profiles_log = "✅ Fresh profiles loaded on website load:" in content
+            self.log_test("NEW: Fresh profiles success logging", has_fresh_profiles_log)
             
-            has_timeout_delay = "setTimeout(() => {" in content and "500" in content
-            self.log_test("Auto-refresh delay implementation", has_timeout_delay)
+            has_fetch_profiles_for_website_load = "fetchProfilesForWebsiteLoad" in content
+            self.log_test("NEW: fetchProfilesForWebsiteLoad function", has_fetch_profiles_for_website_load)
             
-            has_cleanup = "clearTimeout" in content
-            self.log_test("Auto-refresh cleanup implementation", has_cleanup)
+            has_welcome_toast = "Welcome back! ✨" in content
+            self.log_test("NEW: Welcome toast message", has_welcome_toast)
             
-            has_handle_auto_refresh = "handleAutoRefresh" in content
-            self.log_test("handleAutoRefresh function exists", has_handle_auto_refresh)
+            has_100ms_delay = "}, 100);" in content
+            self.log_test("NEW: Enhanced timing (100ms delay)", has_100ms_delay)
+            
+            # Test that OLD tab-switch auto-refresh is REMOVED
+            has_old_tab_switch_log = "🔄 User switched to discover tab - auto-refreshing profiles..." in content
+            self.log_test("REMOVED: Old tab-switch auto-refresh", not has_old_tab_switch_log)
             
         except Exception as e:
             self.log_test("Code analysis", False, f"Error: {e}")
+    
+    def run_notification_tests(self):
+        """Analyze the notification auto-refresh implementation"""
+        print("\n🔔 ANALYZING NOTIFICATION AUTO-REFRESH...")
+        
+        try:
+            with open("/app/frontend/src/hooks/useNotifications.tsx", "r") as f:
+                content = f.read()
+                
+            has_notification_load_log = "🔔 Auto-refreshing notifications on website load..." in content
+            self.log_test("Notification auto-refresh on load", has_notification_load_log)
+            
+            has_visibility_change_log = "🔔 Website became visible - auto-refreshing notifications..." in content
+            self.log_test("Notification visibility change detection", has_visibility_change_log)
+            
+            has_fetch_notifications = "fetchNotifications();" in content
+            self.log_test("Notification fetch function call", has_fetch_notifications)
+            
+        except Exception as e:
+            self.log_test("Notification analysis", False, f"Error: {e}")
     
     def run_ui_tests(self):
         """Test UI loading and basic functionality"""
