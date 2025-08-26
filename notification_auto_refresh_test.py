@@ -314,8 +314,8 @@ class HeartBeatNotificationTester:
         if self.tests_passed == self.tests_run:
             print("\n🎉 ALL TESTS PASSED!")
             print("✅ NOTIFICATION AUTO-REFRESH: CORRECTLY IMPLEMENTED")
-            print("✅ DISCOVER PAGE AUTO-REFRESH REMOVAL: SUCCESSFULLY COMPLETED")
-            print("✅ INITIAL PROFILE LOADING: CORRECTLY IMPLEMENTED")
+            print("✅ FIXED DISCOVER PAGE AUTO-REFRESH: CORRECTLY IMPLEMENTED")
+            print("✅ OLD TAB-SWITCH AUTO-REFRESH REMOVAL: SUCCESSFULLY COMPLETED")
         else:
             print(f"\n⚠️  {self.tests_run - self.tests_passed} tests failed - review implementation")
 
