@@ -26,13 +26,19 @@ const NotificationBell = ({ userId }: NotificationBellProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <div className="relative">
-          <Button variant="ghost" size="icon" className="relative h-10 w-10">
+        <div className="notification-bell-container mobile-notification-fix">
+          <Button variant="ghost" size="icon" className="relative h-10 w-10 flex items-center justify-center">
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
               <Badge 
                 variant="destructive" 
-                className="absolute -top-2 -right-2 h-5 w-5 min-w-[1.25rem] flex items-center justify-center p-0 text-xs font-bold border-2 border-background"
+                className="notification-badge notification-badge-android mobile-notification-fix absolute top-[-8px] right-[-8px] h-5 w-5 min-w-[1.25rem] flex items-center justify-center p-0 text-xs font-bold border-2 border-background shadow-lg"
+                style={{ 
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-8px',
+                  zIndex: 20
+                }}
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Badge>
