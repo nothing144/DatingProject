@@ -658,3 +658,51 @@
                 var(--gradient-electric) border-box;
   }
 }
+
+/* Android-specific fixes for notification positioning */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific fixes */
+  .notification-bell-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Android Chrome and WebView fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .notification-bell-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+  
+  /* Fix for Android notification badge positioning */
+  .notification-badge-android {
+    position: absolute !important;
+    top: -0.5rem !important;
+    right: -0.5rem !important;
+    transform: translate(50%, -50%) !important;
+    z-index: 10;
+  }
+}
+
+/* Specific Android browser fixes */
+@media screen and (max-width: 768px) {
+  /* Mobile-specific notification positioning */
+  .mobile-notification-fix {
+    position: relative;
+    overflow: visible;
+  }
+  
+  .mobile-notification-fix .notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    transform: none;
+    z-index: 20;
+  }
+}
