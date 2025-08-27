@@ -780,17 +780,20 @@ const Index = () => {
         {/* Enhanced Header with dynamic styling */}
         <div className="text-center mb-6 pt-4 relative z-10">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-8"></div>
+            <div className="w-8 flex-shrink-0"></div>
             
             {/* Dynamic Logo with enhanced interactions */}
-            <div className="relative group cursor-pointer">
+            <div className="relative group cursor-pointer flex-1 min-w-0">
               <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-secondary rounded-full blur-xl opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-all duration-500 animate-pulse group-hover:scale-110 group-active:scale-110"></div>
               <h1 className="relative text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse hover:animate-none active:animate-none logo-glow transition-all duration-300">
                 ⚡ Heartbeat@Campus
               </h1>
             </div>
             
-            <NotificationBell userId={user.id} />
+            {/* Android-optimized notification bell container */}
+            <div className="w-8 flex-shrink-0 flex justify-end">
+              <NotificationBell userId={user.id} />
+            </div>
           </div>
           
           <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-white/10">
