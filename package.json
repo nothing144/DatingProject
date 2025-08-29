@@ -1,7 +1,7 @@
 {
-  "name": "heartbeat-iter",
+  "name": "heartbeat-campus",
   "version": "1.0.0",
-  "description": "HeartBeat@ITER - College Dating App",
+  "description": "HeartBeat@Campus - College Dating App",
   "main": "index.js",
   "scripts": {
     "dev": "cd frontend && yarn dev",
