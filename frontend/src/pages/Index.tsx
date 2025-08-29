@@ -796,8 +796,8 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-white/10">
-            <p className="text-white/90 text-sm bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent font-medium">
+          <div className="bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full inline-block border border-white/10 mx-2">
+            <p className="text-white/90 text-xs sm:text-sm bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent font-medium">
               College ka pyaar, semester jaisa — short & intense
             </p>
           </div>
