@@ -236,8 +236,8 @@ const Auth = () => {
             </div>
           </div>
           
-          <CardTitle className="heading-primary text-center mb-2">
-            Heartbeat@Campus
+          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent text-center mb-2">
+            ⚡ Heartbeat@Campus
           </CardTitle>
           
           <CardDescription className="text-gradient text-center text-base font-medium">
