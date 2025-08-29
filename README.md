@@ -1,4 +1,4 @@
-# Heartbeat@ITER - College Dating App
+# Heartbeat@Campus - College Dating App
 
 A modern college dating application built with React, TypeScript, and Supabase.
 
