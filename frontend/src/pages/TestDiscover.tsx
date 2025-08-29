@@ -180,7 +180,7 @@ const TestDiscover = () => {
         {/* Header */}
         <div className="text-center mb-6 pt-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
-            ⚡ HeartBeat@ITER - TEST MODE ⚡
+            ⚡ HeartBeat@Campus - TEST MODE ⚡
           </h1>
           <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             Testing Pagination & Image Optimization
