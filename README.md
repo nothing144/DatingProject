@@ -77,7 +77,7 @@ npm run preview
 ## 🎯 App Description
 **"College ka pyaar, semester jaisa — short & intense"**
 
-Heartbeat@ITER is a college-focused dating app designed for authentic connections within the campus community.
+Heartbeat@Campus is a college-focused dating app designed for authentic connections within the campus community.
 
 ## 🔧 Build Fixed
 The build issue has been resolved by:
