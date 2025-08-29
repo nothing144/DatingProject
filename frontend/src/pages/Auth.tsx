@@ -240,7 +240,7 @@ const Auth = () => {
             ⚡ Heartbeat@Campus
           </CardTitle>
           
-          <CardDescription className="text-gradient text-center text-base font-medium">
+          <CardDescription className="text-xs sm:text-sm md:text-base bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent text-center font-medium">
             College ka pyaar, semester jaisa — short & intense
           </CardDescription>
           
