@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileGrid from "@/components/ProfileGrid";
+import Navigation from "@/components/Navigation";
+import NotificationBell from "@/components/NotificationBell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
