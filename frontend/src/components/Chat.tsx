@@ -73,10 +73,10 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
       )
       .subscribe();
 
-    // Check daily limit every 30 seconds to handle day resets
+    // Check daily limit every 5 minutes to handle day resets (reduced from 30 seconds)
     const dailyLimitInterval = setInterval(() => {
       checkDailyMessageLimit();
-    }, 30000); // Check every 30 seconds
+    }, 300000); // Check every 5 minutes instead of 30 seconds
 
     // Cleanup subscription and interval on unmount
     return () => {
