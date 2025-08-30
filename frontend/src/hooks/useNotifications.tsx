@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,6 +15,7 @@ export const useNotifications = (userId: string | undefined) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const subscriptionRef = useRef<any>(null);
 
   const fetchNotifications = async () => {
     if (!userId) return;
@@ -141,6 +142,11 @@ export const useNotifications = (userId: string | undefined) => {
 
     // Subscribe to real-time notifications
     if (userId) {
+      // Clean up previous subscription if exists
+      if (subscriptionRef.current) {
+        supabase.removeChannel(subscriptionRef.current);
+      }
+
       const channel = supabase
         .channel('notifications')
         .on(
@@ -188,21 +194,24 @@ export const useNotifications = (userId: string | undefined) => {
           },
           (payload) => {
             const updatedNotification = payload.new as Notification;
-            setNotifications(prev => 
-              prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
-            );
-            // Recalculate unread count based on current notifications
-            setNotifications(currentNotifications => {
-              const unreadCount = currentNotifications.filter(n => !n.read).length;
-              setUnreadCount(unreadCount);
-              return currentNotifications;
+            setNotifications(prev => {
+              const updated = prev.map(n => n.id === updatedNotification.id ? updatedNotification : n);
+              // Calculate unread count from the updated notifications
+              const newUnreadCount = updated.filter(n => !n.read).length;
+              setUnreadCount(newUnreadCount);
+              return updated;
             });
           }
         )
         .subscribe();
 
+      subscriptionRef.current = channel;
+
       return () => {
-        supabase.removeChannel(channel);
+        if (subscriptionRef.current) {
+          supabase.removeChannel(subscriptionRef.current);
+          subscriptionRef.current = null;
+        }
       };
     }
   }, [userId]);
