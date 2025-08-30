@@ -790,8 +790,8 @@ const Index = () => {
               </h1>
             </div>
             
-            {/* Android-optimized notification bell container */}
-            <div className="w-8 flex-shrink-0 flex justify-end">
+            {/* Desktop notification bell container */}
+            <div className="w-8 flex-shrink-0 flex justify-end hidden sm:flex">
               <NotificationBell userId={user.id} />
             </div>
           </div>
@@ -802,6 +802,9 @@ const Index = () => {
             </p>
           </div>
         </div>
+
+        {/* Mobile notification bell - positioned below logout button */}
+        <NotificationBell userId={user.id} isMobilePositioned={true} />
 
         {/* Navigation Component - Critical for logout functionality */}
         <Navigation activeTab={activeTab} onTabChange={setActiveTab} user={user} />
