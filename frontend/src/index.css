@@ -705,4 +705,25 @@
     transform: none;
     z-index: 20;
   }
+
+  /* Enhanced mobile notification bell positioning */
+  .mobile-notification-bell {
+    /* Ensure proper touch target size for mobile */
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+    /* Prevent text selection on touch */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Improve button visibility on mobile */
+  .mobile-notification-bell button {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
 }
