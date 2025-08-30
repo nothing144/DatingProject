@@ -152,7 +152,7 @@ const Index = () => {
           // Wait a tiny bit to ensure state is updated, then load fresh data
           setTimeout(async () => {
             if (isMounted) {
-              console.log("🔄 Website opened - refreshing discover page with fresh profiles...");
+              console.log("🔄 Website opened - loading essential data first...");
               
               try {
                 // Reset pagination and load fresh profiles
@@ -160,18 +160,27 @@ const Index = () => {
                 setHasMore(true);
                 setCurrentProfileIndex(0);
                 
-                // Fetch fresh profiles immediately on website load
+                // PERFORMANCE OPTIMIZED: Load profiles first (most important)
                 await fetchProfilesForWebsiteLoad(session.user.id);
                 
-                // Load other data
-                fetchAnnouncements();
-                fetchConfessions();
-                fetchConversations();
-                fetchDateRequests();
+                // PERFORMANCE OPTIMIZED: Load other data with delay to reduce initial load
+                setTimeout(() => {
+                  fetchDateRequests(); // Most important after profiles
+                }, 1000);
                 
-                console.log("✅ Discover page refreshed successfully on website load");
+                setTimeout(() => {
+                  fetchConversations(); // Secondary importance
+                }, 2000);
+                
+                // PERFORMANCE OPTIMIZED: Campus content loaded last (least critical for initial experience)
+                setTimeout(() => {
+                  fetchAnnouncements();
+                  fetchConfessions();
+                }, 3000);
+                
+                console.log("✅ Essential data loaded, other content loading in background");
               } catch (error) {
-                console.error("❌ Failed to refresh discover page on website load:", error);
+                console.error("❌ Failed to load initial data:", error);
               }
             }
           }, 100); // Small delay to ensure user state is set
