@@ -217,12 +217,12 @@ const Index = () => {
     };
   }, [navigate]);
 
-  // Auto-prefetch for single view when user gets close to end
+  // PERFORMANCE OPTIMIZED: Auto-prefetch for single view when user gets close to end (less aggressive)
   useEffect(() => {
     if (viewMode === "single" && profiles.length > 0 && hasMore) {
       const remainingProfiles = profiles.length - currentProfileIndex;
-      // Pre-fetch when 5 profiles remain
-      if (remainingProfiles <= 5 && !loadingMore) {
+      // Pre-fetch when 3 profiles remain (reduced from 5)
+      if (remainingProfiles <= 3 && !loadingMore) {
         loadMoreProfiles(true); // Silent load for single view
       }
     }
