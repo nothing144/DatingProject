@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, X, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +11,36 @@ import { useNotifications } from "@/hooks/useNotifications";
 
 interface NotificationBellProps {
   userId: string;
-  isMobilePositioned?: boolean; // New prop to handle mobile positioning
+  isMobilePositioned?: boolean;
 }
 
 const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBellProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead, fetchNotifications, deleteNotification, deleteAllNotifications } = useNotifications(userId);
+  const { 
+    notifications, 
+    unreadCount, 
+    loading, 
+    markAsRead, 
+    markAllAsRead, 
+    fetchNotifications, 
+    deleteNotification, 
+    deleteAllNotifications,
+    setupRealTimeSubscription,
+    cleanupRealTimeSubscription
+  } = useNotifications(userId);
+
+  // PERFORMANCE OPTIMIZED: Only setup real-time when panel is opened
+  useEffect(() => {
+    if (isOpen) {
+      setupRealTimeSubscription();
+    } else {
+      cleanupRealTimeSubscription();
+    }
+    
+    return () => {
+      cleanupRealTimeSubscription();
+    };
+  }, [isOpen]);
 
   const handleNotificationClick = (notificationId: string, read: boolean) => {
     if (!read) {
@@ -24,19 +48,27 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      // Refresh notifications when panel opens
+      fetchNotifications();
+    }
+  };
+
   // Mobile-specific positioning when used as fixed positioned element
   const mobilePositionClasses = isMobilePositioned 
-    ? "fixed top-20 right-4 z-40 sm:hidden" // Positioned below logout button on mobile, hidden on desktop
+    ? "fixed top-20 right-4 z-40 sm:hidden"
     : "";
 
-  // Desktop positioning (used in header) - only show on desktop when not mobile positioned
+  // Desktop positioning - hide mobile version on desktop
   const desktopClasses = isMobilePositioned 
-    ? "sm:hidden" // Hide mobile version on desktop
-    : ""; // Regular desktop version
+    ? "sm:hidden"
+    : "";
 
   return (
     <div className={`${mobilePositionClasses} ${desktopClasses} ${isMobilePositioned ? 'mobile-notification-bell' : ''}`}>
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet open={isOpen} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild>
           <div className="notification-bell-container mobile-notification-fix">
             <Button 
@@ -83,7 +115,7 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
                   className="flex items-center gap-1"
                   aria-label="Refresh notifications"
                 >
-                  <RotateCcw className="h-3 w-3" />
+                  <RotateCcw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
                 {unreadCount > 0 && (
@@ -99,6 +131,13 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
               </div>
             </SheetTitle>
           </SheetHeader>
+
+          {/* Performance Tip */}
+          <Alert className="mt-4 border-blue-700 bg-blue-950/30">
+            <AlertDescription className="text-blue-200 text-sm">
+              <strong>⚡ Performance:</strong> Real-time notifications are now active. Close this panel to save battery and improve performance.
+            </AlertDescription>
+          </Alert>
 
           {/* Database Performance Tip */}
           {notifications.length > 0 && (
@@ -150,7 +189,13 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
           )}
           <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
             <div className="space-y-2">
-              {notifications.length === 0 ? (
+              {loading ? (
+                <Card>
+                  <CardContent className="p-4 text-center text-muted-foreground">
+                    Loading notifications...
+                  </CardContent>
+                </Card>
+              ) : notifications.length === 0 ? (
                 <Card>
                   <CardContent className="p-4 text-center text-muted-foreground">
                     No notifications yet
