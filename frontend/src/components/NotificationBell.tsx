@@ -35,7 +35,7 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
     : "";
 
   return (
-    <div className={`${mobilePositionClasses} ${desktopClasses}`}>
+    <div className={`${mobilePositionClasses} ${desktopClasses} ${isMobilePositioned ? 'mobile-notification-bell' : ''}`}>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <div className="notification-bell-container mobile-notification-fix">
