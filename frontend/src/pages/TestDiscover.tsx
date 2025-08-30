@@ -22,6 +22,10 @@ const TestDiscover = () => {
 
   // Mock user ID for testing
   const mockUserId = "test-user-id";
+  const [activeTab, setActiveTab] = useState("discover");
+  
+  // Mock user object for Navigation component
+  const mockUser = { id: mockUserId, email: "test@example.com" };
 
   useEffect(() => {
     fetchProfiles();
