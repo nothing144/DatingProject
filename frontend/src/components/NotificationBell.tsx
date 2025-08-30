@@ -26,13 +26,13 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
 
   // Mobile-specific positioning when used as fixed positioned element
   const mobilePositionClasses = isMobilePositioned 
-    ? "fixed top-20 right-4 z-40 sm:hidden" // Positioned below logout button on mobile
+    ? "fixed top-20 right-4 z-40 sm:hidden" // Positioned below logout button on mobile, hidden on desktop
     : "";
 
-  // Desktop positioning (used in header)
+  // Desktop positioning (used in header) - only show on desktop when not mobile positioned
   const desktopClasses = isMobilePositioned 
-    ? "hidden sm:block" 
-    : "";
+    ? "sm:hidden" // Hide mobile version on desktop
+    : ""; // Regular desktop version
 
   return (
     <div className={`${mobilePositionClasses} ${desktopClasses} ${isMobilePositioned ? 'mobile-notification-bell' : ''}`}>
