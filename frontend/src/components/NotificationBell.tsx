@@ -42,10 +42,10 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
             <Button 
               variant="ghost" 
               size="icon" 
-              className={`relative h-10 w-10 flex items-center justify-center ${
+              className={`relative flex items-center justify-center ${
                 isMobilePositioned 
-                  ? "bg-card/80 backdrop-blur-md border border-primary/30 hover:border-primary/50 hover:bg-card/90 shadow-lg rounded-full" 
-                  : ""
+                  ? "h-11 w-11 bg-card/80 backdrop-blur-md border border-primary/30 hover:border-primary/50 hover:bg-card/90 shadow-lg rounded-full" 
+                  : "h-10 w-10"
               }`}
               aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
               aria-describedby="notification-count"
