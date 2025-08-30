@@ -708,7 +708,7 @@
 
   /* Enhanced mobile notification bell positioning */
   .mobile-notification-bell {
-    /* Ensure proper touch target size for mobile */
+    /* Ensure proper touch target size for mobile - WCAG compliant */
     min-height: 44px;
     min-width: 44px;
     touch-action: manipulation;
@@ -721,6 +721,8 @@
 
   /* Improve button visibility on mobile */
   .mobile-notification-bell button {
+    min-height: 44px !important;
+    min-width: 44px !important;
     background: rgba(0, 0, 0, 0.8) !important;
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
