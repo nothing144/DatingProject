@@ -183,15 +183,33 @@ const TestDiscover = () => {
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-secondary/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
       
       <div className="container mx-auto p-4 max-w-7xl relative z-10 pb-24">
-        {/* Header */}
+        {/* Header with notification bell testing */}
         <div className="text-center mb-6 pt-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
-            ⚡ HeartBeat@Campus - TEST MODE ⚡
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-8 flex-shrink-0"></div>
+            
+            <div className="relative group cursor-pointer flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                ⚡ HeartBeat@Campus - TEST MODE ⚡
+              </h1>
+            </div>
+            
+            {/* Desktop notification bell container */}
+            <div className="w-8 flex-shrink-0 flex justify-end hidden sm:flex">
+              <NotificationBell userId={mockUserId} />
+            </div>
+          </div>
+          
           <p className="text-muted-foreground text-sm bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            Testing Pagination & Image Optimization
+            Testing Pagination & Image Optimization + Mobile Notification Bell
           </p>
         </div>
+
+        {/* Mobile notification bell - positioned below logout button */}
+        <NotificationBell userId={mockUserId} isMobilePositioned={true} />
+
+        {/* Navigation Component for logout button and mobile positioning reference */}
+        <Navigation activeTab={activeTab} onTabChange={setActiveTab} user={mockUser} />
 
         {/* Discover Content */}
         <div className="space-y-4">
