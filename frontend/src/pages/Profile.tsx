@@ -39,61 +39,63 @@ const Profile = () => {
   const [newInterest, setNewInterest] = useState("");
   const navigate = useNavigate();
 
-  // Simplified session management
+  // Enhanced authentication check with session validation
   useEffect(() => {
-    let isMounted = true;
-    
-    const initializeProfile = async () => {
+    const checkAuth = async () => {
       try {
-        console.log("🔍 Profile page: Getting session...");
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log("🔍 Profile page: Checking authentication with session validation...");
         
-        if (sessionError) {
-          console.error("❌ Session error:", sessionError);
-          if (isMounted) {
-            setLoading(false);
-            navigate("/auth", { replace: true });
-          }
+        // Validate session and clean up if invalid
+        const { session, isValid, error } = await getValidSession();
+        
+        if (!isValid || !session?.user) {
+          console.log(`❌ Profile page: Invalid or no session - ${error || 'no session found'} - redirecting to auth`);
+          navigate("/auth", { replace: true });
           return;
         }
 
-        if (!session?.user) {
-          console.log("❌ No session - redirecting to auth");
-          if (isMounted) {
-            setLoading(false);
-            navigate("/auth", { replace: true });
-          }
-          return;
-        }
+        console.log("✅ Profile page: Valid session confirmed for user:", session.user.id);
+        setUser(session.user);
+        
+        // Load existing profile
+        const { data, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
 
-        console.log("✅ Session found, user ID:", session.user.id);
-        if (isMounted) {
-          setUser(session.user);
-          await fetchProfile(session.user.id);
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error("❌ Error loading profile:", profileError);
+        } else if (data) {
+          console.log("📋 Existing profile loaded");
+          setProfile({
+            name: data.name || "",
+            username: data.username || "",
+            age: data.age?.toString() || "",
+            location: data.location || "",
+            description: data.description || "",
+            shortBio: data.shortBio || "",
+            interests: data.interests || [],
+            avatar_url: data.avatar_url || "",
+            branch: data.branch || "",
+            year: data.year?.toString() || ""
+          });
+          setIsFirstTimeUser(false);
+        } else {
+          console.log("👤 New user - no profile found");
+          setIsFirstTimeUser(true);
         }
       } catch (error) {
-        console.error("❌ Profile initialization error:", error);
-        if (isMounted) {
-          setLoading(false);
-          navigate("/auth", { replace: true });
-        }
-      }
-    };
-
-    initializeProfile();
-
-    // Simple auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("🔐 Profile auth change:", event);
-      if (event === 'SIGNED_OUT' && isMounted) {
+        console.error("❌ Auth check error:", error);
+        // Clear potentially corrupted session
+        await clearInvalidSession();
         navigate("/auth", { replace: true });
+      } finally {
+        setLoading(false);
       }
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
     };
+
+    checkAuth();
   }, [navigate]);
 
   const fetchProfile = async (userId: string) => {
