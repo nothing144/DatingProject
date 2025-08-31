@@ -34,18 +34,36 @@ const Auth = () => {
       }
     });
 
-    // Check if user is already logged in on page load
+    // Check if user is already logged in on page load with session validation
     const checkInitialAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("🔍 Initial auth check:", session?.user?.id || "no user");
+        console.log("🔍 Checking initial auth with session validation...");
         
-        if (session?.user && mounted) {
-          console.log("✅ Found existing session, checking profile...");
+        // Use session validation instead of direct getSession
+        const { session, isValid, error } = await getValidSession();
+        
+        console.log("🔍 Initial auth check result:", { 
+          hasSession: !!session, 
+          isValid, 
+          userId: session?.user?.id || "no user",
+          error 
+        });
+        
+        if (session?.user && isValid && mounted) {
+          console.log("✅ Found valid existing session, checking profile...");
           setTimeout(() => checkProfileAndRedirect(session.user.id), 50);
+        } else if (!isValid && error) {
+          console.log("🧹 Invalid session detected and cleaned up:", error);
+          // Session was invalid and has been cleared, user stays on auth page
         }
       } catch (error) {
         console.error("❌ Error checking initial auth:", error);
+        // Clear any potentially corrupted session
+        try {
+          await clearInvalidSession();
+        } catch (clearError) {
+          console.error("❌ Error clearing session:", clearError);
+        }
       }
     };
 
