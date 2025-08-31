@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import ViewProfilePage from "@/pages/ViewProfilePage";
 import TestDiscover from "@/pages/TestDiscover";
 import "@/utils/adminCleanup"; // Import admin cleanup utilities
+import "@/utils/sessionTest"; // Import session test utilities
 
 const queryClient = new QueryClient();
 
