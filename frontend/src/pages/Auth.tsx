@@ -202,11 +202,9 @@ const Auth = () => {
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
-    console.log("🔐 Sign in initiated");
     e.preventDefault();
+    console.log("🔐 Sign in initiated");
     setLoading(true);
-    
-    console.log("📧 Attempting sign in with email:", email);
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -223,13 +221,14 @@ const Auth = () => {
           description: error.message,
           variant: "destructive"
         });
+        setLoading(false);
       } else {
         console.log("✅ Authentication successful:", data);
         toast({
           title: "Welcome back! ⚡",
           description: "Successfully signed in"
         });
-        // Note: Don't navigate here, let the auth state change handler do it
+        // Don't set loading to false here - let the auth state change handler handle it
       }
     } catch (err) {
       console.error("❌ Exception during sign in:", err);
@@ -238,10 +237,8 @@ const Auth = () => {
         description: "An unexpected error occurred during sign in",
         variant: "destructive"
       });
+      setLoading(false);
     }
-    
-    setLoading(false);
-    console.log("🔐 Sign in process completed");
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
