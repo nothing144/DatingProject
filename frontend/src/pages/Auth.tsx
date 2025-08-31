@@ -19,6 +19,25 @@ const Auth = () => {
 
   useEffect(() => {
     let mounted = true;
+    let redirectInProgress = false;
+
+    const handleAuthRedirect = async (userId: string, source: string) => {
+      if (redirectInProgress) {
+        console.log(`⚠️ Redirect already in progress, skipping ${source} redirect`);
+        return;
+      }
+      
+      redirectInProgress = true;
+      console.log(`🔄 Starting redirect process from ${source} for user:`, userId);
+      
+      try {
+        await checkProfileAndRedirect(userId);
+      } catch (error) {
+        console.error(`❌ Redirect failed from ${source}:`, error);
+        setLoading(false);
+        redirectInProgress = false;
+      }
+    };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("🔐 Auth state change in Auth component:", event, session?.user?.id || "no user");
@@ -26,24 +45,28 @@ const Auth = () => {
       // Only redirect on successful sign in, not on initial page load
       if (session?.user && event === 'SIGNED_IN' && mounted) {
         console.log("✅ Sign in successful, validating session and checking profile...");
+        setLoading(true);
         
         // Validate the new session before proceeding
         const { session: validatedSession, isValid } = await getValidSession();
         
         if (isValid && validatedSession?.user) {
-          setTimeout(() => {
-            checkProfileAndRedirect(validatedSession.user.id);
-          }, 100);
+          await handleAuthRedirect(validatedSession.user.id, 'auth_state_change');
         } else {
           console.warn("⚠️ New session failed validation, staying on auth page");
-          // Clear loading state
           setLoading(false);
+          redirectInProgress = false;
         }
       }
     });
 
     // Check if user is already logged in on page load with session validation
     const checkInitialAuth = async () => {
+      if (redirectInProgress) {
+        console.log("⚠️ Redirect already in progress, skipping initial auth check");
+        return;
+      }
+      
       try {
         console.log("🔍 Checking initial auth with session validation...");
         
@@ -59,10 +82,14 @@ const Auth = () => {
         
         if (session?.user && isValid && mounted) {
           console.log("✅ Found valid existing session, checking profile...");
-          setTimeout(() => checkProfileAndRedirect(session.user.id), 50);
+          setLoading(true);
+          await handleAuthRedirect(session.user.id, 'initial_auth_check');
         } else if (!isValid && error) {
           console.log("🧹 Invalid session detected and cleaned up:", error);
           // Session was invalid and has been cleared, user stays on auth page
+          setLoading(false);
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         console.error("❌ Error checking initial auth:", error);
@@ -72,6 +99,8 @@ const Auth = () => {
         } catch (clearError) {
           console.error("❌ Error clearing session:", clearError);
         }
+        setLoading(false);
+        redirectInProgress = false;
       }
     };
 
@@ -79,6 +108,7 @@ const Auth = () => {
 
     return () => {
       mounted = false;
+      redirectInProgress = false;
       subscription.unsubscribe();
     };
   }, []);
