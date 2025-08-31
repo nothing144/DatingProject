@@ -114,12 +114,6 @@ const Auth = () => {
   }, []);
 
   const checkProfileAndRedirect = async (userId: string) => {
-    // Prevent redirect loops by checking current location
-    if (window.location.pathname !== '/auth') {
-      console.log("⚠️ Not on auth page, skipping redirect");
-      return;
-    }
-
     try {
       console.log("🔍 Checking profile for user:", userId);
       
