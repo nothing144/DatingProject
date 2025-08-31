@@ -102,19 +102,19 @@ const Index = () => {
     }
   };
 
-  // Simplified authentication and initialization
+  // Enhanced authentication and initialization with session validation
   useEffect(() => {
     let isMounted = true;
     
     const initializeApp = async () => {
       try {
-        console.log("🚀 Initializing app...");
+        console.log("🚀 Initializing app with session validation...");
         
-        // Get current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Validate session and clean up if invalid (handles deleted users)
+        const { session, isValid, error } = await getValidSession();
         
-        if (sessionError) {
-          console.error("❌ Session error:", sessionError);
+        if (!isValid || !session?.user) {
+          console.log(`❌ Invalid or no session - ${error || 'no session found'} - redirecting to auth`);
           if (isMounted) {
             setLoading(false);
             navigate("/auth", { replace: true });
@@ -122,16 +122,7 @@ const Index = () => {
           return;
         }
 
-        if (!session?.user) {
-          console.log("❌ No session found - redirecting to auth");
-          if (isMounted) {
-            setLoading(false);
-            navigate("/auth", { replace: true });
-          }
-          return;
-        }
-
-        console.log("✅ Session found, user ID:", session.user.id);
+        console.log("✅ Valid session confirmed, user ID:", session.user.id);
         
         // Check if profile is complete
         const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
