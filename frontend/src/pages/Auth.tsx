@@ -25,12 +25,20 @@ const Auth = () => {
       
       // Only redirect on successful sign in, not on initial page load
       if (session?.user && event === 'SIGNED_IN' && mounted) {
-        console.log("✅ Sign in successful, checking profile...");
-        setTimeout(() => {
-          checkProfileAndRedirect(session.user.id);
-        }, 100);
-        // Clear loading state
-        setLoading(false);
+        console.log("✅ Sign in successful, validating session and checking profile...");
+        
+        // Validate the new session before proceeding
+        const { session: validatedSession, isValid } = await getValidSession();
+        
+        if (isValid && validatedSession?.user) {
+          setTimeout(() => {
+            checkProfileAndRedirect(validatedSession.user.id);
+          }, 100);
+        } else {
+          console.warn("⚠️ New session failed validation, staying on auth page");
+          // Clear loading state
+          setLoading(false);
+        }
       }
     });
 
