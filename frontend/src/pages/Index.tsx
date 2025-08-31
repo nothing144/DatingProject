@@ -105,8 +105,16 @@ const Index = () => {
   // Enhanced authentication and initialization with session validation
   useEffect(() => {
     let isMounted = true;
+    let initializationInProgress = false;
     
     const initializeApp = async () => {
+      if (initializationInProgress) {
+        console.log("⚠️ App initialization already in progress, skipping");
+        return;
+      }
+      
+      initializationInProgress = true;
+      
       try {
         console.log("🚀 Initializing app with session validation...");
         
@@ -183,6 +191,8 @@ const Index = () => {
           setLoading(false);
           navigate("/auth", { replace: true });
         }
+      } finally {
+        initializationInProgress = false;
       }
     };
 
@@ -204,7 +214,7 @@ const Index = () => {
       }
       
       // Handle potential invalid sessions on auth state change
-      if (event === 'TOKEN_REFRESHED' && session && isMounted) {
+      if (event === 'TOKEN_REFRESHED' && session && isMounted && !initializationInProgress) {
         console.log("🔄 Token refreshed, validating session...");
         const validation = await validateAndCleanupSession();
         if (!validation.isValid) {
@@ -216,6 +226,7 @@ const Index = () => {
 
     return () => {
       isMounted = false;
+      initializationInProgress = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
