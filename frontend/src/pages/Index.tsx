@@ -188,9 +188,10 @@ const Index = () => {
 
     initializeApp();
 
-    // Simple auth state listener for sign out
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Enhanced auth state listener for sign out and session validation
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("🔐 Auth state change:", event);
+      
       if (event === 'SIGNED_OUT' && isMounted) {
         console.log("👋 User signed out - redirecting to auth");
         setProfiles([]);
@@ -200,6 +201,16 @@ const Index = () => {
         setConfessions([]);
         setDateRequests([]);
         navigate("/auth", { replace: true });
+      }
+      
+      // Handle potential invalid sessions on auth state change
+      if (event === 'TOKEN_REFRESHED' && session && isMounted) {
+        console.log("🔄 Token refreshed, validating session...");
+        const validation = await validateAndCleanupSession();
+        if (!validation.isValid) {
+          console.log("❌ Session became invalid after token refresh - redirecting to auth");
+          navigate("/auth", { replace: true });
+        }
       }
     });
 
