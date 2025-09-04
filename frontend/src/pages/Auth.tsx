@@ -35,7 +35,8 @@ const Auth = () => {
       } catch (error) {
         console.error(`❌ Redirect failed from ${source}:`, error);
         setLoading(false);
-        redirectInProgress = false;
+      } finally {
+        redirectInProgress = false; // Always clear the flag
       }
     };
 
