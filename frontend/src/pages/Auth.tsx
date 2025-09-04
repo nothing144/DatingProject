@@ -56,7 +56,6 @@ const Auth = () => {
         } else {
           console.warn("⚠️ New session failed validation, staying on auth page");
           setLoading(false);
-          redirectInProgress = false;
         }
       }
     });
