@@ -126,6 +126,7 @@ const Auth = () => {
       if (error && error.code !== 'PGRST116') {
         console.error("❌ Error checking profile:", error);
         console.log("➡️ Redirecting to profile creation due to error");
+        setLoading(false); // Clear loading state before redirect
         navigate("/profile", { replace: true });
         return;
       }
@@ -133,6 +134,7 @@ const Auth = () => {
       // Check if user has complete profile (all mandatory fields filled)
       if (!data) {
         console.log("👤 New user - redirecting to profile creation");
+        setLoading(false); // Clear loading state before redirect
         navigate("/profile", { replace: true });
         return;
       }
@@ -145,13 +147,16 @@ const Auth = () => {
 
       if (!hasAllMandatoryFields) {
         console.log("📋 Incomplete profile - redirecting to profile completion");
+        setLoading(false); // Clear loading state before redirect
         navigate("/profile", { replace: true });
       } else {
         console.log("✅ Complete profile found - redirecting to main page");
+        setLoading(false); // Clear loading state before redirect
         navigate("/", { replace: true });
       }
     } catch (error) {
       console.error("❌ Exception during profile check:", error);
+      setLoading(false); // Clear loading state before redirect
       navigate("/profile", { replace: true });
     }
   };
