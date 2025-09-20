@@ -35,6 +35,7 @@ const Index = () => {
   const [dateRequests, setDateRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const isMobile = useIsMobile();
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(0);
