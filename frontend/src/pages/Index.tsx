@@ -1260,7 +1260,7 @@ const Index = () => {
                   return (
                     <Card key={request.id}>
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
+                        <div className={`flex ${isMobile ? 'flex-col gap-4' : 'items-center justify-between'}`}>
                           <div className="flex items-center gap-3">
                             <img
                               src={otherUser?.avatar_url || "/placeholder.svg"}
