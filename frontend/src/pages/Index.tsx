@@ -16,6 +16,7 @@ import { MessageCircle, Calendar, Megaphone, User, RotateCcw, AlertTriangle, Hea
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
