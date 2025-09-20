@@ -1291,33 +1291,34 @@ const Index = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2">
+                          <div className={`flex items-center gap-2 ${isMobile ? 'flex-col w-full' : ''}`}>
                             {isReceiver && request.status === 'pending' && (
-                              <>
+                              <div className={`flex gap-2 ${isMobile ? 'w-full' : ''}`}>
                                 <Button
-                                  size="sm"
+                                  size={isMobile ? "default" : "sm"}
                                   onClick={() => handleDateRequestResponse(request.id, 'accepted')}
-                                  className="bg-green-600 hover:bg-green-700"
+                                  className={`bg-green-600 hover:bg-green-700 ${isMobile ? 'flex-1 h-11' : ''}`}
                                 >
                                   Accept
                                 </Button>
                                 <Button
-                                  size="sm"
+                                  size={isMobile ? "default" : "sm"}
                                   variant="destructive"
                                   onClick={() => handleDateRequestResponse(request.id, 'rejected')}
+                                  className={isMobile ? 'flex-1 h-11' : ''}
                                 >
                                   Reject
                                 </Button>
-                              </>
+                              </div>
                             )}
                             
                             {/* Show delete button for all requests regardless of status */}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
-                                  size="sm"
+                                  size={isMobile ? "default" : "sm"}
                                   variant="outline"
-                                  className="text-red-600 border-red-600 hover:bg-red-50"
+                                  className={`text-red-600 border-red-600 hover:bg-red-50 ${isMobile ? 'w-full h-11' : ''}`}
                                 >
                                   <Trash2 className="w-4 h-4 mr-1" />
                                   Delete
