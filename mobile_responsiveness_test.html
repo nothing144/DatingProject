@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Responsiveness Test - Date Request Buttons</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to match the app's implementation */
+        .mobile-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .mobile-accept-reject {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .mobile-button {
+            height: 2.75rem; /* h-11 */
+            flex: 1;
+        }
+        
+        .mobile-delete {
+            width: 100%;
+            height: 2.75rem; /* h-11 */
+        }
+        
+        @media (min-width: 768px) {
+            .desktop-buttons {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-direction: row;
+            }
+            
+            .mobile-buttons {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .desktop-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-center">Mobile Responsiveness Test</h1>
+        <p class="text-sm text-gray-600 mb-4 text-center">Resize your browser to see responsive behavior</p>
+        
+        <!-- Mock Date Request Card -->
+        <div class="border rounded-lg p-4 mb-4">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                    JD
+                </div>
+                <div>
+                    <h3 class="font-semibold">John Doe</h3>
+                    <p class="text-sm text-gray-600">Sent you a date request</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-gray-500">2024-01-15</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">pending</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Desktop Layout (768px and above) -->
+            <div class="desktop-buttons">
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        Accept
+                    </button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                        Reject
+                    </button>
+                </div>
+                <button class="px-4 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50">
+                    Delete
+                </button>
+            </div>
+            
+            <!-- Mobile Layout (below 768px) -->
+            <div class="mobile-buttons">
+                <div class="mobile-accept-reject">
+                    <button class="mobile-button bg-green-600 text-white rounded hover:bg-green-700">
+                        Accept
+                    </button>
+                    <button class="mobile-button bg-red-600 text-white rounded hover:bg-red-700">
+                        Reject
+                    </button>
+                </div>
+                <button class="mobile-delete border border-red-600 text-red-600 rounded hover:bg-red-50">
+                    Delete
+                </button>
+            </div>
+        </div>
+        
+        <!-- Another Mock Date Request Card -->
+        <div class="border rounded-lg p-4">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                    AS
+                </div>
+                <div>
+                    <h3 class="font-semibold">Alice Smith</h3>
+                    <p class="text-sm text-gray-600">You sent a date request</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-gray-500">2024-01-14</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">accepted</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Desktop Layout (768px and above) -->
+            <div class="desktop-buttons">
+                <div></div> <!-- Empty space for accepted requests -->
+                <button class="px-4 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50">
+                    Delete
+                </button>
+            </div>
+            
+            <!-- Mobile Layout (below 768px) -->
+            <div class="mobile-buttons">
+                <button class="mobile-delete border border-red-600 text-red-600 rounded hover:bg-red-50">
+                    Delete
+                </button>
+            </div>
+        </div>
+        
+        <!-- Viewport Info -->
+        <div class="mt-6 p-4 bg-gray-50 rounded">
+            <h3 class="font-semibold mb-2">Current Viewport:</h3>
+            <p class="text-sm" id="viewport-info">Loading...</p>
+            <p class="text-xs text-gray-600 mt-2">
+                Mobile layout: &lt; 768px | Desktop layout: ≥ 768px
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function updateViewportInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isMobile = width < 768;
+            
+            document.getElementById('viewport-info').innerHTML = 
+                `Width: ${width}px, Height: ${height}px<br>
+                Layout: ${isMobile ? 'Mobile' : 'Desktop'} (${isMobile ? 'Stacked buttons' : 'Horizontal buttons'})`;
+        }
+        
+        updateViewportInfo();
+        window.addEventListener('resize', updateViewportInfo);
+    </script>
+</body>
+</html>
