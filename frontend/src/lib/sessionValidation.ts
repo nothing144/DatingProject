@@ -112,7 +112,7 @@ export const validateAndCleanupSession = async (): Promise<{
 };
 
 /**
- * Enhanced session check that validates user existence
+ * Enhanced session check that validates user existence with timeout protection
  * Use this instead of just checking supabase.auth.getSession()
  */
 export const getValidSession = async (): Promise<{
@@ -120,11 +120,28 @@ export const getValidSession = async (): Promise<{
   isValid: boolean;
   error?: string;
 }> => {
-  const validation = await validateAndCleanupSession();
-  
-  return {
-    session: validation.isValid ? validation.session : null,
-    isValid: validation.isValid,
-    error: validation.error
-  };
+  try {
+    // Add timeout protection to prevent getting stuck in validation
+    const validationPromise = validateAndCleanupSession();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Session validation timeout')), 3000)
+    );
+    
+    const validation = await Promise.race([validationPromise, timeoutPromise]) as any;
+    
+    return {
+      session: validation.isValid ? validation.session : null,
+      isValid: validation.isValid,
+      error: validation.error
+    };
+  } catch (error: any) {
+    console.error("❌ Session validation failed with timeout/error:", error);
+    
+    // If validation times out or fails, treat as invalid session
+    return {
+      session: null,
+      isValid: false,
+      error: error.message || "Session validation failed"
+    };
+  }
 };
