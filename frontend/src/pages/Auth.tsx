@@ -67,11 +67,31 @@ const Auth = () => {
         return;
       }
       
+      // Set timeout to prevent getting stuck in validation
+      const validationTimeout = setTimeout(() => {
+        console.warn("⚠️ Session validation timeout - clearing loading state");
+        if (mounted) {
+          setLoading(false);
+          redirectInProgress = false;
+        }
+      }, 5000); // 5 second timeout
+      
       try {
         console.log("🔍 Checking initial auth with session validation...");
         
-        // Use session validation instead of direct getSession
-        const { session, isValid, error } = await getValidSession();
+        // Use session validation with timeout protection
+        const validationPromise = getValidSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Validation timeout')), 4000)
+        );
+        
+        const { session, isValid, error } = await Promise.race([
+          validationPromise,
+          timeoutPromise
+        ]) as any;
+        
+        // Clear the timeout since validation completed
+        clearTimeout(validationTimeout);
         
         console.log("🔍 Initial auth check result:", { 
           hasSession: !!session, 
@@ -83,7 +103,23 @@ const Auth = () => {
         if (session?.user && isValid && mounted) {
           console.log("✅ Found valid existing session, checking profile...");
           setLoading(true);
-          await handleAuthRedirect(session.user.id, 'initial_auth_check');
+          
+          // Add timeout protection for redirect as well
+          const redirectTimeout = setTimeout(() => {
+            console.warn("⚠️ Redirect timeout - forcing completion");
+            if (mounted) {
+              setLoading(false);
+              redirectInProgress = false;
+            }
+          }, 3000);
+          
+          try {
+            await handleAuthRedirect(session.user.id, 'initial_auth_check');
+            clearTimeout(redirectTimeout);
+          } catch (redirectError) {
+            clearTimeout(redirectTimeout);
+            throw redirectError;
+          }
         } else if (!isValid && error) {
           console.log("🧹 Invalid session detected and cleaned up:", error);
           // Session was invalid and has been cleared, user stays on auth page
@@ -92,15 +128,21 @@ const Auth = () => {
           setLoading(false);
         }
       } catch (error) {
+        clearTimeout(validationTimeout);
         console.error("❌ Error checking initial auth:", error);
+        
+        // Force clear loading state and redirect flag
+        if (mounted) {
+          setLoading(false);
+          redirectInProgress = false;
+        }
+        
         // Clear any potentially corrupted session
         try {
           await clearInvalidSession();
         } catch (clearError) {
           console.error("❌ Error clearing session:", clearError);
         }
-        setLoading(false);
-        redirectInProgress = false;
       }
     };
 
