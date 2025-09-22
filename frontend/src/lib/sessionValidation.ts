@@ -16,8 +16,17 @@ export const validateSession = async (): Promise<{
   try {
     console.log("🔍 Validating session...");
     
-    // Get the current session from localStorage/storage
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    // Add timeout protection for session operations
+    const sessionPromise = supabase.auth.getSession();
+    const sessionTimeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Session fetch timeout')), 2000)
+    );
+    
+    // Get the current session from localStorage/storage with timeout
+    const { data: { session }, error: sessionError } = await Promise.race([
+      sessionPromise,
+      sessionTimeoutPromise
+    ]) as any;
     
     if (sessionError) {
       console.error("❌ Error getting session:", sessionError);
@@ -31,9 +40,16 @@ export const validateSession = async (): Promise<{
     
     console.log("🔍 Session found for user:", session.user.id, "- validating user existence...");
     
-    // Check if the user actually exists in Supabase Auth by attempting to get user details
-    // This will fail if the user was deleted from Supabase Auth but session remains cached
-    const { data: userDetails, error: userError } = await supabase.auth.getUser();
+    // Check if the user actually exists in Supabase Auth with timeout protection
+    const userPromise = supabase.auth.getUser();
+    const userTimeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('User validation timeout')), 2000)
+    );
+    
+    const { data: userDetails, error: userError } = await Promise.race([
+      userPromise,
+      userTimeoutPromise
+    ]) as any;
     
     if (userError || !userDetails?.user) {
       console.warn("⚠️ Session exists but user doesn't exist in Supabase Auth:", userError?.message || "User not found");
