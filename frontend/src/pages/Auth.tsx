@@ -30,11 +30,37 @@ const Auth = () => {
       redirectInProgress = true;
       console.log(`🔄 Starting redirect process from ${source} for user:`, userId);
       
+      // Add timeout protection for redirect process
+      const redirectTimeout = setTimeout(() => {
+        console.warn(`⚠️ Redirect timeout from ${source} - forcing completion`);
+        if (mounted) {
+          setLoading(false);
+          redirectInProgress = false;
+        }
+      }, 5000); // 5 second timeout for redirect
+      
       try {
-        await checkProfileAndRedirect(userId);
+        const profileCheckPromise = checkProfileAndRedirect(userId);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile check timeout')), 4000)
+        );
+        
+        await Promise.race([profileCheckPromise, timeoutPromise]);
+        clearTimeout(redirectTimeout);
       } catch (error) {
+        clearTimeout(redirectTimeout);
         console.error(`❌ Redirect failed from ${source}:`, error);
-        setLoading(false);
+        
+        // Force clear states on error
+        if (mounted) {
+          setLoading(false);
+          redirectInProgress = false;
+        }
+        
+        // If it's a timeout or network error, stay on auth page
+        if (error.message?.includes('timeout') || error.message?.includes('network')) {
+          console.log("🔄 Timeout/network error - staying on auth page");
+        }
       } finally {
         redirectInProgress = false; // Always clear the flag
       }
