@@ -131,37 +131,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let isMounted = true;
-
-    // Initialize session on mount
-    const initAuth = async () => {
-      try {
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.warn("Error getting initial session:", error);
-        }
-
-        if (initialSession?.user && isMounted) {
-          console.log("initAuth: Getting profile...");
-          setSession(initialSession);
-          setUser(initialSession.user);
-          await fetchProfileData(initialSession.user.id);
-          console.log("initAuth: Profile fetch complete");
-        }
-      } catch (err) {
-        console.error("Auth initialization exception:", err);
-      } finally {
-        if (isMounted) {
-          console.log("initAuth: Setting loading to false");
-          setLoading(false);
-        } else {
-          console.log("initAuth: isMounted is false, skipping setLoading");
-        }
-      }
-    };
-
-    initAuth();
+    let initialSessionProcessed = false;
 
     // Central application-level auth state listener
+    // onAuthStateChange automatically fires an 'INITIAL_SESSION' event on load
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log("🔐 Global Auth State Change:", event, newSession?.user?.id || "no-user");
@@ -178,7 +151,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (newSession?.user) {
-          // Only re-fetch profile if user changed or was previously null
+          // Avoid double fetching on initial load
+          if (event === 'INITIAL_SESSION' && initialSessionProcessed) return;
+          if (event === 'INITIAL_SESSION') initialSessionProcessed = true;
+
+          // Only re-fetch profile if user changed, or was previously null, or explicitly signed in
           if (!profile || profile.id !== newSession.user.id || event === 'SIGNED_IN') {
             setLoading(true); // Prevent premature redirects while fetching profile
             

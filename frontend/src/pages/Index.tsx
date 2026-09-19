@@ -83,24 +83,21 @@ const Index = () => {
           setCurrentPage(0);
           setHasMore(true);
           setCurrentProfileIndex(0);
+          fetchedTabsRef.current.add('discover');
           await fetchProfilesForWebsiteLoad(user.id);
-          if (isMounted) fetchedTabsRef.current.add('discover');
         } 
         else if (activeTab === 'messages') {
+          fetchedTabsRef.current.add('messages');
           const data = await fetchConversations();
-          if (isMounted) {
-            setConversations(data);
-            fetchedTabsRef.current.add('messages');
-          }
+          if (isMounted) setConversations(data);
         } 
         else if (activeTab === 'date-requests') {
+          fetchedTabsRef.current.add('date-requests');
           const data = await fetchDateRequests();
-          if (isMounted) {
-            setDateRequests(data);
-            fetchedTabsRef.current.add('date-requests');
-          }
+          if (isMounted) setDateRequests(data);
         } 
         else if (activeTab === 'announcements') {
+          fetchedTabsRef.current.add('announcements');
           const results = await Promise.allSettled([
             fetchAnnouncements(),
             fetchConfessions()
@@ -110,7 +107,6 @@ const Index = () => {
           
           if (results[0].status === 'fulfilled') setAnnouncements(results[0].value);
           if (results[1].status === 'fulfilled') setConfessions(results[1].value);
-          fetchedTabsRef.current.add('announcements');
         }
       } catch (error) {
         console.error(`❌ Failed to load data for tab ${activeTab}:`, error);
