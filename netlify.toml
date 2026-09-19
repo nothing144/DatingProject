@@ -1,7 +1,7 @@
 # Netlify configuration for HeartBeat@ITER
 [build]
   # Build command - runs from root, builds frontend
-  command = "cd frontend && yarn install && yarn build"
+  command = "cd frontend && yarn install --ignore-engines && yarn build"
   
   # Directory to publish (where the built files are)
   publish = "frontend/dist"
