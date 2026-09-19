@@ -125,6 +125,45 @@ const Auth = () => {
     }
   };
 
+  const handleResetPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address above to receive a reset link.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Reset link sent! 📧",
+          description: "Check your email for the password reset link."
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive"
+      });
+    }
+    setLoading(false);
+  };
+
   const handleButtonClick = (e: React.MouseEvent) => {
     console.log("🔘 Button clicked - event handler triggered");
     console.log("Event type:", e.type);
@@ -237,6 +276,16 @@ const Auth = () => {
                     className="input-enhanced focus:border-primary focus:ring-primary/20"
                     placeholder="Enter your password"
                   />
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetPassword}
+                      className="text-xs text-primary hover:text-primary/80 transition-colors bg-transparent border-none p-0 cursor-pointer"
+                      disabled={loading}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
                 </div>
                 <Button 
                   type="submit" 
