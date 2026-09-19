@@ -60,9 +60,19 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
         },
         (payload) => {
           const newMessage = payload.new as Message;
-          // Only add message if it's not from current user (avoid duplicates)
+          
+          setMessages(prev => {
+            // Deduplicate by ID to prevent ghost messages
+            if (prev.some(m => m.id === newMessage.id)) return prev;
+            
+            // Still ignore messages from current user in this listener 
+            // because they are handled locally by sendMessage() replacing the optimistic temp ID
+            if (newMessage.sender_id === currentUserId) return prev;
+            
+            return [...prev, newMessage];
+          });
+          
           if (newMessage.sender_id !== currentUserId) {
-            setMessages(prev => [...prev, newMessage]);
             setMessageCount(prev => prev + 1);
             // Scroll to bottom when receiving new message
             setTimeout(() => {
@@ -113,7 +123,7 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     
     const { data, error, count } = await supabase
       .from("messages")
-      .select("*", { count: 'exact' })
+      .select("id, content, sender_id, created_at, read_at", { count: 'exact' })
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: false })
       .range(offset, offset + MESSAGES_PER_PAGE - 1);
@@ -183,43 +193,50 @@ const Chat = ({ conversationId, otherUser, currentUserId, onBack }: ChatProps) =
     }
 
     setSending(true);
-    const { error } = await supabase
+    
+    // Add the message to state immediately for better UX
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: optimisticId, // Temporary ID
+      content: newMessage.trim(),
+      sender_id: currentUserId,
+      created_at: new Date().toISOString()
+    };
+    
+    setMessages(prev => [...prev, optimisticMessage]);
+    setNewMessage("");
+    setMessageCount(prev => prev + 1);
+    
+    // Force scroll to bottom after sending optimistic message
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+
+    const { data, error } = await supabase
       .from("messages")
       .insert({
         conversation_id: conversationId,
         sender_id: currentUserId,
-        content: newMessage.trim()
-      });
+        content: optimisticMessage.content
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error("Error sending message:", error);
+      // Remove optimistic message on failure
+      setMessages(prev => prev.filter(m => m.id !== optimisticId));
+      setMessageCount(prev => Math.max(0, prev - 1));
+      setNewMessage(optimisticMessage.content); // restore text
+      
       toast({
         title: "Error",
         description: "Failed to send message",
         variant: "destructive"
       });
     } else {
-      setNewMessage("");
-      setMessageCount(prev => prev + 1);
-      
-      // Add the message to state immediately for better UX
-      const optimisticMessage: Message = {
-        id: `temp-${Date.now()}`, // Temporary ID
-        content: newMessage.trim(),
-        sender_id: currentUserId,
-        created_at: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, optimisticMessage]);
-      
-      // Force scroll to bottom after sending message
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-      
-      // Refresh messages after a short delay to get the real message from DB
-      setTimeout(() => {
-        fetchMessages();
-      }, 500);
+      // Replace optimistic message with the real confirmed one
+      setMessages(prev => prev.map(m => m.id === optimisticId ? (data as Message) : m));
 
       await supabase
         .from("conversations")

@@ -200,10 +200,10 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
           }
         }, 400);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
@@ -214,12 +214,28 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const handleMessage = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_or_create_conversation', {
-        user1: currentUserId,
-        user2: profile.id
-      });
-
-      if (error) throw error;
+      let conversationId;
+      
+      // Fallback 1: Check if exists
+      const { data: existing, error: queryError } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`and(participant_1.eq.${currentUserId},participant_2.eq.${profile.id}),and(participant_1.eq.${profile.id},participant_2.eq.${currentUserId})`)
+        .maybeSingle();
+        
+      if (existing) {
+        conversationId = existing.id;
+      } else {
+        // Fallback 2: Create
+        const { data: newConvo, error: insertError } = await supabase
+          .from('conversations')
+          .insert({ participant_1: currentUserId, participant_2: profile.id })
+          .select()
+          .single();
+          
+        if (insertError) throw insertError;
+        conversationId = newConvo.id;
+      }
 
       toast({
         title: "Conversation Ready! 💬",
@@ -227,13 +243,13 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
       });
       
       window.dispatchEvent(new CustomEvent('switchToMessages', { 
-        detail: { conversationId: data } 
+        detail: { conversationId: conversationId } 
       }));
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
@@ -244,7 +260,7 @@ const ProfileCard = ({ profile, currentUserId, onLike, onPass }: ProfileCardProp
   const displayImage = getHighQualityUrl(profile.avatar_url || profile.photos?.[0] || getFallbackAvatarUrl(profile.name || 'User', 800));
 
   return (
-    <div className="relative w-full max-w-sm mx-auto animate-fadeInScale">
+    <div className="relative w-full max-w-sm mx-auto animate-fadeInScale hover:animate-pulse-glow transition-all duration-300">
       {/* Enhanced Swipe Indicators */}
       <div className="absolute top-4 left-4 z-20">
         <div className={`px-3 py-2 rounded-full text-sm font-bold transition-all duration-300 backdrop-blur-md ${

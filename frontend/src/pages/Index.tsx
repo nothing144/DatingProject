@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { getValidSession, validateAndCleanupSession } from "@/lib/sessionValidation";
+import { useAuth } from "@/contexts/AuthContext";
 import ProfileCard from "@/components/ProfileCard";
 import ProfileGrid from "@/components/ProfileGrid";
 import Navigation from "@/components/Navigation";
@@ -19,8 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
-  const [user, setUser] = useState<any>(null);
-  const [session, setSession] = useState<any>(null);
+  const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState("discover");
   const [profiles, setProfiles] = useState<any[]>([]);
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
@@ -44,6 +43,8 @@ const Index = () => {
   const [totalProfiles, setTotalProfiles] = useState(0);
   const PROFILES_PER_PAGE = 20;
 
+  const fetchedTabsRef = useRef<Set<string>>(new Set());
+
   const navigate = useNavigate();
 
   // Listen for message events from ProfileCard
@@ -63,175 +64,67 @@ const Index = () => {
     return () => window.removeEventListener('switchToMessages', handleSwitchToMessages);
   }, [conversations]);
 
-  // Function to check if user has complete profile
-  const checkUserProfileComplete = async (userId: string) => {
-    try {
-      console.log("🔍 Checking profile completeness for user:", userId);
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, name, username, age, location, shortBio, avatar_url, branch, year")
-        .eq("id", userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("❌ Error checking profile:", error);
-        return false;
-      }
-
-      // Check if user has complete profile (all mandatory fields filled)
-      if (!data) {
-        console.log("👤 No profile found - needs profile creation");
-        return false;
-      }
-
-      const mandatoryFields = ['name', 'username', 'age', 'location', 'shortBio', 'avatar_url', 'branch', 'year'];
-      const hasAllMandatoryFields = mandatoryFields.every(field => {
-        const value = data[field];
-        return value && (typeof value !== 'string' || value.trim() !== '');
-      });
-
-      if (!hasAllMandatoryFields) {
-        console.log("📋 Incomplete profile - needs profile completion");
-        return false;
-      }
-
-      console.log("✅ Profile is complete");
-      return true;
-    } catch (error) {
-      console.error("❌ Exception checking profile:", error);
-      return false;
-    }
-  };
-
-  // Enhanced authentication and initialization with session validation
+  // Fetch tab-specific data when active
   useEffect(() => {
-    let isMounted = true;
-    let initializationInProgress = false;
+    if (!user?.id) return;
     
-    const initializeApp = async () => {
-      if (initializationInProgress) {
-        console.log("⚠️ App initialization already in progress, skipping");
+    let isMounted = true;
+    
+    const loadTabData = async () => {
+      // Don't fetch if already fetched this session (unless manual refresh is triggered)
+      if (fetchedTabsRef.current.has(activeTab)) {
         return;
       }
       
-      initializationInProgress = true;
-      
       try {
-        console.log("🚀 Initializing app with session validation...");
+        setLoading(true);
         
-        // Validate session and clean up if invalid (handles deleted users)
-        const { session, isValid, error } = await getValidSession();
-        
-        if (!isValid || !session?.user) {
-          console.log(`❌ Invalid or no session - ${error || 'no session found'} - redirecting to auth`);
+        if (activeTab === 'discover') {
+          setCurrentPage(0);
+          setHasMore(true);
+          setCurrentProfileIndex(0);
+          await fetchProfilesForWebsiteLoad(user.id);
+          if (isMounted) fetchedTabsRef.current.add('discover');
+        } 
+        else if (activeTab === 'messages') {
+          const data = await fetchConversations();
           if (isMounted) {
-            setLoading(false);
-            navigate("/auth", { replace: true });
+            setConversations(data);
+            fetchedTabsRef.current.add('messages');
           }
-          return;
-        }
-
-        console.log("✅ Valid session confirmed, user ID:", session.user.id);
-        
-        // Check if profile is complete
-        const hasCompleteProfile = await checkUserProfileComplete(session.user.id);
-        if (!hasCompleteProfile) {
-          console.log("➡️ Redirecting to profile page for completion");
+        } 
+        else if (activeTab === 'date-requests') {
+          const data = await fetchDateRequests();
           if (isMounted) {
-            setLoading(false);
-            navigate("/profile", { replace: true });
+            setDateRequests(data);
+            fetchedTabsRef.current.add('date-requests');
           }
-          return;
-        }
-
-        console.log("✅ Profile complete - initializing main app");
-        if (isMounted) {
-          setSession(session);
-          setUser(session.user);
-          setLoading(false);
+        } 
+        else if (activeTab === 'announcements') {
+          const results = await Promise.allSettled([
+            fetchAnnouncements(),
+            fetchConfessions()
+          ]);
           
-          // Wait a tiny bit to ensure state is updated, then load fresh data
-          setTimeout(async () => {
-            if (isMounted) {
-              console.log("🔄 Website opened - loading essential data first...");
-              
-              try {
-                // Reset pagination and load fresh profiles
-                setCurrentPage(0);
-                setHasMore(true);
-                setCurrentProfileIndex(0);
-                
-                // PERFORMANCE OPTIMIZED: Load profiles first (most important)
-                await fetchProfilesForWebsiteLoad(session.user.id);
-                
-                // PERFORMANCE OPTIMIZED: Load other data with delay to reduce initial load
-                setTimeout(() => {
-                  fetchDateRequests(); // Most important after profiles
-                }, 1000);
-                
-                setTimeout(() => {
-                  fetchConversations(); // Secondary importance
-                }, 2000);
-                
-                // PERFORMANCE OPTIMIZED: Campus content loaded last (least critical for initial experience)
-                setTimeout(() => {
-                  fetchAnnouncements();
-                  fetchConfessions();
-                }, 3000);
-                
-                console.log("✅ Essential data loaded, other content loading in background");
-              } catch (error) {
-                console.error("❌ Failed to load initial data:", error);
-              }
-            }
-          }, 100); // Small delay to ensure user state is set
+          if (!isMounted) return;
+          
+          if (results[0].status === 'fulfilled') setAnnouncements(results[0].value);
+          if (results[1].status === 'fulfilled') setConfessions(results[1].value);
+          fetchedTabsRef.current.add('announcements');
         }
       } catch (error) {
-        console.error("❌ App initialization error:", error);
-        if (isMounted) {
-          setLoading(false);
-          navigate("/auth", { replace: true });
-        }
+        console.error(`❌ Failed to load data for tab ${activeTab}:`, error);
       } finally {
-        initializationInProgress = false;
+        if (isMounted) setLoading(false);
       }
     };
 
-    initializeApp();
-
-    // Enhanced auth state listener for sign out and session validation
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("🔐 Auth state change:", event);
-      
-      if (event === 'SIGNED_OUT' && isMounted) {
-        console.log("👋 User signed out - redirecting to auth");
-        setProfiles([]);
-        setAllProfiles([]);
-        setConversations([]);
-        setAnnouncements([]);
-        setConfessions([]);
-        setDateRequests([]);
-        navigate("/auth", { replace: true });
-      }
-      
-      // Handle potential invalid sessions on auth state change
-      if (event === 'TOKEN_REFRESHED' && session && isMounted && !initializationInProgress) {
-        console.log("🔄 Token refreshed, validating session...");
-        const validation = await validateAndCleanupSession();
-        if (!validation.isValid) {
-          console.log("❌ Session became invalid after token refresh - redirecting to auth");
-          navigate("/auth", { replace: true });
-        }
-      }
-    });
+    loadTabData();
 
     return () => {
       isMounted = false;
-      initializationInProgress = false;
-      subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [user?.id, activeTab]);
 
   // PERFORMANCE OPTIMIZED: Auto-prefetch for single view when user gets close to end (less aggressive)
   useEffect(() => {
@@ -258,7 +151,7 @@ const Index = () => {
 
       let query = supabase
         .from("profiles")
-        .select("*", { count: 'exact' })
+        .select("id, name, username, age, location, shortBio, interests, avatar_url, branch, year, created_at", { count: 'exact' })
         .neq("id", user.id);
 
       if (usernameFilter && usernameFilter.trim()) {
@@ -319,7 +212,7 @@ const Index = () => {
       
       let query = supabase
         .from("profiles")
-        .select("*", { count: 'exact' })
+        .select("id, name, username, age, location, shortBio, interests, avatar_url, branch, year, created_at", { count: 'exact' })
         .neq("id", userId);
 
       if (usernameFilter && usernameFilter.trim()) {
@@ -376,7 +269,7 @@ const Index = () => {
 
       let query = supabase
         .from("profiles")
-        .select("*", { count: 'exact' })
+        .select("id, name, username, age, location, shortBio, interests, avatar_url, branch, year, created_at", { count: 'exact' })
         .neq("id", user?.id);
 
       if (searchUsername && searchUsername.trim()) {
@@ -500,16 +393,22 @@ const Index = () => {
     }
   };
 
+  // 60-second simple client-side cache for Announcements and Confessions
+  const announcementsCache = useRef<{ data: any[], timestamp: number } | null>(null);
+  const confessionsCache = useRef<{ data: any[], timestamp: number } | null>(null);
+
   const fetchAnnouncements = async () => {
-    // Safety check - only fetch if user is authenticated (silent during app initialization)
-    if (!user?.id) {
-      return;
+    if (!user?.id) return [];
+    
+    const now = Date.now();
+    if (announcementsCache.current && now - announcementsCache.current.timestamp < 60000) {
+      return announcementsCache.current.data;
     }
 
     const { data, error } = await supabase
       .from("announcements")
       .select(`
-        *,
+        id, content, created_at,
         profiles!fk_author_profile(name, avatar_url)
       `)
       .order("created_at", { ascending: false })
@@ -517,63 +416,65 @@ const Index = () => {
 
     if (error) {
       console.error("Error fetching announcements:", error);
-    } else {
-      setAnnouncements(data || []);
+      return [];
     }
+    
+    const fetchedData = data || [];
+    announcementsCache.current = { data: fetchedData, timestamp: now };
+    return fetchedData;
   };
 
   const fetchConfessions = async () => {
-    // Safety check - only fetch if user is authenticated (silent during app initialization)
-    if (!user?.id) {
-      return;
+    if (!user?.id) return [];
+
+    const now = Date.now();
+    if (confessionsCache.current && now - confessionsCache.current.timestamp < 60000) {
+      return confessionsCache.current.data;
     }
 
     const { data, error } = await supabase
       .from("confessions")
-      .select("*")
+      .select("id, author_id, content, gender, created_at, likes")
       .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching confessions:", error);
-    } else {
-      setConfessions(data || []);
+      return [];
     }
+    
+    const fetchedData = data || [];
+    confessionsCache.current = { data: fetchedData, timestamp: now };
+    return fetchedData;
   };
 
   const fetchConversations = async () => {
-    // Safety check - only fetch if user is authenticated (silent during app initialization)
-    if (!user?.id) {
-      return;
-    }
+    if (!user?.id) return [];
 
     const { data, error } = await supabase
       .from("conversations")
       .select(`
-        *,
+        id, participant_1, participant_2, last_message_at,
         participant_1_profile:profiles!conversations_participant_1_fkey(name, avatar_url),
         participant_2_profile:profiles!conversations_participant_2_fkey(name, avatar_url)
       `)
       .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
       .order("last_message_at", { ascending: false })
-      .limit(20); // Limit conversations to reduce data usage
+      .limit(20);
 
     if (error) {
       console.error("Error fetching conversations:", error);
-    } else {
-      setConversations(data || []);
+      return [];
     }
+    return data || [];
   };
 
   const fetchDateRequests = async () => {
-    // Safety check - only fetch if user is authenticated (silent during app initialization)
-    if (!user?.id) {
-      return;
-    }
+    if (!user?.id) return [];
 
     const { data, error } = await supabase
       .from("date_requests")
       .select(`
-        *,
+        id, sender_id, receiver_id, status, created_at,
         sender:profiles!date_requests_sender_id_fkey(id, name, avatar_url),
         receiver:profiles!date_requests_receiver_id_fkey(id, name, avatar_url)
       `)
@@ -582,9 +483,9 @@ const Index = () => {
 
     if (error) {
       console.error("Error fetching date requests:", error);
-    } else {
-      setDateRequests(data || []);
+      return [];
     }
+    return data || [];
   };
 
   const handleDateRequestResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
@@ -600,7 +501,8 @@ const Index = () => {
         variant: "destructive"
       });
     } else {
-      fetchDateRequests();
+      const updatedRequests = await fetchDateRequests();
+      setDateRequests(updatedRequests);
       toast({
         title: status === 'accepted' ? "Request Accepted!" : "Request Rejected",
         description: `You have ${status} the date request`
@@ -836,7 +738,7 @@ const Index = () => {
 
         {/* Content based on active tab */}
         {activeTab === "discover" && (
-          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 animate-fade-in-up backdrop-blur-glass">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Discover</h2>
               <div className="flex items-center gap-2">
@@ -996,7 +898,7 @@ const Index = () => {
               onBack={() => setSelectedConversation(null)}
             />
           ) : (
-            <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 animate-fade-in-up backdrop-blur-glass">
               <Alert className="border-slate-700 bg-slate-950/50">
                 <AlertTriangle className="h-4 w-4 text-amber-400" />
                 <AlertDescription className="text-slate-300">
@@ -1066,7 +968,7 @@ const Index = () => {
         )}
 
         {activeTab === "announcements" && (
-          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 animate-fade-in-up backdrop-blur-glass">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Campus Life</h2>
               <Button 
@@ -1188,7 +1090,7 @@ const Index = () => {
         )}
 
         {activeTab === "date-requests" && (
-          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 animate-fade-in-up backdrop-blur-glass">
             {/* Always visible cleanup notice */}
             <Alert className="border-amber-500/30 bg-amber-50/10 backdrop-blur-sm">
               <AlertTriangle className="h-4 w-4 text-amber-400" />
@@ -1367,7 +1269,7 @@ const Index = () => {
 
         {/* Profile Tab - Navigate to Profile Edit Page */}
         {activeTab === "profile" && (
-          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div className="space-y-4 bg-black/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 animate-fade-in-up backdrop-blur-glass">
             <div className="text-center space-y-6">
               <div className="flex justify-center items-center mb-4">
                 <div className="relative">
@@ -1422,7 +1324,6 @@ const Index = () => {
 
         </div>
     </div>
-    <Navigation activeTab={activeTab} onTabChange={setActiveTab} user={user} />
     </div>
   );
 };

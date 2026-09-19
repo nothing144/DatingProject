@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { getValidSession, clearInvalidSession } from "@/lib/sessionValidation";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,218 +16,29 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, isProfileComplete, loading: authLoading } = useAuth();
 
+  // If user is already authenticated, redirect cleanly based on profile completeness
   useEffect(() => {
-    let mounted = true;
-    let redirectInProgress = false;
-
-    const handleAuthRedirect = async (userId: string, source: string) => {
-      if (redirectInProgress) {
-        console.log(`⚠️ Redirect already in progress, skipping ${source} redirect`);
-        return;
-      }
-      
-      redirectInProgress = true;
-      console.log(`🔄 Starting redirect process from ${source} for user:`, userId);
-      
-      // Add timeout protection for redirect process
-      const redirectTimeout = setTimeout(() => {
-        console.warn(`⚠️ Redirect timeout from ${source} - forcing completion`);
-        if (mounted) {
-          setLoading(false);
-          redirectInProgress = false;
-        }
-      }, 5000); // 5 second timeout for redirect
-      
-      try {
-        const profileCheckPromise = checkProfileAndRedirect(userId);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Profile check timeout')), 4000)
-        );
-        
-        await Promise.race([profileCheckPromise, timeoutPromise]);
-        clearTimeout(redirectTimeout);
-      } catch (error) {
-        clearTimeout(redirectTimeout);
-        console.error(`❌ Redirect failed from ${source}:`, error);
-        
-        // Force clear states on error
-        if (mounted) {
-          setLoading(false);
-          redirectInProgress = false;
-        }
-        
-        // If it's a timeout or network error, stay on auth page
-        if (error.message?.includes('timeout') || error.message?.includes('network')) {
-          console.log("🔄 Timeout/network error - staying on auth page");
-        }
-      } finally {
-        redirectInProgress = false; // Always clear the flag
-      }
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("🔐 Auth state change in Auth component:", event, session?.user?.id || "no user");
-      
-      // Only redirect on successful sign in, not on initial page load
-      if (session?.user && event === 'SIGNED_IN' && mounted) {
-        console.log("✅ Sign in successful, validating session and checking profile...");
-        setLoading(true);
-        
-        // Validate the new session before proceeding
-        const { session: validatedSession, isValid } = await getValidSession();
-        
-        if (isValid && validatedSession?.user) {
-          await handleAuthRedirect(validatedSession.user.id, 'auth_state_change');
-        } else {
-          console.warn("⚠️ New session failed validation, staying on auth page");
-          setLoading(false);
-        }
-      }
-    });
-
-    // Check if user is already logged in on page load with session validation
-    const checkInitialAuth = async () => {
-      if (redirectInProgress) {
-        console.log("⚠️ Redirect already in progress, skipping initial auth check");
-        return;
-      }
-      
-      // Set timeout to prevent getting stuck in validation
-      const validationTimeout = setTimeout(() => {
-        console.warn("⚠️ Session validation timeout - clearing loading state");
-        if (mounted) {
-          setLoading(false);
-          redirectInProgress = false;
-        }
-      }, 5000); // 5 second timeout
-      
-      try {
-        console.log("🔍 Checking initial auth with session validation...");
-        
-        // Use session validation with timeout protection
-        const validationPromise = getValidSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Validation timeout')), 4000)
-        );
-        
-        const { session, isValid, error } = await Promise.race([
-          validationPromise,
-          timeoutPromise
-        ]) as any;
-        
-        // Clear the timeout since validation completed
-        clearTimeout(validationTimeout);
-        
-        console.log("🔍 Initial auth check result:", { 
-          hasSession: !!session, 
-          isValid, 
-          userId: session?.user?.id || "no user",
-          error 
-        });
-        
-        if (session?.user && isValid && mounted) {
-          console.log("✅ Found valid existing session, checking profile...");
-          setLoading(true);
-          
-          // Add timeout protection for redirect as well
-          const redirectTimeout = setTimeout(() => {
-            console.warn("⚠️ Redirect timeout - forcing completion");
-            if (mounted) {
-              setLoading(false);
-              redirectInProgress = false;
-            }
-          }, 3000);
-          
-          try {
-            await handleAuthRedirect(session.user.id, 'initial_auth_check');
-            clearTimeout(redirectTimeout);
-          } catch (redirectError) {
-            clearTimeout(redirectTimeout);
-            throw redirectError;
-          }
-        } else if (!isValid && error) {
-          console.log("🧹 Invalid session detected and cleaned up:", error);
-          // Session was invalid and has been cleared, user stays on auth page
-          setLoading(false);
-        } else {
-          setLoading(false);
-        }
-      } catch (error) {
-        clearTimeout(validationTimeout);
-        console.error("❌ Error checking initial auth:", error);
-        
-        // Force clear loading state and redirect flag
-        if (mounted) {
-          setLoading(false);
-          redirectInProgress = false;
-        }
-        
-        // Clear any potentially corrupted session
-        try {
-          await clearInvalidSession();
-        } catch (clearError) {
-          console.error("❌ Error clearing session:", clearError);
-        }
-      }
-    };
-
-    checkInitialAuth();
-
-    return () => {
-      mounted = false;
-      redirectInProgress = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const checkProfileAndRedirect = async (userId: string) => {
-    try {
-      console.log("🔍 Checking profile for user:", userId);
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, name, username, age, location, shortBio, avatar_url, branch, year")
-        .eq("id", userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("❌ Error checking profile:", error);
-        console.log("➡️ Redirecting to profile creation due to error");
-        setLoading(false); // Clear loading state before redirect
-        navigate("/profile", { replace: true });
-        return;
-      }
-
-      // Check if user has complete profile (all mandatory fields filled)
-      if (!data) {
-        console.log("👤 New user - redirecting to profile creation");
-        setLoading(false); // Clear loading state before redirect
-        navigate("/profile", { replace: true });
-        return;
-      }
-
-      const mandatoryFields = ['name', 'username', 'age', 'location', 'shortBio', 'avatar_url', 'branch', 'year'];
-      const hasAllMandatoryFields = mandatoryFields.every(field => {
-        const value = data[field];
-        return value && (typeof value !== 'string' || value.trim() !== '');
-      });
-
-      if (!hasAllMandatoryFields) {
-        console.log("📋 Incomplete profile - redirecting to profile completion");
-        setLoading(false); // Clear loading state before redirect
-        navigate("/profile", { replace: true });
-      } else {
-        console.log("✅ Complete profile found - redirecting to main page");
-        setLoading(false); // Clear loading state before redirect
+    if (!authLoading && user) {
+      if (isProfileComplete) {
         navigate("/", { replace: true });
+      } else {
+        navigate("/profile", { replace: true });
       }
-    } catch (error) {
-      console.error("❌ Exception during profile check:", error);
-      setLoading(false); // Clear loading state before redirect
-      navigate("/profile", { replace: true });
     }
-  };
+  }, [user, isProfileComplete, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center auth-bg relative overflow-hidden">
+        <div className="text-center relative z-10">
+          <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/90 font-medium">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

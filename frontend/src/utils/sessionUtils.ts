@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { clearSupabaseStorage, checkProfileCompleteness } from "@/contexts/AuthContext";
 
 export const getSession = async () => {
   try {
@@ -31,13 +32,7 @@ export const checkProfileComplete = async (userId: string) => {
       return false;
     }
 
-    const mandatoryFields = ['name', 'username', 'age', 'location', 'shortBio', 'avatar_url', 'branch', 'year'];
-    const hasAllMandatoryFields = mandatoryFields.every(field => {
-      const value = data[field];
-      return value && (typeof value !== 'string' || value.trim() !== '');
-    });
-
-    return hasAllMandatoryFields;
+    return checkProfileCompleteness(data);
   } catch (error) {
     console.error("Error checking profile:", error);
     return false;
@@ -46,9 +41,8 @@ export const checkProfileComplete = async (userId: string) => {
 
 export const signOutUser = async () => {
   try {
-    // Clear local storage first
-    localStorage.clear();
-    sessionStorage.clear();
+    // Targeted cleanup of Supabase tokens without wiping other application storage
+    clearSupabaseStorage();
     
     // Sign out from Supabase
     const { error } = await supabase.auth.signOut();
@@ -62,14 +56,11 @@ export const signOutUser = async () => {
       description: "You have been signed out safely."
     });
     
-    // Force page reload to clear any cached state
     window.location.href = "/auth";
   } catch (error) {
     console.error("Error during logout:", error);
     
-    // Clear storage anyway
-    localStorage.clear();
-    sessionStorage.clear();
+    clearSupabaseStorage();
     
     toast({
       title: "Logged Out",

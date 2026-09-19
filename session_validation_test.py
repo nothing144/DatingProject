@@ -38,7 +38,7 @@ class SessionValidationTester:
         
         try:
             # Check Auth.tsx for timeout protection
-            with open("/app/frontend/src/pages/Auth.tsx", "r") as f:
+            with open("frontend/src/pages/Auth.tsx", "r", encoding="utf-8") as f:
                 auth_content = f.read()
             
             # Check for timeout protection in checkInitialAuth
@@ -55,7 +55,7 @@ class SessionValidationTester:
             self.log_test("Auth.tsx: Promise.race for timeout handling", has_promise_race)
             
             # Check sessionValidation.ts for timeout protection
-            with open("/app/frontend/src/lib/sessionValidation.ts", "r") as f:
+            with open("frontend/src/lib/sessionValidation.ts", "r", encoding="utf-8") as f:
                 session_content = f.read()
             
             has_session_timeout = "sessionTimeoutPromise" in session_content
@@ -78,7 +78,7 @@ class SessionValidationTester:
         print("\n🛡️ ANALYZING ERROR HANDLING...")
         
         try:
-            with open("/app/frontend/src/pages/Auth.tsx", "r") as f:
+            with open("frontend/src/pages/Auth.tsx", "r", encoding="utf-8") as f:
                 auth_content = f.read()
             
             has_try_catch = "try {" in auth_content and "catch (error)" in auth_content
@@ -90,7 +90,7 @@ class SessionValidationTester:
             has_force_clear_states = "setLoading(false)" in auth_content and "redirectInProgress = false" in auth_content
             self.log_test("Auth.tsx: Force clear states on error", has_force_clear_states)
             
-            with open("/app/frontend/src/lib/sessionValidation.ts", "r") as f:
+            with open("frontend/src/lib/sessionValidation.ts", "r", encoding="utf-8") as f:
                 session_content = f.read()
             
             has_validation_error_handling = "catch (error: any)" in session_content
@@ -107,7 +107,7 @@ class SessionValidationTester:
         print("\n📝 ANALYZING CONSOLE LOGGING...")
         
         try:
-            with open("/app/frontend/src/pages/Auth.tsx", "r") as f:
+            with open("frontend/src/pages/Auth.tsx", "r", encoding="utf-8") as f:
                 auth_content = f.read()
             
             has_validation_logs = "Session validation timeout" in auth_content
@@ -119,7 +119,7 @@ class SessionValidationTester:
             has_initial_auth_logs = "Checking initial auth with session validation" in auth_content
             self.log_test("Auth.tsx: Initial auth check logging", has_initial_auth_logs)
             
-            with open("/app/frontend/src/lib/sessionValidation.ts", "r") as f:
+            with open("frontend/src/lib/sessionValidation.ts", "r", encoding="utf-8") as f:
                 session_content = f.read()
             
             has_session_validation_logs = "Session validation timeout" in session_content

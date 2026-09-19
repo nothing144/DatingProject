@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 interface NotificationBellProps {
   userId: string;
@@ -25,22 +25,7 @@ const NotificationBell = ({ userId, isMobilePositioned = false }: NotificationBe
     fetchNotifications, 
     deleteNotification, 
     deleteAllNotifications,
-    setupRealTimeSubscription,
-    cleanupRealTimeSubscription
-  } = useNotifications(userId);
-
-  // PERFORMANCE OPTIMIZED: Only setup real-time when panel is opened
-  useEffect(() => {
-    if (isOpen) {
-      setupRealTimeSubscription();
-    } else {
-      cleanupRealTimeSubscription();
-    }
-    
-    return () => {
-      cleanupRealTimeSubscription();
-    };
-  }, [isOpen]);
+  } = useNotifications();
 
   const handleNotificationClick = (notificationId: string, read: boolean) => {
     if (!read) {

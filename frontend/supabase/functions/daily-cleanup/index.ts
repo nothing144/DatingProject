@@ -21,9 +21,9 @@ serve(async (req) => {
 
     console.log('Starting daily cleanup process...')
 
-    // Call the confession cleanup function
+    // Call the master database cleanup function
     const { data: cleanupResult, error: cleanupError } = await supabaseClient
-      .rpc('scheduled_confession_cleanup')
+      .rpc('scheduled_database_cleanup')
 
     if (cleanupError) {
       console.error('Cleanup error:', cleanupError)
@@ -36,7 +36,7 @@ serve(async (req) => {
     const response = {
       success: true,
       timestamp: new Date().toISOString(),
-      confession_cleanup: cleanupResult,
+      database_cleanup: cleanupResult,
       message: 'Daily cleanup completed successfully'
     }
 

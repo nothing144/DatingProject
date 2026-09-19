@@ -1,61 +1,37 @@
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, User, Megaphone, LogOut, Zap } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Heart, MessageCircle, User as UserIcon, Megaphone, LogOut, Zap } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  user?: any; // Accept user as prop instead of managing own state
+  user?: User | null; // Accept user as prop instead of managing own state
 }
 
 const Navigation = ({ activeTab, onTabChange, user }: NavigationProps) => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
     console.log("Logout button clicked - starting logout process");
-    
     try {
-      // Clear local storage first to ensure clean state
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.warn("Supabase signOut returned error:", error);
-        // Don't throw here - we'll still proceed with local cleanup
-      }
-      
-      console.log("Logout successful - navigating to auth page");
-      
-      // Always navigate to auth page and show success message
+      await signOut();
       toast({
         title: "Logged Out Successfully! 👋",
         description: "You have been signed out safely."
       });
-      
-      // Force page reload to clear any cached auth state
-      window.location.href = "/auth";
-      
-    } catch (error: any) {
-      // Even if there's an error, we should still clear local state and redirect
+      navigate("/auth", { replace: true });
+    } catch (error: Error | unknown) {
       console.error("Error during logout process:", error);
-      
-      // Clear storage anyway
-      localStorage.clear();
-      sessionStorage.clear();
-      
       toast({
-        title: "Logged Out (with cleanup)",
-        description: "Session cleared. If you experience issues, please refresh the page.",
+        title: "Logged Out",
+        description: "You have been signed out.",
         variant: "destructive"
       });
-      
-      // Force redirect regardless of error
-      window.location.href = "/auth";
+      navigate("/auth", { replace: true });
     }
   };
 
@@ -87,7 +63,7 @@ const Navigation = ({ activeTab, onTabChange, user }: NavigationProps) => {
     },
     { 
       id: "profile", 
-      icon: User, 
+      icon: UserIcon, 
       label: "Profile",
       gradient: "from-purple-500 to-indigo-500"
     },
@@ -118,7 +94,7 @@ const Navigation = ({ activeTab, onTabChange, user }: NavigationProps) => {
             className="rounded-full bg-card/80 backdrop-blur-md border-secondary/30 hover:border-secondary hover:bg-secondary/10 focus-enhanced shadow-lg text-secondary transition-all duration-300 hover:scale-105"
             onClick={() => navigate('/profile')}
           >
-            <User className="w-4 h-4 mr-2" />
+            <UserIcon className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Edit Profile</span>
             <span className="sm:hidden">Profile</span>
           </Button>

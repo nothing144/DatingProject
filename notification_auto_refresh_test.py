@@ -41,7 +41,7 @@ TESTING RESULTS:
 - Supabase client initializes correctly with URL: https://ljjyipvvxmduvxoyzvhf.supabase.co
 
 ✅ NOTIFICATION AUTO-REFRESH IMPLEMENTATION ANALYSIS:
-- Code is properly implemented in /app/frontend/src/hooks/useNotifications.tsx
+- Code is properly implemented in frontend/src/hooks/useNotifications.tsx
 - Lines 138-140: useEffect immediately calls fetchNotifications() on mount
 - Lines 211-224: useEffect with visibilitychange event listener
 - Lines 22: Console log "🔔 Auto-refreshing notifications on website load..."
@@ -232,7 +232,7 @@ class HeartBeatNotificationTester:
         
         try:
             # Test 1: Check notification auto-refresh implementation
-            with open("/app/frontend/src/hooks/useNotifications.tsx", "r") as f:
+            with open("frontend/src/hooks/useNotifications.tsx", "r", encoding="utf-8") as f:
                 notifications_content = f.read()
                 
             has_immediate_refresh = "fetchNotifications();" in notifications_content and "useEffect(() => {" in notifications_content
@@ -257,7 +257,7 @@ class HeartBeatNotificationTester:
         
         try:
             # Test 2: Check FIXED discover page auto-refresh implementation
-            with open("/app/frontend/src/pages/Index.tsx", "r") as f:
+            with open("frontend/src/pages/Index.tsx", "r", encoding="utf-8") as f:
                 index_content = f.read()
             
             # Check for NEW website load refresh functionality

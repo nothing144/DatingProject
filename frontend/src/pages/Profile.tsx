@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { getValidSession, clearInvalidSession } from "@/lib/sessionValidation";
+import { useAuth, checkProfileCompleteness } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import {
 } from "@/lib/cloudinaryUtils";
 
 const Profile = () => {
-  const [user, setUser] = useState<any>(null);
+  const { user, session, signOut, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
@@ -39,34 +39,23 @@ const Profile = () => {
   const [newInterest, setNewInterest] = useState("");
   const navigate = useNavigate();
 
-  // Enhanced authentication check with session validation
+  // Load existing profile for the authenticated user
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        console.log("🔍 Profile page: Checking authentication with session validation...");
-        
-        // Validate session and clean up if invalid
-        const { session, isValid, error } = await getValidSession();
-        
-        if (!isValid || !session?.user) {
-          console.log(`❌ Profile page: Invalid or no session - ${error || 'no session found'} - redirecting to auth`);
-          navigate("/auth", { replace: true });
-          return;
-        }
+    if (!user?.id) return;
+    let isMounted = true;
 
-        console.log("✅ Profile page: Valid session confirmed for user:", session.user.id);
-        setUser(session.user);
-        
-        // Load existing profile
+    const loadProfile = async () => {
+      try {
+        console.log("🔍 Profile page: Loading profile for user:", user.id);
         const { data, error: profileError } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", session.user.id)
+          .eq("id", user.id)
           .single();
 
         if (profileError && profileError.code !== 'PGRST116') {
           console.error("❌ Error loading profile:", profileError);
-        } else if (data) {
+        } else if (data && isMounted) {
           console.log("📋 Existing profile loaded");
           setProfile({
             name: data.name || "",
@@ -80,74 +69,26 @@ const Profile = () => {
             branch: data.branch || "",
             year: data.year?.toString() || ""
           });
-          setIsFirstTimeUser(false);
-        } else {
+          setIsFirstTimeUser(!checkProfileCompleteness(data));
+        } else if (isMounted) {
           console.log("👤 New user - no profile found");
           setIsFirstTimeUser(true);
         }
       } catch (error) {
-        console.error("❌ Auth check error:", error);
-        // Clear potentially corrupted session
-        await clearInvalidSession();
-        navigate("/auth", { replace: true });
+        console.error("❌ Profile load error:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    checkAuth();
-  }, [navigate]);
+    loadProfile();
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      console.log("📄 Fetching profile for user:", userId);
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, name, username, age, location, description, shortBio, interests, avatar_url, branch, year")
-        .eq("id", userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("❌ Profile fetch error:", error);
-        setIsFirstTimeUser(true);
-        setLoading(false);
-        return;
-      }
-
-      // Check if user is first-time (no profile data or incomplete mandatory fields)
-      let isFirstTime = true;
-      if (data) {
-        const mandatoryFields = ['name', 'username', 'age', 'location', 'shortBio', 'avatar_url', 'branch', 'year'];
-        const hasAllMandatoryFields = mandatoryFields.every(field => {
-          const value = data[field];
-          return value && (typeof value !== 'string' || value.trim() !== '');
-        });
-        
-        isFirstTime = !hasAllMandatoryFields;
-        
-        setProfile({
-          name: data.name || "",
-          username: data.username || "",
-          age: data.age?.toString() || "",
-          location: data.location || "",
-          description: data.description || "",
-          shortBio: data.shortBio || "",
-          interests: data.interests || [],
-          avatar_url: data.avatar_url || "",
-          branch: data.branch || "",
-          year: data.year?.toString() || ""
-        });
-      }
-      
-      setIsFirstTimeUser(isFirstTime);
-      setLoading(false);
-    } catch (error: any) {
-      console.error("❌ Exception fetching profile:", error);
-      setIsFirstTimeUser(true);
-      setLoading(false);
-    }
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -241,6 +182,8 @@ const Profile = () => {
         .upsert(profileData);
 
       if (error) throw error;
+
+      await refreshProfile();
 
       toast({
         title: isFirstTimeUser ? "Welcome to HeartBeat! 🎉" : "Profile Saved! ✨",
@@ -457,20 +400,16 @@ const Profile = () => {
       console.log("🔄 Falling back to manual cleanup due to error...");
       await performManualCleanup();
     } finally {
-      // Always clean up and redirect
+      // Always clean up safely and redirect
       try {
-        await supabase.auth.signOut();
+        await signOut();
       } catch (signOutError) {
         console.warn("⚠️ Error during sign out:", signOutError);
       }
       
-      // Clear local storage and redirect
-      localStorage.clear();
-      sessionStorage.clear();
-      
       // Redirect after a short delay to ensure toast is seen
       setTimeout(() => {
-        window.location.href = "/auth";
+        navigate("/auth", { replace: true });
       }, 2000);
       
       setSaving(false);

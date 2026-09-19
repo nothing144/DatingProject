@@ -152,6 +152,16 @@ serve(async (req) => {
       )
     }
 
+    // Security validation: verify the publicId belongs to the user
+    // We expect publicId to contain the user's UUID (e.g., avatars/UUID_timestamp)
+    if (!finalPublicId.includes(user.id)) {
+      console.warn(`Unauthorized deletion attempt. User ${user.id} tried to delete ${finalPublicId}`);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Cannot delete images belonging to other users' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Delete from Cloudinary
     const deleteResult = await deleteImageFromCloudinary(finalPublicId)
     if (deleteResult.success) {

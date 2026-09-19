@@ -7,8 +7,8 @@ TESTING OVERVIEW:
 ================
 This test focuses on the two specific fixes implemented in the HeartBeat@ITER dating app:
 
-1. **Enhanced Image Compression Fix** (in /app/frontend/src/lib/imageUtils.ts)
-2. **Profile Refresh Fix** (in /app/frontend/src/pages/Index.tsx)
+1. **Enhanced Image Compression Fix** (in frontend/src/lib/imageUtils.ts)
+2. **Profile Refresh Fix** (in frontend/src/pages/Index.tsx)
 
 APP ARCHITECTURE:
 ================
@@ -30,7 +30,7 @@ TESTING RESULTS:
 - Authentication flow works correctly
 
 ✅ ENHANCED IMAGE COMPRESSION FIX ANALYSIS:
-The enhanced compression algorithm in /app/frontend/src/lib/imageUtils.ts includes:
+The enhanced compression algorithm in frontend/src/lib/imageUtils.ts includes:
 
 1. **Increased Max Attempts**: Changed from 10 to 20 attempts (line 94)
    - `const maxAttempts = 20; // Increased max attempts`
@@ -58,7 +58,7 @@ The enhanced compression algorithm in /app/frontend/src/lib/imageUtils.ts includ
    - Warns if compressed image is still over expected size
 
 ✅ PROFILE REFRESH FIX ANALYSIS:
-The enhanced refresh logic in /app/frontend/src/pages/Index.tsx includes:
+The enhanced refresh logic in frontend/src/pages/Index.tsx includes:
 
 1. **Enhanced Refresh on Website Open**:
    - Line 153: `console.log("🔄 Loading fresh profiles on website open...");`
@@ -155,7 +155,7 @@ class EnhancedFixesTester:
         print("\n🖼️ TESTING ENHANCED IMAGE COMPRESSION FIX...")
         
         try:
-            with open("/app/frontend/src/lib/imageUtils.ts", "r") as f:
+            with open("frontend/src/lib/imageUtils.ts", "r", encoding="utf-8") as f:
                 content = f.read()
             
             # Test 1: Check increased max attempts
@@ -183,7 +183,7 @@ class EnhancedFixesTester:
             
             # Test 6: Check better validation (this is in Profile.tsx, not imageUtils.ts)
             try:
-                with open("/app/frontend/src/pages/Profile.tsx", "r") as profile_file:
+                with open("frontend/src/pages/Profile.tsx", "r", encoding="utf-8") as profile_file:
                     profile_content = profile_file.read()
                 has_better_validation = "compressedResult.size > 120" in profile_content
                 self.log_test("Better validation with buffer (in Profile.tsx)", has_better_validation)
@@ -198,7 +198,7 @@ class EnhancedFixesTester:
         print("\n🔄 TESTING PROFILE REFRESH ENHANCEMENT...")
         
         try:
-            with open("/app/frontend/src/pages/Index.tsx", "r") as f:
+            with open("frontend/src/pages/Index.tsx", "r", encoding="utf-8") as f:
                 content = f.read()
             
             # Test 1: Check enhanced refresh on website open

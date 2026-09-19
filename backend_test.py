@@ -205,7 +205,7 @@ class HeartBeatAutoRefreshTester:
         
         # Test the NEW implementation
         try:
-            with open("/app/frontend/src/pages/Index.tsx", "r") as f:
+            with open("frontend/src/pages/Index.tsx", "r", encoding="utf-8") as f:
                 content = f.read()
                 
             # Test for NEW website load refresh functionality
@@ -236,7 +236,7 @@ class HeartBeatAutoRefreshTester:
         print("\n🔔 ANALYZING NOTIFICATION AUTO-REFRESH...")
         
         try:
-            with open("/app/frontend/src/hooks/useNotifications.tsx", "r") as f:
+            with open("frontend/src/hooks/useNotifications.tsx", "r", encoding="utf-8") as f:
                 content = f.read()
                 
             has_notification_load_log = "🔔 Auto-refreshing notifications on website load..." in content

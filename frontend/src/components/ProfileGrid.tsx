@@ -39,16 +39,31 @@ const ProfileGrid = ({ profiles, currentUserId, onLike, onPass }: ProfileGridPro
     setLoading(prev => ({ ...prev, [profile.id]: true }));
     
     try {
-      const { data: existingConversation, error: fetchError } = await supabase
-        .rpc('get_or_create_conversation', {
-          user1: currentUserId,
-          user2: profile.id
-        });
-
-      if (fetchError) throw fetchError;
+      let conversationId;
+      
+      // Fallback 1: Check if exists
+      const { data: existing, error: queryError } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`and(participant_1.eq.${currentUserId},participant_2.eq.${profile.id}),and(participant_1.eq.${profile.id},participant_2.eq.${currentUserId})`)
+        .maybeSingle();
+        
+      if (existing) {
+        conversationId = existing.id;
+      } else {
+        // Fallback 2: Create
+        const { data: newConvo, error: insertError } = await supabase
+          .from('conversations')
+          .insert({ participant_1: currentUserId, participant_2: profile.id })
+          .select()
+          .single();
+          
+        if (insertError) throw insertError;
+        conversationId = newConvo.id;
+      }
 
       window.dispatchEvent(new CustomEvent('switchToMessages', {
-        detail: { conversationId: existingConversation }
+        detail: { conversationId: conversationId }
       }));
 
       toast({
